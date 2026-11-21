@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Callable, Literal
 
-from openai import BadRequestError
+from openai import APIConnectionError, BadRequestError
 from pydantic import BaseModel, Field, ValidationError
 
 from coi import llm
@@ -95,9 +95,12 @@ class _Calls:
     def _chat(self, model: str, text: str, schema: dict, name: str) -> llm.Reply:
         rf = {"type": "json_schema", "json_schema": {"name": name, "schema": schema}}
         try:
-            r = self.provider.chat(model, text, self.max_tokens, response_format=rf)
-        except BadRequestError:  # provider without json_schema support: schema is in the prompt anyway
-            r = self.provider.chat(model, text, self.max_tokens, response_format={"type": "json_object"})
+            try:
+                r = self.provider.chat(model, text, self.max_tokens, response_format=rf)
+            except BadRequestError:  # provider without json_schema support: schema is in the prompt anyway
+                r = self.provider.chat(model, text, self.max_tokens, response_format={"type": "json_object"})
+        except APIConnectionError as e:  # timeout included: this rung failed, the ladder escalates
+            raise ExtractionError(f"{model}: {type(e).__name__}") from e
         with self._lock:
             self.cost += r.cost
             self.seconds += r.seconds

@@ -107,6 +107,16 @@ Lokalnie potrzebny jest Tesseract z polskim modelem: `brew install tesseract tes
 
 Przy `local` aplikacja nie wysyła nic na zewnątrz. Kreuzberg i Tesseract działają w procesie i w kontenerze, model VLM stoi w sieci wewnętrznej. Klucz Eden nie jest czytany ani wysyłany. Sprawdza to `tests/parsing/test_airgap.py`: lokalny serwer-atrapa dostaje wszystkie wywołania VLM, a jedyny rozwiązywany host to `127.0.0.1`. Przykład z Ollamą w tej samej sieci compose: `LLM_PROVIDER=local`, `LLM_BASE_URL=http://ollama:11434/v1`, a w kontenerze Ollamy `ollama pull qwen3-vl:8b`.
 
+## Uruchomienie lokalne (bez Dockera)
+
+```bash
+cd backend && uv sync
+DATABASE_URL=sqlite:///./local.sqlite uv run gunicorn --preload --bind 127.0.0.1:8000 \
+  --workers 2 --worker-class gthread --threads 4 --timeout 600 "coi:create_app()"
+```
+
+Sekrety (`EDENAI_API_KEY`, `JWT_SECRET`) są czytane z `app/.env`. Plik `local.sqlite` jest w `.gitignore`. Jedno wywołanie LLM trwa najwyżej `LLM_TIMEOUT_S` (domyślnie 90 s, jedna ponowna próba). Po timeoucie dany szczebel drabinki (VLM albo ekstrakcja) jest nieudany, a drabinka przechodzi na następny model i wysyła zdarzenie SSE `escalation`.
+
 ## Docker
 
 ```bash

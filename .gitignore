@@ -12,3 +12,4 @@ dist/
 spikes/*/out/
 backend/scripts/.cache/
 spikes/e2e-out/
+local.sqlite

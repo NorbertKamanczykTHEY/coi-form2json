@@ -36,11 +36,12 @@ class Provider(Protocol):
 
 
 class OpenAICompatible:
-    def __init__(self, name: str, base_url: str, api_key: str):
+    def __init__(self, name: str, base_url: str, api_key: str, timeout_s: float = 90.0):
         self.name = name
         self.base_url = base_url
-        # the SDK wants a non-empty key; local servers ignore it
-        self._client = OpenAI(base_url=base_url, api_key=api_key or "none", max_retries=3, timeout=300)
+        # the SDK wants a non-empty key; local servers ignore it. One retry, bounded wait: a slow call fails its rung
+        # (VLM tier or extraction rung) and the ladder escalates, instead of holding the request for minutes
+        self._client = OpenAI(base_url=base_url, api_key=api_key or "none", max_retries=1, timeout=timeout_s)
 
     def chat(self, model: str, content: str | list, max_tokens: int, response_format: dict | None = None) -> Reply:
         t = time.perf_counter()
@@ -54,8 +55,8 @@ class OpenAICompatible:
 
 def provider(cfg: Config) -> Provider:
     if cfg.llm_provider == "local":
-        return OpenAICompatible("local", cfg.llm_base_url or LOCAL_URL, cfg.llm_api_key)
+        return OpenAICompatible("local", cfg.llm_base_url or LOCAL_URL, cfg.llm_api_key, cfg.llm_timeout_s)
     key = cfg.llm_api_key or cfg.eden_api_key
     if not key:
         raise LLMConfigError("LLM_PROVIDER=eden needs EDENAI_API_KEY (or set LLM_PROVIDER=local for a local server)")
-    return OpenAICompatible("eden", cfg.llm_base_url or EDEN_URL, key)
+    return OpenAICompatible("eden", cfg.llm_base_url or EDEN_URL, key, cfg.llm_timeout_s)
