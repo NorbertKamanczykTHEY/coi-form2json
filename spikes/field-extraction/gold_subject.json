@@ -1,0 +1,52 @@
+{
+  "_doc": "Subject-of-request fields only (template pages excluded). form1/form5 from the reference COI JSON; form3/form7 hand-written from flow-review §5 and the source text. aliases match label or source_label; show_if = alias of the controlling field.",
+  "form1": {
+    "template_leaks": ["imię i nazwisko", "nazwa wnioskodawcy", "adres", "nr telefonu", "adres e-mail", "data", "podpis"],
+    "fields": [
+      {"id": "miejscowosc", "aliases": ["miejscowość", "w miejscowości"], "type": "TEXT_FIELD"},
+      {"id": "ulica", "aliases": ["ulica", "przy ulicy"], "type": "TEXT_FIELD"},
+      {"id": "dzialka", "aliases": ["numer ewidencyjny działki", "nr ewidencyjny działki"], "type": "TEXT_FIELD"},
+      {"id": "obreb", "aliases": ["obręb", "w obrębie"], "type": "TEXT_FIELD"}
+    ]
+  },
+  "form5": {
+    "template_leaks": ["nazwisko i imię", "nazwa firmy", "adres zamieszkania", "pesel", "nip", "podpis"],
+    "fields": [
+      {"id": "podatek", "aliases": ["rodzaj podatku", "podatek, którego dotyczy nadpłata", "z tytułu"], "type": "TEXT_FIELD"},
+      {"id": "kwota", "aliases": ["kwota", "w kwocie", "kwota nadpłaty"], "type": "NUMBER"},
+      {"id": "uzasadnienie", "aliases": ["uzasadnienie"], "type": "TEXTAREA"},
+      {"id": "sposob", "aliases": ["kwotę nadpłaty proszę", "sposób rozliczenia nadpłaty", "co mamy zrobić z nadpłatą", "rozliczenie nadpłaty"], "type": "RADIO",
+       "options": ["zaliczyć na poczet przyszłego zobowiązania podatkowego", "zwrócić przelewem na wskazany rachunek"]},
+      {"id": "nazwa_podatku", "aliases": ["nazwa podatku", "z tytułu", "tytuł zobowiązania", "przyszłego zobowiązania podatkowego"], "type": "TEXT_FIELD", "show_if": "sposob"},
+      {"id": "rachunek", "aliases": ["numer rachunku", "rachunek", "wskazany rachunek", "numer rachunku bankowego"], "type": "TEXT_FIELD", "show_if": "sposob"},
+      {"id": "korekta", "aliases": ["korekta deklaracji", "plik deklaracji podatkowej"], "type": "FILE_UPLOADER"}
+    ]
+  },
+  "form3": {
+    "template_leaks": ["imię i nazwisko", "adres", "pesel", "nr telefonu", "podpis"],
+    "fields": [
+      {"id": "rodzaj", "aliases": ["proszę o wydanie zaświadczenia o", "rodzaj zaświadczenia", "zaświadczenie o", "wydanie zaświadczenia o"], "type": "CHECKBOX",
+       "options": ["ilości posiadanych użytków rolnych", "ilości dzierżawionych użytków rolnych", "okresie posiadania gospodarstwa rolnego", "nieposiadaniu użytków rolnych", "inne"]},
+      {"id": "inne", "aliases": ["inne", "inny rodzaj zaświadczenia", "inne zaświadczenie"], "type": "TEXT_FIELD", "show_if": "rodzaj"},
+      {"id": "cel", "aliases": ["zaświadczenie potrzebne jest celem przedłożenia w", "cel", "celem przedłożenia", "instytucja"], "type": "TEXT_FIELD"}
+    ]
+  },
+  "form7": {
+    "template_leaks": ["imię i nazwisko", "ulica", "nr domu", "nr lokalu", "kod pocztowy", "telefon", "podpis"],
+    "fields": [
+      {"id": "zakres", "aliases": ["hodowanie/utrzymywanie", "rodzaj zezwolenia", "zakres zezwolenia", "proszę o wydanie zezwolenia na", "zezwolenie na"], "type": "RADIO", "options": ["hodowanie", "utrzymywanie"]},
+      {"id": "pochodzenie", "aliases": ["pochodzenie psa"], "type": "TEXTAREA"},
+      {"id": "rasa", "aliases": ["rasa psa", "rasa"], "type": "TEXT_FIELD"},
+      {"id": "data_ur", "aliases": ["data urodzenia psa", "data urodzenia"], "type": "DATEPICKER"},
+      {"id": "data_szcz", "aliases": ["data szczepienia"], "type": "DATEPICKER"},
+      {"id": "plec", "aliases": ["płeć", "płeć psa"], "type": "RADIO", "options": ["pies", "suka"]},
+      {"id": "oznakowanie", "aliases": ["sposób oznakowania psa", "sposób oznakowania", "oznakowanie"], "type": "RADIO", "options": ["mikroprocesor", "tatuaż", "brak"]},
+      {"id": "nr_mikro", "aliases": ["numer mikroprocesora", "nr mikroprocesora", "numer identyfikacyjny mikroprocesora", "mikroprocesor"], "type": "TEXT_FIELD", "show_if": "oznakowanie"},
+      {"id": "nr_tatuaz", "aliases": ["numer tatuażu", "nr tatuażu", "tatuaż"], "type": "TEXT_FIELD", "show_if": "oznakowanie"},
+      {"id": "adres_utrzymania", "aliases": ["adres miejsca utrzymywania psa", "adres miejsca utrzymywania psa/psów", "miejsce utrzymywania"], "type": "TEXT_FIELD"},
+      {"id": "opis_miejsca", "aliases": ["opis miejsca i warunków", "opis miejsca i warunków utrzymywania psa"], "type": "TEXTAREA"}
+    ],
+    "repeating": ["rasa", "plec", "oznakowanie"],
+    "consents_min": 3
+  }
+}
