@@ -118,13 +118,14 @@ type Ctx = {
   copies: Record<string, number>; setCopies: (id: string, n: number) => void
 }
 
-// Layout by x/y/cols/rows on a grid as wide as the widest row (3 in the reference forms).
+// Layout by x/cols on a grid as wide as the widest row (3 in the reference forms).
 function Grid({ qs, ctx, suffix }: { qs: Q[]; ctx: Ctx; suffix: string }) {
   const width = Math.max(1, ...qs.map((q) => q.x + q.cols))
   return (
     <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}>
-      {qs.filter((q) => shown(q.field, suffix, ctx.hidden)).map((q) => (
-        <div key={q.field.id} style={{ gridColumn: `${q.x + 1} / span ${q.cols}`, gridRow: `${q.y + 1} / span ${q.rows}` }}>
+      {/* rows flow in y, x order instead of fixed y, so hidden fields leave no gaps */}
+      {qs.filter((q) => shown(q.field, suffix, ctx.hidden)).sort((a, b) => a.y - b.y || a.x - b.x).map((q) => (
+        <div key={q.field.id} style={{ gridColumn: `${q.x + 1} / span ${q.cols}` }}>
           <Field f={q.field} ctx={ctx} suffix={suffix} />
         </div>
       ))}
