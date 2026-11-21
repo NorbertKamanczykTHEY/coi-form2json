@@ -167,3 +167,10 @@ def test_api_validate_and_put_use_rules(app):
     r = c.put(f"/api/v1/forms/{fid}", json={"title": "Wniosek", "tabs": [], "flow": {"links": []}}, headers=H)
     assert r.status_code == 422 and r.json["errors"][0]["rule"] == "R1"
     assert c.put(f"/api/v1/forms/{fid}", json=form, headers=H).status_code == 200
+
+
+def test_radio_keeps_its_options(app):
+    form, rep, _ = generate(tree("form7"), SHA, store=app.config["STORE"])
+    purpose = next(f for *_, f in fields(form) if f["techName"] == "purpose")
+    assert purpose["type"] == "RADIO" and len(purpose["options"]) == 8 and "dictionaryName" not in purpose
+    assert all(p["source"] != "document" for p in rep["proposed_dictionaries"])

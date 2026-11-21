@@ -19,7 +19,7 @@ except ImportError:  # shortcut: coi.dictionaries not committed yet -> no dictio
         return {"TERYT_DOWODOWY": "TERYT_4G_DOWODOWY"}.get(name, name)
 
 __all__ = ["generate", "validate"]
-DICT_TYPES = ("SELECT", "RADIO", "CHECKBOX", "TEXT_FIELD")
+DICT_TYPES = ("SELECT", "CHECKBOX", "TEXT_FIELD")  # RADIO keeps its options in the field, as all 7 RADIOs in the patterns
 # a TEXT_FIELD keeps free text for these: phone prefix is a separate SELECT (generator.md pkt 5), address parts stay text as in #1
 TEXT_STAYS = {"NUMERY_KIERUNKOWE", "WOJEWODZTWO", "POWIAT", "GMINA", "MIEJSCOWOSC", "TERYT_4G_DOWODOWY"}
 
@@ -30,6 +30,8 @@ def _matcher(session, proposals: dict):
             return None
         m = match(session, f.get("label") or "", f["meta"].get("source_label", ""), f["type"], f.get("options") or [])
         if m is None or (f["type"] == "TEXT_FIELD" and canonical(m.dictionaryName) in TEXT_STAYS):
+            return None
+        if m.proposal and m.proposal.get("source") == "document" and f["type"] != "SELECT":  # dictionaries from the paper: SELECT only
             return None
         f.pop("options", None)
         f |= {"type": m.component, "dictionary": canonical(m.dictionaryName), "multi_level": m.multiLevelTree, "search": m.searchEnabled}
