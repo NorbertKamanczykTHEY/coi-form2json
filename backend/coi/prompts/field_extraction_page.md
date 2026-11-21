@@ -6,19 +6,19 @@ Teraz wypisz pola strony „{page}”: zwróć dokładnie jej sekcje, w tej kole
 {variant_rule}
 Zasady:
 1. Każde miejsce `___` i każda opcja `☐` w tych blokach należą do pola. Nic nie pomijaj: pusta linia `___` pod nagłówkiem też jest polem. Nie dodawaj pól, których w blokach nie ma.
-2. Alternatywy rozdzielone „/” z gwiazdką („niepotrzebne skreślić”) to RADIO. Każda niezależna grupa alternatyw to osobne pole, nigdy jedno z opcjami będącymi kombinacjami. Gwiazdka NIGDY nie oznacza pola wymaganego.
+2. Alternatywy rozdzielone „/” z gwiazdką („niepotrzebne skreślić”) to RADIO. Każda niezależna grupa alternatyw to osobne pole, nigdy jedno z opcjami będącymi kombinacjami. Gwiazdka NIGDY nie oznacza pola wymaganego. Stały tekst bez znaku wyboru (bez „/”, `*` ani `☐`) nie jest polem wyboru.
 3. Lista do wyboru z wieloma pozycjami to CHECKBOX z opcjami. Pozycja „inne ___” to opcja „Inne” plus pole TEXT_FIELD z `show_if` na tę opcję.
 4. Puste miejsce przy opcji to RADIO z opcjami (bez `___` w nazwie) oraz osobne pole z `show_if` na tę opcję. RADIO, CHECKBOX i SELECT mają co najmniej 2 opcje.
-5. Typy: data → DATEPICKER; kwota, liczba → NUMBER; dłuższy opis lub uzasadnienie → TEXTAREA; załącznik → FILE_UPLOADER (jedno pole na każdy dokument); stała informacja → TEXT_BLOCK; reszta → TEXT_FIELD.
-6. Dane osoby trzeciej: pola z `preset` (first_name, last_name, pesel, birth_date, address…). Adres to JEDNO pole z `preset: "address"`.
-7. Każde pole jest wymagane, chyba że źródło mówi inaczej przy tym polu („(opcjonalnie)”, „nieobowiązkowe”, „można dołączyć”, „jeśli posiada”, „ewentualne”, przypis o danych nieobowiązkowych): wtedy dosłowny cytat w `optional_evidence`.
+5. Typy: data → DATEPICKER; kwota, liczba → NUMBER; dłuższy opis lub uzasadnienie → TEXTAREA; załącznik → FILE_UPLOADER (jedno pole na każdy dokument, ten sam dokument wymieniony dwa razy to jedno pole); stała informacja → TEXT_BLOCK; reszta → TEXT_FIELD. Każda pozycja „SUMA”, „RAZEM”, „KWOTA” to pole NUMBER, wzór i stawka w jego `description` (nie TEXT_BLOCK, nie `default_value`); „od dnia … do dnia …” to dwa pola DATEPICKER; kilka linii do wpisania albo „podać jaki oraz dokładne dane” to TEXTAREA; wymiary powtarzane dla kilku kategorii to sekcja powtarzalna z RADIO kategorii i polami NUMBER. Numer rachunku: opis „26 cyfr numeru rachunku”, bez maski; pole daty bez opisu z formatem. „Inne (podać jakie)” na liście załączników to opcjonalne FILE_UPLOADER; „można dołączyć” to opcjonalne FILE_UPLOADER; pełnomocnictwa, „dokumentów upoważniających” i pustych pozycji list nie wypisuj.
+6. Dane osoby trzeciej: pola z `preset` (first_name, last_name, pesel, birth_date, address…). Adres to JEDNO pole z `preset: "address"`, tylko gdy dokument pyta o adres („adres”, „zam.”). Gdy wnioskodawcą może być firma, a dokument pyta o inną osobę bez rozbicia na imię i nazwisko, zrób jedno pole „Imię i nazwisko lub nazwa”.
+7. Każde pole jest wymagane, chyba że źródło mówi inaczej przy tym polu („(opcjonalnie)”, „nieobowiązkowe”, „można dołączyć”, „jeśli posiada”, „ewentualne”, przypis o danych nieobowiązkowych): wtedy dosłowny cytat w `optional_evidence`. Pole oznaczone jako opcjonalne zostaje polem opcjonalnym, nie znika.
 8. `label` to krótka fraza rzeczownikowa, bez dwukropka i numeracji, neutralna płciowo; dla RADIO i CHECKBOX polecenie. `source_label` przepisz dosłownie.
-9. `description`: podpowiedź z tekstu formularza z `description_source: "document"` albo Twoja z `"ai"`.
+9. `description`: podpowiedź z tekstu formularza z `description_source: "document"` albo Twoja z `"ai"`. Podpowiedź musi coś dodawać: nie powtarzaj etykiety innymi słowami i nie pisz „pole nieobowiązkowe” przy polu wymaganym. Dookreślenie w nawiasie przy etykiecie („(pełnoletnia)”) idzie do `description`.
 10. `key` unikalny, snake_case; zacznij klucze od skrótu tytułu strony, żeby nie powtarzały się w innych stronach. `show_if` = `{{field: key, options: [...]}}`; pole poza sekcją powtarzalną nie zależy od pola wewnątrz niej.
 11. `src` każdego pola i sekcji to kotwice bloków źródłowych.
 12. Pomijaj klucze z wartością null, false lub pustą listą.
 13. Data sporządzenia, miejscowość i data, podpis i pieczątka nie są polami: pomiń je.
-14. Pole albo sekcja dotycząca tylko jednej opcji ma `show_if`. Pole opisane warunkiem („jeśli różni się…”, „w przypadku…”) dostaje pole RADIO, które ten warunek rozstrzyga, i `show_if` na nie. Nie pomijaj pól sterujących ani wyborów z miejscami do wpisania.
+14. Pole albo sekcja dotycząca tylko jednej opcji ma `show_if`. Pole opisane warunkiem („jeśli różni się…”, „w przypadku…”) dostaje pole RADIO, które ten warunek rozstrzyga, i `show_if` na nie. Nie pomijaj pól sterujących ani wyborów z miejscami do wpisania. Pola wzajemnie wykluczające się („A lub B”, „jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”, kategorie, z których wybiera się jedną) nigdy nie są wymagane jednocześnie: RADIO wyboru i `show_if` na każdej gałęzi. Gdy warunku nie rozstrzyga żadne pole, pole jest opcjonalne, a warunek idzie do `description` i `optional_evidence`.
 Odpowiedz WYŁĄCZNIE obiektem JSON zgodnym z tym schematem:
 {schema}
 

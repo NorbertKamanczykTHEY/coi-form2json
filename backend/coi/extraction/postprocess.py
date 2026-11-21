@@ -31,6 +31,11 @@ CORRESPONDENCE = re.compile(r"\badres\w*\s+(do|dla)\s+korespondencji\b", re.I)
 REGISTER = re.compile(r"(odpis|wyciąg|wypis)\w*\b.{0,40}\b(rejestr\w*|krs|ceidg)\b|\b(krs|ceidg)\b", re.I)
 SIGNATURE = re.compile(r"podpis|pieczęć|pieczątk|^\W*data\W*$|data (sporządzenia|wypełnienia|złożenia)|miejscowość,? (i )?data", re.I)
 CONDITIONAL = re.compile(r"\bje[śs]li\b|\bje[żz]eli\b|\bw przypadku\b", re.I)
+DATA_CONSENT = re.compile(r"przetwarza\w*.{0,80}danych osobowych|danych osobowych.{0,80}przetwarza|ochronie danych osobowych", re.I)
+CHANNEL = re.compile(r"e-?mail|\bsms\b|poczty elektronicznej|drogą elektroniczną|środków komunikacji elektronicznej", re.I)
+DATE_MASK = re.compile(r"\b(DD|RRRR|YYYY)[-./]|format\w* (daty|dd|rrrr)", re.I)
+ACCOUNT_MASK = re.compile(r"X{6,}|\bformacie\b.{0,20}\d{2}", re.I)
+GENERIC = {"wpis", "poda", "wybi", "nale", "pros", "pole", "tuta", "któr", "dane", "dany", "nazw", "jest", "tego", "tym"}  # 4-letter stems
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -126,34 +131,6 @@ def attachment_items(blocks: dict[str, str]) -> list[str]:
     return out
 
 
-def _other_attachments(tree: FieldTree, blocks: dict[str, str], seen: set[str]) -> None:
-    """Fields the model made from empty attachment-list lines -> one optional multi-file "Inne załączniki" per list."""
-    order = list(blocks)
-    for slots in attachment_slots(blocks):
-        slot_set = set(slots)
-        home = None  # the section holding an upload from the same list, else the last one
-        before = set(order[max(0, order.index(slots[0]) - 10):order.index(slots[0])])
-        for p in tree.pages:
-            for s in p.sections:
-                s.fields = [f for f in s.fields if not (f.src and set(expand(f.src, blocks)) <= slot_set)]
-                if any(f.type == "FILE_UPLOADER" and set(f.src) & before for f in s.fields):
-                    home = s
-        if home is None:
-            if not tree.pages:
-                continue
-            if not tree.pages[-1].sections:
-                tree.pages[-1].sections.append(Section(title="Załączniki"))
-            home = tree.pages[-1].sections[-1]
-        head = next((order[i] for i in range(order.index(slots[0]) - 1, -1, -1) if list_heading(blocks[order[i]])), slots[0])
-        key = "inne_zalaczniki"
-        while key in seen:
-            key += "_2"
-        seen.add(key)
-        home.fields.append(FormField(key=key, label="Inne załączniki", source_label=blocks[head], type="FILE_UPLOADER",
-                                     multiple=True, optional_evidence=blocks[slots[0]], src=slots))
-        tree.dropped = [d for d in tree.dropped if not (d.src and set(expand(d.src, blocks)) <= slot_set)]
-
-
 def locate(source_label: str, blocks: dict[str, str]) -> str | None:
     """The first block that contains the label (whitespace and fill marks ignored)."""
     flat = lambda x: re.sub(r"[\W_]+", "", x.lower())  # noqa: E731  "przy ulicy 1)" ~ "przy ulicy1)"
@@ -164,10 +141,12 @@ def locate(source_label: str, blocks: dict[str, str]) -> str | None:
 def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[dict]]:
     tree = tree.model_copy(deep=True)
     review: list[dict] = []
-    slot_set = {a for g in attachment_slots(blocks) for a in g}  # fields over these are rebuilt by _other_attachments
+    slot_set = {a for g in attachment_slots(blocks) for a in g}  # G3 (EVAL-3): empty "2) …… 3) ……" lines are skipped, no upload
     for p in tree.pages:
         for s in p.sections:
             s.fields = [f for f in s.fields if not (slot_set and f.src and set(expand(f.src, blocks)) <= slot_set)]
+    if lost := sorted(slot_set - {a for d in tree.dropped for a in expand(d.src, blocks)}, key=list(blocks).index):
+        tree.dropped.append(Drop(reason="empty_slot", src=lost))
     notes = optional_footnotes(blocks)
     doc_ws = norm_ws(" ".join(blocks.values()))
     cites: dict[str, int] = {}
@@ -235,6 +214,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                 # Q3: a hint the source does not contain is an AI suggestion, whatever the model claimed
                 if f.description:
                     f.description_source = "document" if grounded(f.description, text) else "ai"
+                    f.description = _useful_description(f)
                 if CONDITIONAL.search(seg) and not (f.show_if or s.show_if or f.optional_evidence):
                     review.append({"key": f.key, "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"})
                 if f.doubt:
@@ -248,7 +228,6 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
             s.fields = [f for f in s.fields if not (f.multiple and tuple(f.src) in named)]
             for f in s.fields:
                 f.multiple = False
-    _other_attachments(tree, blocks, seen)  # after the per-field rules: its optionality comes from the list, not a marker
     for p in tree.pages:
         for s in p.sections:
             for si in [s.show_if] + [f.show_if for f in s.fields]:
@@ -259,6 +238,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
         si.field = rename.get(si.field, si.field)
         si.options = [clean_option(o) for o in si.options]
     review += rebuild_lost_controls(tree, blocks)
+    review += _consents(tree)
     scope_controls(tree)
     if tree.entity_extract_required and not REGISTER.search(src_text(tree.entity_extract_src, blocks)):
         tree.entity_extract_required, tree.entity_extract_src = False, []  # the model's claim has no register extract in its source
@@ -270,6 +250,34 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
         tree.applicant_self_only, tree.applicant_self_only_src = False, []  # no quote requiring personal action or excluding a proxy
         review.append({"key": None, "why": "model zgłosił, że wniosek składa się tylko osobiście, ale wskazany fragment tego nie mówi; pominięto"})
     return tree, review
+
+
+def _useful_description(f: FormField) -> str | None:
+    """G6/G13 (EVAL-3): no date masks, no 'XXXX' account masks, no AI hint that only rephrases the label."""
+    d = f.description or ""
+    if f.type == "DATEPICKER" and DATE_MASK.search(d):
+        return None
+    if ACCOUNT_MASK.search(d) and re.search(r"rachun|konto|iban|nrb", f.label + " " + f.source_label, re.I):
+        return "Wpisz 26 cyfr numeru rachunku."
+    stems = lambda x: {w[:4] for w in re.findall(r"[^\W\d_]{3,}", x.lower())}  # noqa: E731  "ulicy" ~ "ulica"
+    if f.description_source == "ai" and stems(d) <= stems(f.label + " " + f.source_label) | GENERIC:
+        return None
+    return d or None
+
+
+def _consents(tree: FieldTree) -> list[dict]:
+    """G4 (EVAL-3): a personal-data consent duplicates the template's RODO one; a contact-channel consent is voluntary."""
+    review, keep = [], []
+    for c in tree.consents:
+        if DATA_CONSENT.search(c.text) and "___" not in c.text and len([x for x in SENTENCE.split(c.text) if x.strip()]) == 1:  # only a bare data consent; one with other statements stays
+            tree.dropped.append(Drop(reason="rodo", src=c.src))
+            review.append({"key": None, "why": f"zgoda na przetwarzanie danych osobowych z dokumentu usunięta (jest w szablonie): {c.text[:80]!r}"})
+            continue
+        if CHANNEL.search(c.text) and re.search(r"korespondencj|kontakt|powiadom|informacj|doręcz", c.text, re.I):
+            c.required = False
+        keep.append(c)
+    tree.consents = keep
+    return review
 
 
 def _label_from_key(key: str, blocks: dict[str, str]) -> str:

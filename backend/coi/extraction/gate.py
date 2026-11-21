@@ -14,7 +14,7 @@ FILL = re.compile(r"___|☐")
 TEMPLATE_LABEL = re.compile(r"^\W*((imi[eę]|nazwisko|pesel|nip|regon|telefon|nr telefonu|numer telefonu|e-?mail|seria i numer dowodu)\b"
                             r"|adres( (zamieszkania|siedziby|wnioskodawcy))?\W*$)", re.I)
 SIGN_SLOT = re.compile(r"^\W*(___\W*)+$|imi[eę] i nazwisko|podpis|\bdata\b", re.I)  # name/signature/date lines
-TEMPLATE_ATTACHMENT = re.compile(r"pełnomocn|opłat|odpis|wyciąg|rejestr|\bkrs\b|ceidg", re.I)  # S12 + the entity's register extract
+TEMPLATE_ATTACHMENT = re.compile(r"pełnomocn|upoważni|opłat|odpis|wyciąg|rejestr|\bkrs\b|ceidg", re.I)  # S12 + the entity's register extract
 ORGAN = re.compile(r"\badresat\b|\b(wójt|burmistrz|prezydent miasta|starost[ay]|marszałek|urząd (gminy|miasta|miejski|skarbowy|marszałkowski)|starostwo)\b", re.I)
 SIGN_LABEL = re.compile(r"podpis|\bdata\b|miejscowość|imi[eę]|nazwisko|\bnazwa\b|\badres|telefon|e-?mail|pesel|\bnip\b|regon", re.I)  # captions of template data
 PERSON_PRESETS = {"first_name", "last_name", "pesel", "birth_date", "id_card", "address", "phone", "email"}
@@ -23,6 +23,13 @@ NUMBERED_POS = re.compile(r"(^|\s)\d{1,3}\.\s+[^\W\d_]{2,}")  # "12. Ulica": num
 LEADING_FILL = re.compile(r"^\W*(___|☐)")
 TRAILING_FILL = re.compile(r"(___|☐)\W*$")
 SIGN_ONLY = re.compile(r"podpis|pieczęć|pieczątk|\bdata\b", re.I)
+EXCLUSIVE = re.compile(r"\bje[żz]eli\b|\bje[śs]li\b|\bw przypadku\b|wypełnia\w* (wyłącznie|tylko)", re.I)  # EVAL-3 G1
+PERSON_IF = re.compile(r"wypełni\w*\s+(tylko|wyłącznie)\s+w\s+przypadku\s+zaznaczeni", re.I)  # EVAL-3 G2: "fill only if box X is ticked"
+GENDER_SLASH = re.compile(r"[^\W\d_]/(am|a|łam|łem|em|aś)\b", re.I)  # "zapoznałem/am", "zobowiązany/a"
+DECLARATION = re.compile(r"^\W*(jednocześnie\s+)?oświadcz", re.I)
+SUM_POS = re.compile(r"\b(SUMA|RAZEM)\b")  # printed capitals of a calculation part
+SLASH_CHOICE = re.compile(r"[^\W\d_]{3,}\s?/\s?[^\W\d_]{3,}\s?\*")  # "wynajem/użyczenie*"
+OPTIONAL_HINT = re.compile(r"nieobowiązkow|opcjonaln|nie jest (wymagan|obowiązkow)", re.I)
 EACH = re.compile(r"\bdla każd\w+|\bkażd(ego|ej) [^\W\d_]{3,}", re.I)  # "dla każdego …", "każdego <elementu>"
 
 
@@ -48,6 +55,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     order = list(blocks)
     doc = norm(FILL.sub(" ", " ".join(blocks.values())))
     titles = {a for d in tree.dropped if d.reason == "title" for a in ex(d.src)}
+    any_marks = any(FILL.search(t) for t in blocks.values())  # 0 marks: the parser lost the shapes holding the blanks (EVAL-3 G17)
     def fillable(i):  # a block with a place to fill, a table row, or the caption right above/below a blank line
         t = blocks[order[i]]
         return bool(FILL.search(t)) or " | " in t or NUMBERED_POS.search(t) or (i + 1 < len(order) and LEADING_FILL.match(blocks[order[i + 1]])) \
@@ -65,7 +73,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         bad_anchor += [a for a in ex(f.src) if a not in blocks]
         lab = norm(FILL.sub(" ", f.source_label))
         # G7: an input field needs its label next to a place to fill; words only from a title or running text are no basis
-        hay = doc if f.type in ("TEXT_BLOCK", "FILE_UPLOADER", "RADIO", "CHECKBOX", "SELECT") else ground
+        hay = doc if f.type in ("TEXT_BLOCK", "FILE_UPLOADER", "RADIO", "CHECKBOX", "SELECT") or not any_marks else ground
         m = SequenceMatcher(None, lab, hay, autojunk=False).find_longest_match(0, len(lab), 0, len(hay)) if lab and hay else None
         if f.type != "TEXT_BLOCK" and lab and (not m or m.size / len(lab) < 0.7):
             ungrounded.append(f.key)
@@ -169,6 +177,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     lost_corr = [a for a, t in blocks.items() if CORRESPONDENCE.search(t) and len(t) <= 160 and a not in field_cited and a not in prose]
     if lost_corr:
         fails.append(f"G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: {lost_corr[:5]}")
+    fails += _eval3(tree, blocks, field_cited, cited)
     if no_addressee:
         fails.append("G13: brak `addressee`, choć dokument wskazuje adresata (organ albo urząd); wpisz go do `addressee`")
     if broken_show:
@@ -190,3 +199,49 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     return {"ok": not fails, "fails": fails, "coverage": cov, "needs_review": review, "bad_anchors": bad_anchor, "uncovered": uncovered,
             "broken_show_if": broken_show, "no_options": no_opts, "dup_sections": dup_sections, "bad_drops": bad_drops,
             "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "lost_correspondence": lost_corr, "empty_pages": empty_pages, "lost_slots": lost_slots, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}
+
+
+def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited: set[str]) -> list[str]:
+    """EVAL-3 rules on the tree's content (G16-G21 here; the comment names the EVAL-3 rule)."""
+    ex = lambda anchors: expand(anchors, blocks)  # noqa: E731
+    fails = []
+    # G1: fields that exclude each other ("jeżeli…", "w przypadku…") cannot be required at the same time
+    by_sec = {}
+    for _, sec, f in all_fields(tree):
+        head = ex(sec.src)[:1]
+        if f.type == "TEXT_BLOCK" or f.optional_evidence or f.show_if or sec.show_if or sec.repeating:
+            continue
+        if EXCLUSIVE.search(" ".join(blocks.get(a, "") for a in ex(f.src) + head)):
+            by_sec.setdefault(id(sec), []).append(f.key)
+    excl = [k for ks in by_sec.values() if len(ks) >= 2 for k in ks]
+    if excl:
+        fails.append(f"G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; "
+                     f"dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: {excl[:10]}")
+    # G2: a person block "fill only if box X is ticked" is a third-party section with show_if, never dropped
+    lost_person = [a for a, t in blocks.items() if PERSON_IF.search(t) and a not in field_cited]
+    if lost_person:
+        fails.append(f"G17: blok danych osoby wypełniany tylko przy zaznaczonej opcji bez sekcji; to sekcja `person_role: \"third_party\"` z `show_if` na tę opcję: {lost_person[:5]}")
+    # G4: consent text in the present tense and gender-neutral; a declaration is a consent, not a text block
+    bad_consents = [c.text[:60] for c in tree.consents if GENDER_SLASH.search(c.text)]
+    decl_blocks = [f.key for _, _, f in all_fields(tree) if f.type == "TEXT_BLOCK" and DECLARATION.search(f.source_label or f.label)]
+    if bad_consents or decl_blocks:
+        fails.append(f"G18: oświadczenia: treść zgody bez form „/am”, „/a” (czas teraźniejszy, neutralnie płciowo): {bad_consents[:5]}; "
+                     f"„Oświadczam…” to zgoda w `consents`, nie TEXT_BLOCK: {decl_blocks[:5]}")
+    # G6: each printed SUMA / RAZEM position is a NUMBER field
+    numbers = {a for _, _, f in all_fields(tree) if f.type == "NUMBER" for a in ex(f.src)}
+    dropped = {a for d in tree.dropped for a in ex(d.src)}
+    lost_sums = [a for a, t in blocks.items() if SUM_POS.search(t) and len(t) <= 200 and a not in numbers and a not in dropped]
+    if lost_sums:
+        fails.append(f"G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): {lost_sums[:5]}")
+    # G7: "a/b*" on paper is a choice; it needs a RADIO
+    choices = {a for _, _, f in all_fields(tree) if f.type in ("RADIO", "CHECKBOX", "SELECT") for a in ex(f.src)}
+    lost_choice = [a for a, t in blocks.items() if SLASH_CHOICE.search(t) and a not in choices and a not in dropped]
+    if lost_choice:
+        fails.append(f"G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: {lost_choice[:5]}")
+    # G13: a hint must not contradict the field: "nieobowiązkowe" on a required field, a condition without show_if on a required field
+    contra = [f.key for _, sec, f in all_fields(tree) if f.description and not f.optional_evidence and f.type != "TEXT_BLOCK" and (
+        OPTIONAL_HINT.search(f.description) or (EXCLUSIVE.search(f.description) and not (f.show_if or sec.show_if)))]
+    if contra:
+        fails.append(f"G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); "
+                     f"zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: {contra[:10]}")
+    return fails

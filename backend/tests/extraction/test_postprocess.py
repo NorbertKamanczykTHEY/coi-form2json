@@ -67,7 +67,7 @@ def test_show_if_negate_and_single_option_form():
     assert out.entity_option == "Klub sportowy"
 
 
-def test_empty_attachment_list_lines_become_one_optional_multi_upload():
+def test_empty_attachment_list_lines_are_skipped():
     blocks = {"p1.b0": "Uzasadnienie ___", "p1.b1": "w załączeniu:", "p1.b2": "1) korekta deklaracji", "p1.b3": "2) ........",
               "p1.b4": "3) ___", "p1.b5": "Lista uczestników:", "p1.b6": "1) ___"}
     t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"],
@@ -79,10 +79,8 @@ def test_empty_attachment_list_lines_become_one_optional_multi_upload():
     out, _ = normalize(t, blocks)
     fs = {x.key: x for x in out.pages[0].sections[0].fields}
     assert fs["korekta_deklaracji"].optional_evidence is None  # the named item stays a required upload
-    other = [x for x in fs.values() if x.label == "Inne załączniki"]
-    assert len(other) == 1 and other[0].multiple and other[0].type == "FILE_UPLOADER" and other[0].optional_evidence
-    assert set(other[0].src) == {"p1.b3", "p1.b4"} and "zalacznik_3" not in fs
-    assert [d.src for d in out.dropped] == [["p1.b6"]]  # an empty line of another list stays empty_slot
+    assert set(fs) == {"uzasadnienie", "korekta_deklaracji"}  # no upload from "2) …… 3) ___" (EVAL-3 G3)
+    assert {a for d in out.dropped if d.reason == "empty_slot" for a in d.src} == {"p1.b3", "p1.b4", "p1.b6"}
 
 
 def test_signature_and_date_fields_are_dropped():
@@ -109,14 +107,14 @@ def test_control_question_is_scoped_to_its_dependents_variants_and_conditional_l
     assert any(r["key"] == "adres_do_korespondencji" and "warunk" in r["why"] for r in review)
 
 
-def test_repaired_tree_with_previous_other_attachments_gets_one_field_and_no_review():
+def test_model_upload_over_empty_slots_is_removed():
     blocks = {"p1.b0": "w załączeniu:", "p1.b1": "1) zaświadczenie", "p1.b2": "2) ___", "p1.b3": "3) ___"}
     t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
         f("z", "Zaświadczenie", "FILE_UPLOADER", "p1.b1", source_label="zaświadczenie"),
         {**f("inne_zalaczniki", "Inne załączniki", "FILE_UPLOADER", "p1.b2", source_label="w załączeniu:", multiple=True,
              optional_evidence="2) ___ 3) ___"), "src": ["p1.b2", "p1.b3"]}]}]}]})
     out, review = normalize(t, blocks)
-    assert [x.key for x in out.pages[0].sections[0].fields] == ["zaswiadczenie", "inne_zalaczniki"] and not review
+    assert [x.key for x in out.pages[0].sections[0].fields] == ["zaswiadczenie"] and not review
 
 
 def test_field_without_src_gets_its_block_and_footnote():
@@ -181,3 +179,24 @@ def test_correspondence_address_section_becomes_party_data():
         {"title": "Dane dziecka", "person_role": "third_party", "src": ["p1.b1"], "fields": []}]}]})
     out, _ = normalize(t, {"p1.b1": "B.4 ADRES DO KORESPONDENCJI", "p1.b2": "Ulica ___"})
     assert [s.party for s in out.pages[0].sections] == [True, False]
+
+
+def test_consents_bare_data_consent_dropped_channel_consent_optional():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [], "consents": [
+        {"text": "Wyrażam zgodę na przetwarzanie moich danych osobowych.", "src": ["p1.b1"]},
+        {"text": "Wyrażam zgodę na przetwarzanie moich danych osobowych. Znam regulamin i akceptuję jego postanowienia.", "src": ["p1.b2"]},
+        {"text": "Wyrażam zgodę na otrzymywanie korespondencji na adres e-mail.", "src": ["p1.b3"]}]})
+    out, review = normalize(t, {"p1.b1": "x", "p1.b2": "y", "p1.b3": "z"})
+    assert [(c.src, c.required) for c in out.consents] == [(["p1.b2"], True), (["p1.b3"], False)]
+    assert any(d.reason == "rodo" and d.src == ["p1.b1"] for d in out.dropped) and review
+
+
+def test_descriptions_without_masks_or_label_paraphrase():
+    blocks = {"p1.b0": "Data uiszczenia ___ Nr rachunku ___ Ulica ___ Obręb ___"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+        f("d", "Data uiszczenia", "DATEPICKER", "p1.b0") | {"description": "DD-MM-RRRR"},
+        f("r", "Numer rachunku", src="p1.b0", source_label="Nr rachunku") | {"description": "w formacie XXXXXXXXXXXXXXXXXXXXXXXXXX"},
+        f("u", "Ulica", src="p1.b0") | {"description": "Wpisz nazwę ulicy."},
+        f("o", "Obręb", src="p1.b0") | {"description": "Znajdziesz go w wypisie z rejestru gruntów."}]}]}]})
+    out, _ = normalize(t, blocks)
+    assert [x.description for x in out.pages[0].sections[0].fields] == [None, "Wpisz 26 cyfr numeru rachunku.", None, "Znajdziesz go w wypisie z rejestru gruntów."]

@@ -138,3 +138,67 @@ def test_correspondence_address_must_not_be_dropped_and_party_section_is_no_leak
     g = gate(t, blocks | {"p1.b6": "17. Kraj 18. Ulica 19. Imię 20. Nazwisko"})
     assert not any(f.startswith(("G15", "G7")) for f in g["fails"]), g["fails"]  # numbered positions ground the labels
     assert not g["template_leaks"]
+
+
+def fld(key, label, type_="FILE_UPLOADER", src="p1.b5", **kw):
+    return FormField(key=key, label=label, source_label=label, type=type_, src=[src], **kw)
+
+
+def with_section(blocks, *fields, **sec):
+    t = tree()
+    t.pages[0].sections.append(Section(title=sec.pop("title", "Załączniki"), src=sec.pop("src", ["p1.b5"]), fields=list(fields), **sec))
+    return gate(t, BLOCKS | blocks)
+
+
+def codes(g):
+    return {f.split(":")[0] for f in g["fails"]}
+
+
+def test_g16_exclusive_required_fields_need_show_if_or_optional():
+    blocks = {"p1.b5": "Załączniki: plan A (w przypadku zaznaczenia poz. 1) lub plan B (w przypadku zaznaczenia poz. 2)"}
+    assert "G16" in codes(with_section(blocks, fld("a", "plan A"), fld("b", "plan B")))
+    assert "G16" not in codes(with_section(blocks, fld("a", "plan A", optional_evidence="w przypadku"), fld("b", "plan B", optional_evidence="w przypadku")))
+
+
+def test_g17_conditional_person_block_must_be_a_section():
+    blocks = {"p1.b5": "B.2 DANE OSOBY (wypełnić tylko w przypadku zaznaczenia kratki w poz. 1.2) 5. Nazwisko, imię 6. PESEL"}
+    t = tree()
+    t.dropped.append(Drop(reason="applicant_data", src=["p1.b5"]))
+    assert "G17" in codes(gate(t, BLOCKS | blocks))
+    g = with_section(blocks, fld("n", "Nazwisko, imię", "TEXT_FIELD"), fld("p", "PESEL", "TEXT_FIELD"), title="Dane osoby", person_role="third_party",
+                     show_if=ShowIf(field="sposob", options=["Przelew"]))
+    assert "G17" not in codes(g)
+
+
+def test_g18_consent_forms_and_declaration_text_block():
+    t = tree()
+    t.consents = [Consent(text="Oświadczam, że zapoznałem/am się z warunkami.", src=["p1.b4"])]
+    assert "G18" in codes(gate(t, BLOCKS))
+    g = with_section({"p1.b5": "Oświadczam, że dane są prawdziwe."}, fld("o", "Oświadczam, że dane są prawdziwe.", "TEXT_BLOCK"))
+    assert "G18" in codes(g)
+
+
+def test_g19_sum_position_needs_number_field():
+    blocks = {"p1.b5": "E.4 RAZEM WYSOKOŚĆ OPŁATY 69. SUMA poz. 51 oraz 68"}
+    assert "G19" in codes(with_section(blocks, fld("s", "Łączna opłata", "TEXT_FIELD")))
+    assert "G19" not in codes(with_section(blocks, fld("s", "Łączna opłata", "NUMBER")))
+
+
+def test_g20_slash_choice_needs_radio():
+    blocks = {"p1.b5": "proszę o wynajem/użyczenie* świetlicy ___"}
+    assert "G20" in codes(with_section(blocks, fld("m", "Świetlica", "TEXT_FIELD")))
+    assert "G20" not in codes(with_section(blocks, fld("r", "Rodzaj", "RADIO", options=["Wynajem", "Użyczenie"]), fld("m", "Świetlica", "TEXT_FIELD")))
+
+
+def test_g21_description_contradicting_required():
+    blocks = {"p1.b5": "Rasa ___"}
+    assert "G21" in codes(with_section(blocks, fld("r", "Rasa", "TEXT_FIELD", description="Pole nieobowiązkowe, jeśli to mieszaniec.")))
+    assert "G21" not in codes(with_section(blocks, fld("r", "Rasa", "TEXT_FIELD", description="Np. owczarek.")))
+
+
+def test_g7_uses_whole_text_when_document_has_no_fill_marks():
+    blocks = {"p1.b0": "WNIOSEK", "p1.b1": "Dane do zwrotu", "p1.b2": "Data uiszczenia opłaty"}  # docx fields sat in frames
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "dropped": [{"reason": "title", "src": ["p1.b0"]}],
+                                  "pages": [{"title": "P", "sections": [{"title": "S", "src": ["p1.b1"], "fields": [
+                                      {"key": "d", "label": "Data uiszczenia opłaty", "source_label": "Data uiszczenia opłaty", "type": "DATEPICKER", "src": ["p1.b2"]}]}]}]})
+    assert "G7" not in codes(gate(t, blocks))

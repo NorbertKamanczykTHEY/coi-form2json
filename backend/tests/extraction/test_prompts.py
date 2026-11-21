@@ -38,3 +38,11 @@ def test_self_only_rule_in_prompts_and_schema():
     for t in (main, skel):
         assert "`applicant_self_only: true`" in t and "`applicant_self_only_src`" in t
     assert '"applicant_self_only"' in schema
+
+
+def test_eval3_rules_in_prompts():
+    main, skel, page, _ = list(texts())
+    for t in (main, skel):
+        assert "`case_fee`" in t and "`proxy_id_card: true`" in t and "`required: false`" in t and "`rodo`" in t
+    for t in (main, page):
+        assert "SUMA" in t and "DATEPICKER" in t and "wzajemnie wykluczające" in t and "Stały tekst bez znaku wyboru" in t
