@@ -1,0 +1,204 @@
+"""REST API /api/v1 (app/docs/api-assumptions.md A1-A12). Errors are RFC 9457 problem+json with a `code` field."""
+import hashlib
+import json
+import logging
+import queue
+import threading
+from http import HTTPStatus
+from pathlib import Path
+
+import openai
+from apiflask import APIBlueprint, HTTPError, Schema, abort
+from apiflask.fields import Boolean, File, Raw
+from flask import Response, current_app, request
+from jsonschema import Draft202012Validator
+from kreuzberg import KreuzbergError
+from marshmallow import INCLUDE
+
+from . import pipeline
+from .auth import auth, user
+from .parsing import TooLarge, UnsupportedType
+from .parsing.detect import ALLOWED
+
+log = logging.getLogger(__name__)
+bp = APIBlueprint("api", __name__, url_prefix="/api/v1", tag="COI")
+FORBIDDEN = ";:><\\/|'*%$"
+FORM_SCHEMA = Draft202012Validator(json.loads((Path(__file__).parent / "form_schema.json").read_text()))
+CODES = {400: "bad_request", 401: "unauthorized", 404: "not_found", 405: "method_not_allowed", 413: "file_too_large",
+         415: "unsupported_type", 422: "unprocessable", 500: "internal_error", 502: "llm_error", 504: "llm_timeout"}
+
+
+def problem_body(e: HTTPError) -> dict:
+    status = e.status_code
+    body = {"type": "about:blank", "title": HTTPStatus(status).phrase, "status": status, "detail": e.message, "code": CODES.get(status, "error")}
+    if e.detail:  # webargs validation messages: {location: {field: [msg]}}
+        body["errors"] = e.detail
+    return body | (e.extra_data or {})
+
+
+def problem(e: HTTPError):
+    return problem_body(e), e.status_code, (e.headers or {}) | {"Content-Type": "application/problem+json"}
+
+
+# schemas
+class Upload(Schema):
+    file = File(required=True, metadata={"description": "Exactly one file: " + ", ".join(sorted(ALLOWED))})
+
+
+class Variant(Schema):
+    report = Boolean(load_default=False, metadata={"description": "Return the envelope {id, form, report}"})
+    editor = Boolean(load_default=False, metadata={"description": "Add editor {source, field_map} to the envelope"})
+
+
+class Form(Schema):
+    """COI form JSON (importowanyPlikJsonSchemat); checked against the JSON Schema, not here."""
+    class Meta:
+        unknown = INCLUDE
+
+    title = Raw(allow_none=True)
+    tabs = Raw(allow_none=True)
+    flow = Raw(allow_none=True)
+
+
+# helpers
+def violations(form) -> list[dict]:
+    # shortcut: JSON Schema only; rules 1-6 from "Reguły techniczne" come with the generator's validator
+    return [{"path": "/" + "/".join(map(str, e.absolute_path)), "message": e.message, "rule": "schema"} for e in FORM_SCHEMA.iter_errors(form)]
+
+
+def _body(fid: str, form: dict, report: dict, editor: dict, q: dict):
+    if not (q["report"] or q["editor"]):
+        return form
+    return {"id": fid, "form": form, "report": report} | ({"editor": editor} if q["editor"] else {})
+
+
+def _convert(data: bytes, name: str, on_event, cfg) -> pipeline.Result:
+    try:
+        return pipeline.convert(data, name, on_event, cfg)
+    except TooLarge as e:
+        abort(413, str(e))
+    except UnsupportedType as e:
+        abort(415, str(e))
+    except openai.APITimeoutError:
+        abort(504, "LLM timed out")
+    except openai.APIError as e:
+        abort(502, f"LLM error: {type(e).__name__}")
+    except (KreuzbergError, OSError, ValueError) as e:  # broken or unreadable file
+        log.warning("convert failed: %s", type(e).__name__)
+        abort(422, f"Could not read the form: {type(e).__name__}", extra_data={"code": "unreadable_form"})
+
+
+def _sse(event: str, payload, fid: str | None = None) -> str:
+    return (f"id: {fid}\n" if fid else "") + f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+def _stream(work) -> Response:
+    """Runs work(on_event) in a thread; stage/escalation/warning events, then result (id: = form id) or error (problem body)."""
+    events: queue.Queue = queue.Queue()
+
+    def target():
+        try:
+            fid, body = work(lambda ev, p: events.put(_sse(ev, p)))
+            events.put(_sse("result", body, fid))
+        except HTTPError as e:
+            events.put(_sse("error", problem_body(e)))
+        except Exception:
+            log.exception("convert failed")
+            events.put(_sse("error", problem_body(HTTPError(500))))
+        events.put(None)
+
+    threading.Thread(target=target, daemon=True).start()
+    return Response(iter(events.get, None), mimetype="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+ERRORS = {400: "No file, more than one file, or a bad file name", 413: "File too large", 415: "Extension not allowed or MIME does not match it",
+          422: "The file could not be read", 502: "LLM error", 504: "LLM timeout"}
+
+
+# endpoints
+@bp.post("/forms")
+@bp.auth_required(auth)
+@bp.input(Variant, location="query")
+@bp.input(Upload, location="files")
+@bp.doc(summary="Convert one file into COI form JSON", responses={200: "COI form JSON (or the envelope with ?report / ?editor)", **ERRORS},
+        description="With `Accept: text/event-stream` the response is an SSE stream: `stage`, `escalation`, `warning` events, "
+                    "then `result` (data = the same body as the plain call, SSE `id:` = form id) or `error` (problem body). "
+                    "The uploaded file lives only in memory for the request; only the result is stored.")
+def create_form(query_data, files_data):
+    c = current_app.config
+    if len(list(request.files.items(multi=True))) != 1:
+        abort(400, "Send exactly one file in the field `file`")
+    f = request.files["file"]
+    name = f.filename or ""
+    if not name or len(name) > c["MAX_FILENAME_LEN"] or set(name) & set(FORBIDDEN):
+        abort(400, f"Invalid file name: 1-{c['MAX_FILENAME_LEN']} characters, none of {FORBIDDEN}", extra_data={"code": "invalid_filename"})
+    data = f.read()
+    cfg, store, uid = c["COI"], c["STORE"], user()
+    if len(data) > cfg.max_file_mb * 2**20:
+        abort(413, f"File is larger than {cfg.max_file_mb} MB")
+    sha = hashlib.sha256(data).hexdigest()
+    log.info("convert sha256=%s size=%d user=%s", sha[:12], len(data), uid)  # no file name or content in logs
+
+    def work(on_event):
+        r = _convert(data, name, on_event, cfg)
+        fid = store.add_form(filename=name, sha256=sha, user=uid, form=r.form, report=r.report, editor=r.editor)
+        return fid, _body(fid, r.form, r.report, r.editor, query_data)
+
+    if "text/event-stream" in request.headers.get("Accept", ""):
+        return _stream(work)
+    fid, body = work(lambda *_: None)
+    return body, 200, {"Location": f"/api/v1/forms/{fid}"}
+
+
+@bp.get("/forms")
+@bp.auth_required(auth)
+@bp.doc(summary="List stored forms (newest first, metadata only)")
+def list_forms():
+    return {"items": current_app.config["STORE"].list_forms()}
+
+
+@bp.get("/forms/<form_id>")
+@bp.auth_required(auth)
+@bp.input(Variant, location="query")
+@bp.doc(summary="One stored form (same ?report / ?editor as POST)", responses={200: "COI form JSON or envelope", 404: "Not found"})
+def get_form(form_id, query_data):
+    row = current_app.config["STORE"].get_form(form_id) or abort(404, "Form not found")
+    return _body(form_id, row["form"], row["report"], row["editor"], query_data)
+
+
+@bp.put("/forms/<form_id>")
+@bp.auth_required(auth)
+@bp.input(Form, location="json")
+@bp.doc(summary="Save a corrected form JSON (validated first)", responses={200: "Saved form", 404: "Not found", 422: "Form JSON is invalid (errors[])"})
+def put_form(form_id, json_data):
+    store = current_app.config["STORE"]
+    if store.get_form(form_id) is None:
+        abort(404, "Form not found")
+    if errors := violations(json_data):
+        abort(422, "Form JSON is invalid", extra_data={"code": "invalid_form", "errors": errors})
+    store.update_form(form_id, json_data, user())
+    return json_data
+
+
+@bp.post("/forms/validate")
+@bp.auth_required(auth)
+@bp.input(Form, location="json")
+@bp.doc(summary="Validate a COI form JSON", description="Returns {valid, errors[]}. Today: the task's JSON Schema only.")
+def validate_form(json_data):
+    errors = violations(json_data)
+    return {"valid": not errors, "errors": errors}
+
+
+@bp.get("/info")
+@bp.doc(summary="Version, limits and model tiers (no token needed)")
+def info():
+    c = current_app.config
+    cfg = c["COI"]
+    return {
+        "version": c["VERSION"],
+        "limits": {"max_file_mb": cfg.max_file_mb, "max_filename_len": c["MAX_FILENAME_LEN"],
+                   "extensions": sorted(ALLOWED), "forbidden_filename_chars": FORBIDDEN},
+        "llm": {"tiers": json.loads(cfg.ladder_path.read_text())["tiers"]},
+        "auth": {"alg": c["JWT_ALG"]},
+        "generator": "stub",  # shortcut: flips when the real generator is wired into coi.pipeline.convert
+    }
