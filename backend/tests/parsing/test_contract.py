@@ -3,6 +3,7 @@ import io
 import json
 import re
 import unicodedata
+from pathlib import Path
 
 import pytest
 from PIL import Image
@@ -10,7 +11,7 @@ from PIL import Image
 from coi.parsing import ParsedDocument, parse, to_markdown
 from coi.parsing.parsers.vision import split_pages
 
-from .conftest import FILES, GOLD
+from .conftest import FILES, GOLD, form_files
 
 LEADER = re.compile(r"___")
 NATIVE = {".doc", ".docx", ".ods", ".xlsx", ".pdf"}
@@ -82,3 +83,20 @@ def test_scanned_pdf(form1_jpg):
     assert doc.source["kind"] == "pdf_scan"
     assert len(doc.pages) == 2 and all(e["step"] != "T0" or e["parser"] == "tesseract" for e in doc.trace)
     check(doc, "form1", ".pdf")
+
+
+@pytest.mark.parametrize("ext", [".docx", ".DOC"])
+def test_docx_footnotes_kept(ext):
+    """#5: '*Numer PESEL wpisują…' lives in word/footnotes.xml (the .DOC is OOXML too)."""
+    path = next(p for p in form_files("5. ") if p.suffix == ext)
+    doc = parse(path.read_bytes(), path.name)
+    notes = [b.text for p in doc.pages for b in p.blocks if b.kind == "footnote"]
+    assert any(n.startswith("*Numer PESEL wpisują") for n in notes), notes
+    assert not any("G5" in w for w in doc.warnings)
+
+
+def test_star_without_footnote_escalates():
+    from coi.parsing import gate
+    cfg = json.loads((Path(gate.__file__).parent / "ladder.json").read_text())["gate"]
+    assert "G5 * without footnote" in gate.text("PESEL* ___ ___ ___", cfg)["fails"]
+    assert gate.text("PESEL* ___ ___ ___\n*Numer PESEL wpisują podatnicy", cfg)["ok"]

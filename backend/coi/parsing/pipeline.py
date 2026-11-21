@@ -91,8 +91,8 @@ def run(data: bytes, filename: str, cfg: Config, on_event: OnEvent | None = None
                 trace.append({"page": n, "step": "route", "decision": "no text layer -> scan route"})
                 scans[n] = None
                 continue
-            # G3 (form marks) is judged on the whole document below: a page of legal clauses has no fields and is fine
-            g = gate.text(text, ladder["gate"], need_marks=False)
+            # G3/G5 are judged on the whole document below: a page of legal clauses has no fields, a footnote may sit on the next page
+            g = gate.text(text, ladder["gate"], form_checks=False)
             trace.append({"page": n, "step": "T0", "parser": "kreuzberg", "gate": g, "accepted": g["ok"] or not is_pdf})
             if g["ok"] or not is_pdf:
                 pages[n] = to_blocks(text)
@@ -100,8 +100,13 @@ def run(data: bytes, filename: str, cfg: Config, on_event: OnEvent | None = None
                     warnings.append(f"page {n}: gate {g['fails']}, no VLM path for {kind}")
             else:
                 scans[n] = None
-        if texts and not scans and (m := gate.text("\n".join(texts), ladder["gate"])["signals"]["marks"]) < ladder["gate"]["min_marks"]:
-            warnings.append(f"G3: only {m} form marks found; fields may sit in shapes/text boxes Kreuzberg does not read")
+        if texts and not scans:
+            whole = gate.text("\n".join(texts), ladder["gate"])
+            trace.append({"page": 0, "step": "T0 document", "parser": "kreuzberg", "gate": whole})
+            if "G3 no form fields" in whole["fails"]:
+                warnings.append(f"G3: only {whole['signals']['marks']} form marks found; fields may sit in shapes/text boxes Kreuzberg does not read")
+            if "G5 * without footnote" in whole["fails"]:
+                warnings.append("G5: text has * marks but no footnote explaining them; check the source (footnote lost?)")
         if scans:
             scans = _render(data, list(scans))
 
