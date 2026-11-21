@@ -240,7 +240,8 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
         fails.append(f"G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): {lost_sums[:5]}")
     # G7: "a/b*" on paper is a choice; it needs a RADIO
     choices = {a for _, _, f in all_fields(tree) if f.type in ("RADIO", "CHECKBOX", "SELECT") for a in ex(f.src)}
-    lost_choice = [a for a, t in blocks.items() if SLASH_CHOICE.search(t) and a not in choices and a not in dropped]
+    choice_dropped = {a for d in tree.dropped if d.reason != "title" for a in ex(d.src)}  # a request line dropped as the title still holds the choice
+    lost_choice = [a for a, t in blocks.items() if SLASH_CHOICE.search(t) and a not in choices and a not in choice_dropped]
     if lost_choice:
         fails.append(f"G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: {lost_choice[:5]}")
     # G13: a hint must not contradict the field: "nieobowiązkowe" on a required field, a condition without show_if on a required field

@@ -225,3 +225,11 @@ def test_proxy_fee_is_no_case_fee_and_section_number_from_heading():
                                   "pages": [{"title": "P", "sections": [{"title": "Adres", "src": ["p1.b0-p1.b1"], "fields": [f("u", "Ulica", src="p1.b1")]}]}]})
     out, _ = normalize(t, blocks)
     assert out.case_fee is None and out.pages[0].sections[0].number == "D.1"
+
+
+def test_case_fee_amount_must_be_in_its_source():
+    blocks = {"p1.b0": "Opłata skarbowa – 82 zł. Numer konta: 12 3456"}
+    def run(fee, src):
+        t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "case_fee": fee, "case_fee_src": src, "pages": []})
+        return normalize(t, blocks)[0].case_fee
+    assert run("Opłata skarbowa 82 zł, konto 12 3456", ["p1.b0"]) and not run("Opłata 50 zł, konto …", ["p1.b0"]) and not run("82 zł", [])

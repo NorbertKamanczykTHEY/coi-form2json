@@ -252,6 +252,12 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     if tree.case_fee and re.search(r"pełnomocn", tree.case_fee, re.I) and all(re.search(r"pełnomocn", blocks.get(a, ""), re.I) for a in expand(tree.case_fee_src, blocks) or ["-"]):
         tree.case_fee, tree.case_fee_src, tree.case_fee_proof = None, [], False  # the proxy's 17 zł is in the template, not a case fee
         review.append({"key": None, "why": "opłata za pełnomocnictwo nie jest opłatą za sprawę (case_fee); pominięto"})
+    if tree.case_fee:  # every amount must be in the cited source; an invented amount is worse than none
+        src = src_text(tree.case_fee_src, blocks)
+        amounts = re.findall(r"\d+(?:[,.]\d+)?(?=\s*zł)", tree.case_fee)
+        if not src.strip() or not amounts or any(x not in src for x in amounts):
+            review.append({"key": None, "why": f"opłata za sprawę bez oparcia w cytowanym fragmencie ({tree.case_fee[:60]!r}); pominięto"})
+            tree.case_fee, tree.case_fee_src, tree.case_fee_proof = None, [], False
     for sec in (s for p in tree.pages for s in p.sections if not s.number and s.src):  # G12: the generator splits by the paper's numbering
         first = (expand(sec.src, blocks) or [""])[0]
         i = list(blocks).index(first) if first in blocks else 0

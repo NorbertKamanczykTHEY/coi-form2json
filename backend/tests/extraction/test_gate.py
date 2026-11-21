@@ -244,3 +244,10 @@ def test_g25_case_fee_g26_header_text_block_g27_contact():
     assert "G27" in codes(g)
     g = with_section({"p1.b5": "Telefon ___"}, fld("t", "Telefon osoby odpowiedzialnej", "TEXT_FIELD"), title="Osoba")
     assert "G27" not in codes(g)
+
+
+def test_g20_choice_in_a_title_block_still_needs_radio():
+    blocks = {"p1.b5": "proszę o wydanie zezwolenia na hodowanie/utrzymywanie* psa"}
+    t = tree()
+    t.dropped.append(Drop(reason="title", src=["p1.b5"]))
+    assert "G20" in codes(gate(t, BLOCKS | blocks))
