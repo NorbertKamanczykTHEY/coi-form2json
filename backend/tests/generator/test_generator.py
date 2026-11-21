@@ -48,7 +48,8 @@ def app(tmp_path_factory):
 
 # Accepted differences (generator.md "Wynik spike'a", Q21, Q22, rozbieżności): REQUIRED per R1-R7, rows = fields + 1,
 # "Kontakt i zgody", TERYT_4G_DOWODOWY; #5 also differs from #1 (from which the templates come) in its own "Dane" page.
-ALLOWED = [r"/validation:", r"/pos:", r"/questionOrder:", r"^[-+] /Kontakt (i zgody|z urzędem)$", r"TERYT_DOWODOWY' -> 'TERYT_4G_DOWODOWY'"]
+ALLOWED = [r"/validation:", r"/pos:", r"/questionOrder:", r"^[-+] /Kontakt (i zgody|z urzędem)$", r"TERYT_DOWODOWY' -> 'TERYT_4G_DOWODOWY'",
+           r"/wojewodztwo\w*/title: 'TERYT_(4G_)?DOWODOWY' -> 'Miejscowość'$"]  # human title instead of the dictionary name
 ALLOWED_5 = ALLOWED + [r"^[-+] /Dane/q/(dane_podmiotu|oplata_skarbowa_pelnomocnictwo_\d|pelnomocnictwo)/children/\w+$",
                        r"/(searchEnabled|multiLevelTree)$", r"/oplata_info(_1)?/description:", r"/podglad_1/description:",
                        r"/wybierz_jako_kto_wnioskujesz/options:",
@@ -97,9 +98,9 @@ def test_entity_variant_checkbox_from_paper(required):
 def test_addressee_missing_and_consent_from_document():
     t = tree("form3", addressee=None, consents=[{"text": "Oświadczam, że dane są prawdziwe.", "src": ["p1.b9"]}])
     form, rep, _ = generate(t, SHA)
-    assert {"key": "addressee", "why": "brak adresata, wstawiono pustą nazwę urzędu"} in rep["needs_review"]
+    assert {"key": "addressee", "why": "brak adresata, pole nazwy urzędu do uzupełnienia"} in rep["needs_review"]
     urzad = next(f for *_, f in fields(form) if f["techName"] == "nazwa_urzedu")
-    assert urzad["defaultValue"] == "" and urzad["readOnly"] and urzad["validation"] == []  # read-only never blocks submission
+    assert urzad["defaultValue"] == "" and not urzad["readOnly"] and urzad["validation"] == ["REQUIRED"]  # empty: the applicant types it
     consents = next(f for *_, f in fields(form) if f["type"] == "CONSENT_SECTION")["consentSectionConfig"]["consents"]
     assert consents[-1] == {"description": "<html><head></head><body><p>Oświadczam, że dane są prawdziwe.</p></body></html>", "required": True}
 
@@ -196,3 +197,68 @@ def test_proposal_not_applied_but_ready_for_editor(app):
     again, rep2, _ = generate(tree("form7"), SHA, store=store)  # later forms match it as existing
     breed2 = next(f for *_, f in fields(again) if f["techName"] == "dog_breed")
     assert breed2["dictionaryName"] == "RASY_PSOW_AGRESYWNYCH" and rep2["proposed_dictionaries"] == []
+
+
+def _field(key, label, type_="TEXT_FIELD", **kw):
+    return {"key": key, "label": label, "source_label": label, "type": type_, "src": ["p1.b1"], **kw}
+
+
+def _with_section(name, fields, **change):
+    t = json.loads((FIX / f"{name}.tree.json").read_text())
+    t["pages"][0]["sections"].append({"title": "Dodatkowe", "fields": fields, "src": ["p1.b1"]})
+    return FieldTree.model_validate(t | change)
+
+
+def test_pesel_field_follows_the_paper():
+    t = tree("pattern5", dropped=[{"reason": "applicant_data", "src": ["p1.b4-p1.b5"]}])
+    blocks = {"p1.b4": "Imię i nazwisko", "p1.b5": "PESEL *", "p1.b6": "Kwota"}
+    techs = lambda f: {x["techName"]: x for *_, x in fields(f)}
+    asked = techs(generate(t, SHA, blocks=blocks)[0])["numer_pesel"]
+    assert asked["validation"] == ["PESEL"] and asked["defaultValue"] == "PESEL.pesel"  # read-only prefill: not REQUIRED
+    assert "numer_pesel" not in techs(generate(t, SHA, blocks={"p1.b5": "Adres"})[0])
+
+
+def test_validators_from_label_wording():
+    t = _with_section("form3", [_field("skrzynka", "Adres skrzynki ePUAP"), _field("ade", "Adres do e-Doręczeń"),
+                                _field("dowod", "Seria i numer dowodu osobistego"), _field("nip_firmy", "NIP firmy"),
+                                _field("uwagi", "Uwagi", "TEXTAREA")])
+    got = {f["techName"]: f["validation"] for *_, f in fields(generate(t, SHA)[0])}
+    assert got["skrzynka"] == ["REQUIRED", "EPUAP"] and got["ade"] == ["REQUIRED", "ADE"]
+    assert got["dowod"] == ["REQUIRED", "SERIAL_NUMBER_ID_CARD"] and got["nip_firmy"] == ["REQUIRED", "NIP"] and got["uwagi"] == ["REQUIRED"]
+
+
+def test_entity_data_in_subject_is_not_duplicated():
+    t = _with_section("form3", [_field("nazwa_klubu", "Nazwa klubu"), _field("adres_siedziby", "Adres siedziby", preset="address"),
+                                _field("telefon_klubu", "Telefon kontaktowy")], applicant_kinds=["legal_entity"])
+    form, rep, _ = generate(t, SHA)
+    techs = {f["techName"] for *_, f in fields(form)}
+    assert "telefon_klubu" in techs and "nazwa_klubu" not in techs and not any("adres_siedziby" in x and x != "adres_siedziby" for x in techs)
+    assert {"nazwa", "kraj_siedziba"} <= techs and any("powtarzają dane podmiotu" in w for w in rep["warnings"])
+    person = generate(_with_section("form3", [_field("adres_siedziby", "Adres siedziby", preset="address")]), SHA)[0]
+    assert "kraj_adres_siedziby" in {f["techName"] for *_, f in fields(person)}  # only the entity applicant's own data merges
+
+
+def test_controlling_field_comes_first():
+    t = _with_section("form3", [_field("inny_adres", "Adres do korespondencji", show_if={"field": "czy_inny", "options": ["Tak"]}),
+                                _field("czy_inny", "Czy adres do korespondencji jest inny", "RADIO", options=["Tak", "Nie"])])
+    sec = next(s for _, s, _ in fields(generate(t, SHA)[0]) if s["title"] == "Dodatkowe")
+    assert [c["field"]["techName"] for c in sec["repeatingSectionGrid"]] == ["czy_inny", "inny_adres"]
+    assert [c["y"] for c in sec["repeatingSectionGrid"]] == [0, 1]
+
+
+def test_conditional_consents_get_their_own_show():
+    t = _with_section("form3", [_field("pelnoletni", "Czy kandydat jest pełnoletni", "RADIO", options=["Tak", "Nie"])],
+                      consents=[{"text": "Oświadczam, że dane są prawdziwe.", "src": []},
+                                {"text": "Zgoda rodzica.", "show_if": [{"field": "pelnoletni", "options": ["Nie"]}], "src": []}])
+    form, rep, _ = generate(t, SHA)
+    consent = [f for *_, f in fields(form) if f["type"] == "CONSENT_SECTION"]
+    assert len(consent) == 2 and consent[0]["states"] == [] and len(consent[0]["consentSectionConfig"]["consents"]) == 2
+    assert '"Nie" in' in consent[1]["states"][0]["query"] and "'pelnoletni' in field.techName" in consent[1]["states"][0]["query"]
+    assert rep["validation"] == []
+
+
+def test_validator_rejects_empty_required_read_only():
+    form = generate(tree("pattern1"), SHA)[0]
+    f = next(x for *_, x in fields(form) if x["techName"] == "miejscowosc")
+    f |= {"readOnly": True, "validation": ["REQUIRED"], "defaultValue": ""}
+    assert [e["rule"] for e in validate(form)] == ["readOnly"]

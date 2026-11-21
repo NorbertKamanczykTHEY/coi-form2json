@@ -5,6 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from .config import Config
+from .extraction.anchors import blocks_of
 from .extraction.extract import extract
 from .generator import generate
 from .parsing import parse
@@ -37,7 +38,7 @@ def convert(data: bytes, filename: str, on_event: OnEvent = lambda *_: None, cfg
     on_event("stage", {"stage": "extract", "status": "done", "cost": ex.cost})
 
     on_event("stage", {"stage": "generate", "status": "start"})
-    form, parts, field_map = generate(ex.tree, hashlib.sha256(data).hexdigest(), on_event, store)
+    form, parts, field_map = generate(ex.tree, hashlib.sha256(data).hexdigest(), on_event, store, blocks=blocks_of(doc))
     on_event("stage", {"stage": "generate", "status": "done", "fields": len(field_map)})
 
     report = {

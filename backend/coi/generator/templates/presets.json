@@ -1,21 +1,171 @@
 {
- "first_name": {"type": "TEXT_FIELD"},
- "last_name": {"type": "TEXT_FIELD"},
- "pesel": {"type": "TEXT_FIELD", "validators": ["PESEL"]},
- "birth_date": {"type": "DATEPICKER"},
- "id_card": {"type": "TEXT_FIELD"},
- "phone": {"type": "TEXT_FIELD"},
- "email": {"type": "TEXT_FIELD", "validators": ["EMAIL"]},
- "bank_account": {"type": "TEXT_FIELD"},
- "address": {"fields": [
-  {"key": "kraj_{{k}}", "label": "Kraj", "type": "SELECT", "dictionary": "Kraje", "default": ["Polska"]},
-  {"key": "miejscowosc_{{k}}_zagranica", "label": "Miejscowość", "type": "TEXT_FIELD", "show_if": {"not": {"field": "kraj_{{k}}", "in": ["Polska"]}}},
-  {"key": "kod_pocztowy_{{k}}_zagranica", "label": "Kod pocztowy", "type": "TEXT_FIELD", "show_if": {"not": {"field": "kraj_{{k}}", "in": ["Polska"]}}},
-  {"key": "ulica_{{k}}_zagranica", "label": "Ulica", "type": "TEXT_FIELD", "required": false, "show_if": {"not": {"field": "kraj_{{k}}", "in": ["Polska"]}}},
-  {"key": "wojewodztwo_{{k}}", "label": "TERYT_4G_DOWODOWY", "type": "SELECT", "dictionary": "TERYT_4G_DOWODOWY", "default": [], "multi_level": true, "search": true, "show_if": {"field": "kraj_{{k}}", "in": ["Polska"]}},
-  {"key": "kod_pocztowy_{{k}}", "label": "Kod pocztowy", "type": "TEXT_FIELD", "validators": ["ZIP_CODE"], "show_if": {"field": "kraj_{{k}}", "in": ["Polska"]}},
-  {"key": "ulica_{{k}}", "label": "Ulica", "type": "TEXT_FIELD", "required": false, "show_if": {"field": "kraj_{{k}}", "in": ["Polska"]}},
-  {"key": "numer_budynku_{{k}}", "label": "Numer budynku", "type": "TEXT_FIELD"},
-  {"key": "numer_lokalu_{{k}}", "label": "Numer lokalu", "type": "TEXT_FIELD", "required": false}
- ]}
+ "first_name": {
+  "type": "TEXT_FIELD"
+ },
+ "last_name": {
+  "type": "TEXT_FIELD"
+ },
+ "pesel": {
+  "type": "TEXT_FIELD",
+  "validators": [
+   "PESEL"
+  ]
+ },
+ "birth_date": {
+  "type": "DATEPICKER"
+ },
+ "id_card": {
+  "type": "TEXT_FIELD"
+ },
+ "phone": {
+  "type": "TEXT_FIELD"
+ },
+ "email": {
+  "type": "TEXT_FIELD",
+  "validators": [
+   "EMAIL"
+  ]
+ },
+ "bank_account": {
+  "type": "TEXT_FIELD"
+ },
+ "address": {
+  "fields": [
+   {
+    "key": "kraj_{{k}}",
+    "label": "Kraj",
+    "type": "SELECT",
+    "dictionary": "Kraje",
+    "default": [
+     "Polska"
+    ]
+   },
+   {
+    "key": "miejscowosc_{{k}}_zagranica",
+    "label": "Miejscowość",
+    "type": "TEXT_FIELD",
+    "show_if": {
+     "not": {
+      "field": "kraj_{{k}}",
+      "in": [
+       "Polska"
+      ]
+     }
+    }
+   },
+   {
+    "key": "kod_pocztowy_{{k}}_zagranica",
+    "label": "Kod pocztowy",
+    "type": "TEXT_FIELD",
+    "show_if": {
+     "not": {
+      "field": "kraj_{{k}}",
+      "in": [
+       "Polska"
+      ]
+     }
+    }
+   },
+   {
+    "key": "ulica_{{k}}_zagranica",
+    "label": "Ulica",
+    "type": "TEXT_FIELD",
+    "required": false,
+    "show_if": {
+     "not": {
+      "field": "kraj_{{k}}",
+      "in": [
+       "Polska"
+      ]
+     }
+    }
+   },
+   {
+    "key": "wojewodztwo_{{k}}",
+    "label": "Miejscowość",
+    "type": "SELECT",
+    "dictionary": "TERYT_4G_DOWODOWY",
+    "default": [],
+    "multi_level": true,
+    "search": true,
+    "show_if": {
+     "field": "kraj_{{k}}",
+     "in": [
+      "Polska"
+     ]
+    }
+   },
+   {
+    "key": "kod_pocztowy_{{k}}",
+    "label": "Kod pocztowy",
+    "type": "TEXT_FIELD",
+    "validators": [
+     "ZIP_CODE"
+    ],
+    "show_if": {
+     "field": "kraj_{{k}}",
+     "in": [
+      "Polska"
+     ]
+    }
+   },
+   {
+    "key": "ulica_{{k}}",
+    "label": "Ulica",
+    "type": "TEXT_FIELD",
+    "required": false,
+    "show_if": {
+     "field": "kraj_{{k}}",
+     "in": [
+      "Polska"
+     ]
+    }
+   },
+   {
+    "key": "numer_budynku_{{k}}",
+    "label": "Numer budynku",
+    "type": "TEXT_FIELD"
+   },
+   {
+    "key": "numer_lokalu_{{k}}",
+    "label": "Numer lokalu",
+    "type": "TEXT_FIELD",
+    "required": false
+   }
+  ]
+ },
+ "label_validators": [
+  [
+   "\\bpesel\\b",
+   "PESEL"
+  ],
+  [
+   "\\bnip\\b",
+   "NIP"
+  ],
+  [
+   "\\bregon\\b",
+   "REGON"
+  ],
+  [
+   "e-?mail|poczt\\w* elektroniczn",
+   "EMAIL"
+  ],
+  [
+   "kod\\w* pocztow",
+   "ZIP_CODE"
+  ],
+  [
+   "\\bepuap\\b",
+   "EPUAP"
+  ],
+  [
+   "e-?dor[eę]cze|\\bade\\b",
+   "ADE"
+  ],
+  [
+   "seri\\w* i (?:nr|numer)\\w* dowodu|(?:nr|numer)\\w* dowodu osobist|seri\\w* dowodu osobist",
+   "SERIAL_NUMBER_ID_CARD"
+  ]
+ ]
 }

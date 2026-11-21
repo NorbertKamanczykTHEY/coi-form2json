@@ -109,15 +109,24 @@ def jsonata(c, idx, top=True) -> str:
 def resolve(tree: dict, templates: Path) -> list:
     """Assemble pages, apply `when`, placeholders and techNames. Returns pages with resolved nodes."""
     ctx = {"applicant": tree.get("applicant", "ANY"), "addressee": tree["addressee"]["kind"], "addressee.name": tree["addressee"]["name"],
-           "prefill": tree.get("prefill", "MLPZ"), "entity_option": tree["entity_option"], "entity_required": tree.get("entity_required", True)}
+           "prefill": tree.get("prefill", "MLPZ"), "pesel": tree.get("pesel", tree.get("prefill") == "PESEL"), "entity_option": tree["entity_option"], "entity_required": tree.get("entity_required", True)}
     load = lambda n: json.loads((templates / f"{n}.json").read_text())
     subject = copy.deepcopy(tree["pages"])
     for p in subject:
         p["subject"] = True
     pages = [load("dane"), *subject, load("kontakt"), load("finish")]
     if tree.get("consents"):  # S11: document consents join the template consent field
-        consent = next(f for s in pages[-2]["sections"] for f in s["fields"] if f["type"] == "CONSENT_SECTION")
-        consent["consents"] += [{"html": html_doc(c["text"]), "required": c.get("required", True)} for c in tree["consents"]]
+        section = next(s for s in pages[-2]["sections"] for f in s["fields"] if f["type"] == "CONSENT_SECTION")
+        groups: dict = {}  # a consent with a condition (variant, minor/adult) gets its own CONSENT_SECTION with SHOW
+        for c in tree["consents"]:
+            groups.setdefault(json.dumps(c.get("show_if"), sort_keys=True), []).append(c)
+        for i, (key, cs) in enumerate(groups.items()):
+            items = [{"html": html_doc(c["text"]), "required": c.get("required", True)} for c in cs]
+            if key == "null":
+                next(f for f in section["fields"] if f["type"] == "CONSENT_SECTION")["consents"] += items
+            else:
+                section["fields"].append({"key": f"zgoda_warunkowa_{i}", "label": "", "type": "CONSENT_SECTION",
+                                          "consents": items, "show_if": cs[0]["show_if"]})
     used = set()
 
     def tech(n, fallback, section=""):
@@ -142,11 +151,26 @@ def resolve(tree: dict, templates: Path) -> list:
                     f[k] = subst(f.get(k), ctx)
                 if isinstance(f.get("required"), str):  # a setting name, e.g. "entity_required" (Q31)
                     f["required"] = ctx[f["required"]]
+                if f.get("read_only") and f.get("default") in (None, "", []):  # nothing to show: the applicant fills it in
+                    f["read_only"] = False
                 if "options" in f:
                     f["options"] = [subst(o if isinstance(o, str) else o["name"], ctx) for o in f["options"]
                                     if isinstance(o, str) or keep(o, ctx)]
             s["show_if"] = subst(s.get("show_if"), ctx)
+            s["fields"] = controllers_first(s["fields"])
     return pages
+
+
+def controllers_first(fields: list) -> list:
+    """A field that drives SHOW of others in its section moves right before the first field it controls."""
+    out = list(fields)
+    for f in fields:
+        key = f.get("key") or f["tech"]
+        deps = [i for i, g in enumerate(out) if any(lf["field"] == key for lf in leaves(g.get("show_if")))]
+        if deps and min(deps) < out.index(f):
+            out.remove(f)
+            out.insert(min(deps), f)
+    return out
 
 
 def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) -> tuple[dict, list[str], dict]:

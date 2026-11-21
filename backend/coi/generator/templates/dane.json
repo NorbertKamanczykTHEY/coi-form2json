@@ -141,8 +141,8 @@
      "default": "PESEL.pesel",
      "read_only": true,
      "when": {
-      "prefill": [
-       "PESEL"
+      "pesel": [
+       true
       ]
      },
      "validators": [
@@ -207,7 +207,7 @@
     },
     {
      "key": "wojewodztwo",
-     "label": "TERYT_4G_DOWODOWY",
+     "label": "Miejscowość",
      "type": "SELECT",
      "dictionary": "TERYT_4G_DOWODOWY",
      "default": [],
@@ -366,7 +366,7 @@
     },
     {
      "key": "wojewodztwo_siedziba",
-     "label": "TERYT_4G_DOWODOWY",
+     "label": "Miejscowość",
      "type": "SELECT",
      "dictionary": "TERYT_4G_DOWODOWY",
      "default": [],
@@ -530,7 +530,7 @@
     },
     {
      "key": "wojewodztwo_inna_osoba",
-     "label": "TERYT_4G_DOWODOWY",
+     "label": "Miejscowość",
      "type": "SELECT",
      "dictionary": "TERYT_4G_DOWODOWY",
      "default": [],

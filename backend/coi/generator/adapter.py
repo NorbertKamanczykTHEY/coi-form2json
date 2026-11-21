@@ -1,11 +1,16 @@
 """FieldTree (coi.extraction.tree) -> the generator's internal tree (templates' format). Mapping: generator.md pkt 1."""
 import copy
 import json
+import re
 from pathlib import Path
 
-from ..extraction.tree import FieldTree, FormField, ShowIf
+from ..extraction.anchors import src_text
+from ..extraction.tree import FieldTree, FormField, Section, ShowIf
 
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
+PESEL = re.compile(r"\bPESEL\b", re.I)
+SEAT = re.compile(r"siedzib", re.I)  # "adres siedziby": the applicant entity's own address
+ENTITY_ID = re.compile(r"^nazwa\b|\b(nip|regon|krs)\b", re.I)  # name and registry numbers the "Dane podmiotu" template asks for
 
 
 def cond(si: ShowIf | None) -> dict | None:
@@ -17,6 +22,19 @@ def cond(si: ShowIf | None) -> dict | None:
 
 def both(a: dict | None, b: dict | None) -> dict | None:
     return {"all": [a, b]} if a and b else a or b
+
+
+def _all(conds: list) -> dict | None:
+    out = None
+    for c in conds:
+        out = both(out, c)
+    return out
+
+
+def label_validators(n: dict, rules: list) -> list[str]:
+    """Reguły techniczne validators chosen from the wording of a text field's label (PESEL, NIP, ePUAP, ADE, ...)."""
+    text = f"{n['label']} {n['meta']['source_label']}".lower()
+    return [v for rx, v in rules if re.search(rx, text)]
 
 
 def field(f: FormField, presets: dict) -> list[dict]:
@@ -44,11 +62,22 @@ def field(f: FormField, presets: dict) -> list[dict]:
         return block
     if p:
         n |= {k: v for k, v in p.items() if k == "type" or k == "validators"}
+    if n["type"] == "TEXT_FIELD":
+        n["validators"] = list(dict.fromkeys(n.get("validators", []) + label_validators(n, presets.get("label_validators", []))))
     return [n]
 
 
-def to_internal(tree: FieldTree, settings: dict, presets: dict) -> tuple[dict, list[str], list[dict]]:
-    """-> (internal tree, warnings, needs_review)."""
+def entity_duplicates(s: Section) -> set[str]:
+    """Keys of a subject section that repeat the applicant entity's template data ("Dane podmiotu", "Adres siedziby"):
+    the section holds the entity's seat address, so its address block, name and registry numbers are the entity's."""
+    if s.person_role == "third_party" or not any(f.preset == "address" and SEAT.search(f"{f.key} {f.label} {f.source_label}") for f in s.fields):
+        return set()
+    return {f.key for f in s.fields if (f.preset == "address" and SEAT.search(f"{f.key} {f.label} {f.source_label}"))
+            or (f.type == "TEXT_FIELD" and ENTITY_ID.search(f.label))}
+
+
+def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str, str] | None = None) -> tuple[dict, list[str], list[dict]]:
+    """-> (internal tree, warnings, needs_review). `blocks` (anchor -> text) lets the paper's own wording decide template fields."""
     warnings = list(tree.issues)
     review = []
     if not 0 < len(tree.title) <= 255:
@@ -56,28 +85,38 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict) -> tuple[dict, l
     elif not tree.title.startswith(TITLE_WORDS):
         review.append({"key": "title", "why": f"tytuł nie zaczyna się od {'/'.join(TITLE_WORDS)}"})
     a = tree.addressee
-    if a is None:
-        review.append({"key": "addressee", "why": "brak adresata, wstawiono pustą nazwę urzędu"})
+    if a is None or not a.name.strip():
+        review.append({"key": "addressee", "why": "brak adresata, pole nazwy urzędu do uzupełnienia"})
     kinds = set(tree.applicant_kinds)
     applicant = "ENTITY" if kinds == {"legal_entity"} else "PERSON" if kinds == {"person"} else "ANY"
     pages = []
     for p in tree.pages:
         secs = []
         for s in p.sections:
-            sec = {"title": s.title, "repeating": s.repeating, "fields": [n for f in s.fields for n in field(f, presets)]}
+            dup = entity_duplicates(s) if applicant == "ENTITY" else set()
+            if dup:
+                warnings.append(f"sekcja {s.title!r}: pominięto {', '.join(sorted(dup))}, bo powtarzają dane podmiotu ze strony „Dane”")
+            fields = [n for f in s.fields if f.key not in dup for n in field(f, presets)]
+            if not fields:
+                continue
+            sec = {"title": s.title, "repeating": s.repeating, "fields": fields}
             if c := cond(s.show_if):
                 sec["show_if"] = c
             secs.append(sec)
-        pages.append({"title": p.title, "sections": secs})
+        if secs:
+            pages.append({"title": p.title, "sections": secs})
     internal = {
         "title": tree.title,
         "addressee": {"kind": "ORGAN" if a and a.kind == "organ" else "URZAD", "name": a.name if a else ""},
         "applicant": applicant,
         "prefill": settings["prefill_identity"],
+        # the applicant's PESEL field: by setting, or because the paper asks for it among the applicant's data (moved to "Dane")
+        "pesel": settings["prefill_identity"] == "PESEL" or any(
+            PESEL.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "applicant_data"),
         "entity_option": tree.entity_option or settings["entity_option"],
         "entity_required": settings["entity_required"],
         "pages": pages,
-        "consents": [{"text": c.text} for c in tree.consents],
+        "consents": [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if])} for c in tree.consents],
     }
     return internal, warnings, review
 

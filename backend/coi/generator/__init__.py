@@ -58,14 +58,15 @@ def _canonical_names(form: dict) -> None:
 
 
 def generate(tree: FieldTree, source_sha256: str, on_event: Callable[[str, dict], None] | None = None, store=None,
-             settings: dict | None = None) -> tuple[dict, dict, dict]:
+             settings: dict | None = None, blocks: dict[str, str] | None = None) -> tuple[dict, dict, dict]:
     """-> (COI form, report parts {warnings, needs_review, proposed_dictionaries, validation, editor_proposals},
     field_map fieldId -> src/review). editor_proposals: per proposal the body for POST /dictionaries/from-proposal,
     the fields it concerns and the ready field change the editor applies on acceptance.
-    `store` (coi.store.Store) enables dictionary matching; `settings` overrides config('generator') (tests)."""
+    `store` (coi.store.Store) enables dictionary matching; `settings` overrides config('generator') (tests);
+    `blocks` (coi.extraction.anchors.blocks_of) gives the source text behind the tree's anchors."""
     on_event = on_event or (lambda *_: None)
     s = config("generator") | (settings or {})
-    internal, warnings, review = to_internal(tree, s, load_presets(s["templates"]))
+    internal, warnings, review = to_internal(tree, s, load_presets(s["templates"]), blocks)
     proposals: dict = {}
     if store is not None and match is not None:
         with store.session() as session:
