@@ -9,7 +9,6 @@ from pydantic import BaseModel, BeforeValidator, Field, model_validator
 
 StrList = Annotated[list[str], BeforeValidator(lambda v: v or [])]  # models send null for empty lists
 
-Anchor = str  # "p1.b12"; a range "p1.b24-p1.b59" is allowed in `dropped` only
 
 FieldType = Literal["TEXT_FIELD", "TEXTAREA", "NUMBER", "DATEPICKER", "RADIO", "CHECKBOX", "SELECT", "FILE_UPLOADER", "TEXT_BLOCK"]
 Preset = Literal["first_name", "last_name", "pesel", "birth_date", "id_card", "address", "phone", "email", "bank_account"]
@@ -55,7 +54,7 @@ class FormField(BaseModel):
     description: str | None = Field(default=None, description="krótka podpowiedź dla wypełniającego")
     description_source: Literal["document", "ai"] | None = Field(default=None, description="'document' gdy podpowiedź pochodzi z tekstu źródła, 'ai' gdy to Twoja sugestia; kod to weryfikuje")
     doubt: str | None = Field(default=None, description="krótko, jeśli interpretacja pola jest niepewna")
-    src: list[Anchor] = Field(description="kotwice bloków źródłowych, np. ['p1.b12']")
+    src: StrList = Field(default_factory=list, description="kotwice bloków źródłowych, np. ['p1.b12']")
 
 
 class Section(BaseModel):
@@ -63,37 +62,37 @@ class Section(BaseModel):
     repeating: bool = Field(default=False, description="true gdy źródło każe powtarzać blok (np. 'dla każdego psa', numerowane identyczne bloki)")
     person_role: Literal["third_party"] | None = Field(default=None, description="'third_party' gdy sekcja to dane osoby trzeciej (nie wnioskodawcy, nie pełnomocnika)")
     show_if: ShowIf | None = None
-    fields: list[FormField]
-    src: list[Anchor]
+    fields: Annotated[list[FormField], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
+    src: StrList = Field(default_factory=list)
 
 
 class SubjectPage(BaseModel):
     title: str = Field(description="tytuł strony od treści, np. 'Informacje o nadpłacie'")
-    sections: list[Section]
+    sections: Annotated[list[Section], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
 
 
 class Consent(BaseModel):
     text: str = Field(description="treść oświadczenia w formie neutralnej płciowo, np. 'Oświadczam, że…'")
-    src: list[Anchor]
+    src: StrList = Field(default_factory=list)
 
 
 class Drop(BaseModel):
     reason: DropReason
-    src: list[Anchor]
+    src: StrList = Field(default_factory=list)
 
 
 class Addressee(BaseModel):
     kind: Literal["organ", "office"] = Field(description="organ: Wójt/Burmistrz/Prezydent; office: Urząd …")
     name: str = Field(description="nazwa organu albo urzędu, z wydziałem jeśli podany")
-    src: list[Anchor]
+    src: StrList = Field(default_factory=list)
 
 
-class FieldTree(BaseModel):
+class FieldTree(BaseModel):  # defaults everywhere: the prompt tells models to omit null and empty lists
     title: str = Field(description="tytuł e-formularza zaczynający się od Wniosek/Zgłoszenie/Deklaracja/Oświadczenie")
-    addressee: Addressee | None
+    addressee: Addressee | None = None
     applicant_kinds: list[Literal["person", "legal_entity"]] = Field(description="kim może być wnioskodawca: person = osoba fizyczna, legal_entity = firma/instytucja (NIP, REGON, nazwa)")
     entity_option: str | None = Field(default=None, description="tekst opcji wyboru podmiotu z papieru, gdy formularz każe zaznaczyć rodzaj wnioskodawcy (np. 'Klub sportowy'); null gdy brak (P2a)")
     pages: list[SubjectPage] = Field(description="tylko strony przedmiotu wniosku, bez danych wnioskodawcy, kontaktu i zgód")
-    consents: list[Consent]
-    dropped: list[Drop]
+    consents: Annotated[list[Consent], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
+    dropped: Annotated[list[Drop], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
     issues: StrList = Field(default_factory=list, description="niespójności w źródle (S17)")

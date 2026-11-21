@@ -1,0 +1,114 @@
+"""extract(): ladder, repair rounds, two-stage path. A fake provider replays canned replies; the `eden` test calls the real API."""
+import json
+from pathlib import Path
+
+import pytest
+
+from coi import llm
+from coi.extraction import ExtractionError, extract
+from coi.parsing.model import Block, Page, ParsedDocument
+
+from .test_gate import BLOCKS, tree as good_tree
+
+
+def doc(texts):
+    return ParsedDocument(source={"filename": "t.docx"}, pages=[Page(1, [Block("paragraph", t) for t in texts])])
+
+
+DOC = doc(list(BLOCKS.values()))
+
+
+class Fake:
+    name = "fake"
+
+    def __init__(self, replies):
+        self.replies, self.calls = list(replies), []
+
+    def chat(self, model, content, max_tokens, response_format=None):
+        self.calls.append((model, content))
+        r = self.replies.pop(0)
+        return llm.Reply(r if isinstance(r, str) else json.dumps(r, ensure_ascii=False), "stop", 0.001, 0.1)
+
+
+@pytest.fixture(autouse=True)
+def ladder(monkeypatch, request):
+    if request.node.get_closest_marker("eden"):
+        return  # the real run uses the configured ladder
+    monkeypatch.setenv("EXTRACTION_LADDER", "small,large")
+    monkeypatch.setenv("EXTRACTION_TWO_STAGE_BLOCKS", "150")
+
+
+def good():
+    return good_tree().model_dump(exclude_none=True)
+
+
+def bad():  # G5: radio with one option
+    t = good()
+    t["pages"][0]["sections"][0]["fields"][0]["options"] = ["Przelew"]
+    return t
+
+
+def test_first_rung_accepted():
+    p = Fake([good()])
+    r = extract(DOC, provider=p)
+    assert [m for m, _ in p.calls] == ["small"]
+    assert r.cost == 0.001 and r.trace[0]["accepted"]
+    assert {f.key for f in r.tree.pages[0].sections[0].fields} == {"wybierz_sposob", "numer_rachunku"}
+
+
+def test_schema_repair_then_gate_repair_then_escalation():
+    events = []
+    p = Fake(["not json", bad(), bad(), good()])  # small: schema repair, gate reject, gate repair rejected; large ok
+    r = extract(DOC, on_event=lambda e, d: events.append(d), provider=p)
+    assert [m for m, _ in p.calls] == ["small", "small", "small", "large"]
+    assert "POPRZEDNIA ODPOWIEDŹ MA BŁĘDY" in p.calls[1][1] and "G5" in p.calls[2][1]
+    assert [(t["model"], t["round"], t["accepted"]) for t in r.trace] == [("small", "first", False), ("small", "repair", False), ("large", "first", True)]
+    assert r.cost == 0.004 and events[-1]["accepted"]
+    assert not any("quality gate" in x["why"] for x in r.needs_review)
+
+
+def test_nothing_passes_returns_best_with_needs_review():
+    r = extract(DOC, provider=Fake([bad()] * 4))
+    assert any(x["why"].startswith("quality gate: G5") for x in r.needs_review)
+
+
+def test_no_valid_schema_raises():
+    with pytest.raises(ExtractionError):
+        extract(DOC, provider=Fake(["{}"] * 4))
+
+
+def test_two_stage_for_multi_variant_document():
+    d = doc(["Wniosek o stypendium", "Wynik sportowy ___", "Wniosek o nagrodę", "Wynik sportowy ___", "Klub ___"])
+    skel = {"title": "Wniosek o stypendium lub nagrodę", "applicant_kinds": ["person"], "variants": ["Stypendium", "Nagroda"],
+            "dropped": [{"reason": "title", "src": ["p1.b0"]}, {"reason": "title", "src": ["p1.b2"]}],
+            "pages": [{"title": "Osiągnięcia", "sections": [
+                {"title": "Wyniki", "src": ["p1.b1", "p1.b3"], "variants": ["Stypendium", "Nagroda"]},
+                {"title": "Klub", "src": ["p1.b4"], "variants": ["Nagroda"]}]}]}
+    page = {"title": "Osiągnięcia", "sections": [
+        {"title": "Wyniki", "src": ["p1.b1", "p1.b3"], "fields": [{"key": "wynik", "label": "Wynik sportowy", "source_label": "Wynik sportowy", "type": "TEXTAREA", "src": ["p1.b1", "p1.b3"]}]},
+        {"title": "Klub", "src": ["p1.b4"], "fields": [{"key": "klub", "label": "Klub", "source_label": "Klub", "type": "TEXT_FIELD", "src": ["p1.b4"]}]}]}
+    p = Fake([skel, page])
+    r = extract(d, provider=p)
+    assert "PIERWSZY ETAP" in p.calls[0][1] and "DRUGI ETAP" in p.calls[1][1]
+    assert "[p1.b0]" not in p.calls[1][1]  # stage two sees only the page's blocks
+    secs = r.tree.pages[0].sections
+    assert [s.title for s in secs] == ["Rodzaj wniosku", "Wyniki", "Klub"]
+    radio = secs[0].fields[0]
+    assert radio.type == "RADIO" and radio.options == ["Stypendium", "Nagroda"]
+    assert secs[1].show_if is None  # common to all variants
+    assert secs[2].show_if.field == radio.key and secs[2].show_if.options == ["Nagroda"]
+    assert r.trace[-1]["accepted"] and r.trace[-1]["mode"] == "two_stage", r.trace
+
+
+MATERIALS = Path(__file__).resolve().parents[4] / "materials"
+
+
+@pytest.mark.eden
+def test_real_form1_via_eden():
+    from coi.parsing import parse
+
+    path = next(MATERIALS.glob("1. */Wniosek o ustalenie numeru porządkowego nieruchomości.docx"))
+    r = extract(parse(path.read_bytes(), path.name))
+    fields = [f for p in r.tree.pages for s in p.sections for f in s.fields]
+    print(f"\n#1: {len(fields)} fields, needs_review={len(r.needs_review)}, cost=${r.cost}, trace={[(t['model'], t['round'], t['accepted']) for t in r.trace]}")
+    assert 3 <= len(fields) <= 10 and r.cost > 0
