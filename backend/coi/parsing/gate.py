@@ -19,6 +19,8 @@ def _nonsense(w: str) -> bool:
 
 
 def text(t: str, cfg: dict, confidence: float | None = None, need_marks: bool = True) -> dict:
+    """confidence is given for OCR text only. There "label:" lines do not count as marks:
+    Tesseract keeps the labels but silently drops the dot leaders next to them (PoC-1)."""
     chars = [c for c in t if not c.isspace()]
     words = WORD.findall(t)
     letters = sum(len(w) for w in words)
@@ -26,7 +28,7 @@ def text(t: str, cfg: dict, confidence: float | None = None, need_marks: bool = 
         "garbage": round((sum(1 for c in chars if not c.isalnum() and c not in ALLOWED_PUNCT) + len(MOJIBAKE.findall(t))) / max(len(chars), 1), 4),
         "nonsense": round(sum(map(_nonsense, words)) / max(len(words), 1), 4),
         "polish": round(sum(1 for c in t if c in PL) / max(letters, 1), 4),
-        "marks": t.count("___") + t.count("☐") + len(LABEL.findall(t)),
+        "marks": t.count("___") + t.count("☐") + (len(LABEL.findall(t)) if confidence is None else 0),
         "confidence": None if confidence is None else round(confidence, 3),
     }
     fails = []

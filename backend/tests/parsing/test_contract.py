@@ -8,6 +8,7 @@ import pytest
 from PIL import Image
 
 from coi.parsing import ParsedDocument, parse, to_markdown
+from coi.parsing.parsers.vision import split_pages
 
 from .conftest import FILES, GOLD
 
@@ -72,10 +73,12 @@ def test_image(form, path):
 
 @pytest.mark.eden
 def test_scanned_pdf(form1_jpg):
+    # the jpg is two A4 pages stitched together: make a realistic 2-page scan
+    first, *rest = split_pages(Image.open(form1_jpg))
     buf = io.BytesIO()
-    Image.open(form1_jpg).convert("RGB").save(buf, "PDF")
+    first.save(buf, "PDF", save_all=True, append_images=rest, resolution=200)
     doc = parse(buf.getvalue(), "skan.pdf")
     print(doc.source, [(e["page"], e["step"], e.get("model"), e.get("accepted")) for e in doc.trace])
     assert doc.source["kind"] == "pdf_scan"
-    assert any(e["step"] == "route" for e in doc.trace)
+    assert len(doc.pages) == 2 and all(e["step"] != "T0" or e["parser"] == "kreuzberg+tesseract" for e in doc.trace)
     check(doc, "form1", ".pdf")
