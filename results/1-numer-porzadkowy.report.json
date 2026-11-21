@@ -1,8 +1,8 @@
 {
- "cost": 0.0004,
+ "cost": 0.00318,
  "needs_review": [],
  "proposed_dictionaries": [],
- "seconds": 3.58,
+ "seconds": 10.04,
  "source": {
   "cost": 0,
   "filename": "Wniosek o ustalenie numeru porządkowego nieruchomości.docx",
@@ -10,7 +10,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.05
+  "seconds": 0.06
  },
  "trace": [
   {
@@ -51,21 +51,34 @@
    "step": "T0"
   },
   {
-   "accepted": true,
+   "accepted": false,
    "calls": 1,
-   "cost": 0.0004,
-   "coverage": 1.0,
-   "fails": [],
+   "cost": 0.00149,
+   "coverage": 0.71,
+   "fails": [
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b5', 'p1.b6']"
+   ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 3.4,
+   "seconds": 4.4,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00169,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 5.4,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": [
-  "Tytuł formularza sugeruje wniosek o ustalenie numeru porządkowego, ale treść dotyczy budynku (nieruchomości), co może być niespójne."
- ]
+ "warnings": []
 }

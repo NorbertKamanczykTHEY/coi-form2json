@@ -213,6 +213,30 @@
         "rows": 1,
         "x": 0,
         "y": 1
+       },
+       {
+        "cols": 3,
+        "field": {
+         "defaultValue": "PESEL.pesel",
+         "defaultValueType": "EXTERNAL_SYSTEM",
+         "description": "",
+         "id": "6c2c2373-6dc6-45b7-9027-a84d47701b98",
+         "options": [],
+         "questionOrder": 2,
+         "readOnly": true,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_pesel",
+         "title": "Numer PESEL",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "PESEL"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 2
        }
       ],
       "states": [],
@@ -222,7 +246,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 3,
+     "rows": 4,
      "x": 0,
      "y": 5
     },
@@ -232,7 +256,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "349a9fbd-3c87-4b48-9e4e-f8d888b28b4c",
       "options": [],
-      "questionOrder": 8,
+      "questionOrder": 9,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -334,7 +358,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -422,7 +448,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -484,7 +512,7 @@
      },
      "rows": 10,
      "x": 0,
-     "y": 8
+     "y": 9
     },
     {
      "cols": 3,
@@ -492,7 +520,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "5e7c54c9-f3a2-4117-a39f-92cc3631ed84",
       "options": [],
-      "questionOrder": 18,
+      "questionOrder": 19,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -555,6 +583,7 @@
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
+          "REQUIRED",
           "REGON"
          ]
         },
@@ -597,7 +626,7 @@
      },
      "rows": 5,
      "x": 0,
-     "y": 18
+     "y": 19
     },
     {
      "cols": 3,
@@ -605,7 +634,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "f53d9f4e-3f5a-48f7-90e3-9256422335db",
       "options": [],
-      "questionOrder": 23,
+      "questionOrder": 24,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -707,7 +736,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -789,7 +820,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -852,7 +885,7 @@
      },
      "rows": 10,
      "x": 0,
-     "y": 23
+     "y": 24
     },
     {
      "cols": 3,
@@ -860,7 +893,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dołącz aktualny odpis danych z Krajowego Rejestru Sądowego lub innego rejestru. Odpis powinien potwierdzać, że jesteś reprezentantem podmiotu lub instytucji.</span></p></body></html>",
       "id": "02670dbb-be81-4bcd-aa2f-d7e3c0f83d54",
       "options": [],
-      "questionOrder": 33,
+      "questionOrder": 34,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -900,7 +933,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 33
+     "y": 34
     },
     {
      "cols": 3,
@@ -908,7 +941,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "a105b426-334f-4250-afb5-9f47c9cc37b6",
       "options": [],
-      "questionOrder": 35,
+      "questionOrder": 36,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -970,7 +1003,7 @@
      },
      "rows": 3,
      "x": 0,
-     "y": 35
+     "y": 36
     },
     {
      "cols": 3,
@@ -978,7 +1011,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "6139fcf8-4486-4cff-89a0-226dcd3555ea",
       "options": [],
-      "questionOrder": 38,
+      "questionOrder": 39,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1080,7 +1113,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -1162,7 +1197,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -1225,7 +1262,7 @@
      },
      "rows": 10,
      "x": 0,
-     "y": 38
+     "y": 39
     },
     {
      "cols": 3,
@@ -1233,7 +1270,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.</span></p></body></html>",
       "id": "3b648cd6-3d72-4ef9-a9a6-1d8a7d0121e1",
       "options": [],
-      "questionOrder": 48,
+      "questionOrder": 49,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1273,7 +1310,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 48
+     "y": 49
     },
     {
      "cols": 3,
@@ -1281,7 +1318,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie </span><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\"><a href=\"https://www.biznes.gov.pl/pl/portal/0089#8\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></strong></p></body></html>",
       "id": "0d691057-435f-4dd8-a0db-ae591f6fab26",
       "options": [],
-      "questionOrder": 50,
+      "questionOrder": 51,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1384,7 +1421,7 @@
      },
      "rows": 4,
      "x": 0,
-     "y": 50
+     "y": 51
     },
     {
      "cols": 3,
@@ -1392,7 +1429,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "473bf5de-2ed9-412e-89c0-5e582221da4e",
       "options": [],
-      "questionOrder": 54,
+      "questionOrder": 55,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1452,7 +1489,7 @@
      },
      "rows": 3,
      "x": 0,
-     "y": 54
+     "y": 55
     }
    ],
    "title": "Dane",
@@ -1465,7 +1502,7 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "a5b432d1-e2f4-4236-b9a8-4f426216c504",
+      "id": "9f4ef7b8-ff3c-4a3c-b7c9-214146eda639",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1495,7 +1532,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Kwota nadpłaty w złotych</p></body></html>",
+         "description": "<html><head></head><body><p>Podaj kwotę w złotych</p></body></html>",
          "id": "bc1f52ec-60f6-47ad-a0d1-ccafab021bb7",
          "options": [],
          "questionOrder": 1,
@@ -1518,16 +1555,16 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "e48f2522-ef6f-44ed-9311-37ef1b2c0df4",
+         "id": "071afd82-06c8-4d6e-9f66-3e3dfc2b63b8",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "tytul_przyszlego_zobowiazania_podatkowego",
-         "title": "Tytuł przyszłego zobowiązania podatkowego",
+         "techName": "uzasadnienie_nadplaty",
+         "title": "Uzasadnienie nadpłaty",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "TEXTAREA",
          "validation": [
           "REQUIRED"
          ]
@@ -1543,14 +1580,14 @@
          "id": "cdde4917-8684-4337-93c8-74a6a0dbb43b",
          "options": [
           {
-           "id": "Zaliczenie na poczet przyszłego zobowiązania podatkowego",
-           "name": "Zaliczenie na poczet przyszłego zobowiązania podatkowego",
-           "techName": "zaliczenie_na_poczet_przyszlego_zobowiazania_podatkowego"
+           "id": "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
+           "name": "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
+           "techName": "zaliczyc_na_poczet_przyszlego_zobowiazania_podatkowego"
           },
           {
-           "id": "Zwrot przelewem na wskazany rachunek",
-           "name": "Zwrot przelewem na wskazany rachunek",
-           "techName": "zwrot_przelewem_na_wskazany_rachunek"
+           "id": "Zwrócić przelewem na wskazany rachunek",
+           "name": "Zwrócić przelewem na wskazany rachunek",
+           "techName": "zwrocic_przelewem_na_wskazany_rachunek"
           }
          ],
          "questionOrder": 3,
@@ -1573,19 +1610,19 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "b28d9f8a-aff2-4370-98bd-ef05f1dc18f7",
+         "id": "e48f2522-ef6f-44ed-9311-37ef1b2c0df4",
          "options": [],
          "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Zwrot przelewem na wskazany rachunek\" in tabs['Informacje o nadpłacie' in title].questions['informacje_o_nadplacie' in field.techName].field.repeatingSectionGrid['sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
+           "query": "(\"Zaliczyć na poczet przyszłego zobowiązania podatkowego\" in tabs['Informacje o nadpłacie' in title].questions['dane_wniosku' in field.techName].field.repeatingSectionGrid['sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
-         "techName": "numer_rachunku_bankowego_do_zwrotu",
-         "title": "Numer rachunku bankowego do zwrotu",
+         "techName": "tytul_przyszlego_zobowiazania_podatkowego",
+         "title": "Tytuł przyszłego zobowiązania podatkowego",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1599,17 +1636,22 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Uzasadnienie wniosku</p></body></html>",
-         "id": "9eebd52d-2eb1-4055-9498-1ed50d8265d7",
+         "description": "<html><head></head><body><p>Podaj numer rachunku w formacie XX XXXX XXXX XXXX XXXX XXXX XXXX</p></body></html>",
+         "id": "a7e1998b-a5ac-4b1c-8856-cb1203b953ce",
          "options": [],
          "questionOrder": 5,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "uzasadnienie",
-         "title": "Uzasadnienie",
+         "states": [
+          {
+           "query": "(\"Zwrócić przelewem na wskazany rachunek\" in tabs['Informacje o nadpłacie' in title].questions['dane_wniosku' in field.techName].field.repeatingSectionGrid['sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "numer_rachunku_bankowego",
+         "title": "Numer rachunku bankowego",
          "tooltipMessage": "",
-         "type": "TEXTAREA",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1617,14 +1659,35 @@
         "rows": 1,
         "x": 0,
         "y": 5
-       },
+       }
+      ],
+      "states": [],
+      "techName": "dane_wniosku",
+      "title": "Dane wniosku",
+      "tooltipMessage": "",
+      "type": "SECTION",
+      "validation": []
+     },
+     "rows": 7,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "cols": 3,
+     "field": {
+      "description": "<html><head></head><body></body></html>",
+      "id": "2227ce26-cc6d-4f74-9cec-ae22e815b902",
+      "options": [],
+      "questionOrder": 7,
+      "readOnly": false,
+      "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
          "description": "",
          "id": "85bcdf58-e971-45d0-9110-94df7406107d",
          "options": [],
-         "questionOrder": 6,
+         "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1638,19 +1701,60 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 6
+        "y": 0
        }
       ],
       "states": [],
-      "techName": "informacje_o_nadplacie",
-      "title": "Informacje o nadpłacie",
+      "techName": "zalaczniki",
+      "title": "Załączniki",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 8,
+     "rows": 2,
      "x": 0,
-     "y": 0
+     "y": 7
+    },
+    {
+     "cols": 3,
+     "field": {
+      "description": "<html><head></head><body></body></html>",
+      "id": "a9f75d84-a069-4411-ab18-ecd547c80010",
+      "options": [],
+      "questionOrder": 9,
+      "readOnly": false,
+      "repeatingSectionGrid": [
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "9be2b015-af61-4b8c-bd04-858022c2185f",
+         "options": [],
+         "questionOrder": 0,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "inne_zalaczniki_inne_zalaczniki",
+         "title": "Inne załączniki",
+         "tooltipMessage": "",
+         "type": "FILE_UPLOADER",
+         "validation": []
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 0
+       }
+      ],
+      "states": [],
+      "techName": "inne_zalaczniki",
+      "title": "Inne załączniki",
+      "tooltipMessage": "",
+      "type": "REPEATING_SECTION",
+      "validation": []
+     },
+     "rows": 2,
+     "x": 0,
+     "y": 9
     }
    ],
    "title": "Informacje o nadpłacie",

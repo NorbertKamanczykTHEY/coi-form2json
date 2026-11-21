@@ -1,12 +1,19 @@
 {
- "cost": 0.05991,
+ "cost": 0.06655,
  "needs_review": [
   {
-   "why": "quality gate: G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b31', 'p1.b122', 'p1.b186']"
+   "field_id": "9b7c777d-91b9-49e2-8814-b60a3cf83779",
+   "key": "zgoda_warunkowa_5",
+   "why": "warunek wyświetlania odwołuje się do pola z sekcji powtarzalnej „dane_podopiecznych_trenera”, czego COI nie obsługuje. Tę część warunku pominięto, sprawdź, kiedy element ma być widoczny."
   },
   {
-   "field_id": "4d8a66bb-e80c-4a5c-9244-f6b3cdc249e2",
-   "key": "wybierz_rodzaj_dyscypliny_sportowej",
+   "field_id": "af964398-c7a0-497f-beae-bf56fd486f78",
+   "key": "zgoda_warunkowa_6",
+   "why": "warunek wyświetlania odwołuje się do pola z sekcji powtarzalnej „dane_podopiecznych_trenera”, czego COI nie obsługuje. Tę część warunku pominięto, sprawdź, kiedy element ma być widoczny."
+  },
+  {
+   "field_id": "9258c46e-f668-41e4-8369-4ab75e31d871",
+   "key": "wybierz_rodzaje_dyscyplin_sportowych",
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   },
   {
@@ -15,8 +22,8 @@
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   },
   {
-   "field_id": "e65e22c9-9b46-42fd-b148-c009a0b6450b",
-   "key": "podaj_inna_dyscypline_sportowa",
+   "field_id": "dc4cbbd4-9918-484a-baf1-2eb2fc63d181",
+   "key": "inna_dyscyplina_sportowa",
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   }
  ],
@@ -24,9 +31,9 @@
   {
    "description": "Rodzaje dyscyplin (zespołowa, indywidualna – inna, indywidualna – lekkoatletyka) i dyscypliny z wniosku #9 (Zgierz).",
    "fields": [
-    "wybierz_rodzaj_dyscypliny_sportowej",
+    "wybierz_rodzaje_dyscyplin_sportowych",
     "wybierz_dyscypliny_sportowe",
-    "podaj_inna_dyscypline_sportowa"
+    "inna_dyscyplina_sportowa"
    ],
    "id": "DYSCYPLINY_SPORTOWE",
    "items": [
@@ -137,7 +144,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 177.85,
+ "seconds": 224.65,
  "source": {
   "cost": 0,
   "filename": "Wniosek o przyznanie stypendium.docx",
@@ -145,7 +152,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.11
+  "seconds": 0.03
  },
  "trace": [
   {
@@ -188,70 +195,73 @@
   {
    "accepted": false,
    "calls": 5,
-   "cost": 0.01151,
-   "coverage": 0.91,
+   "cost": 0.01001,
+   "coverage": 0.88,
    "fails": [
-    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b131', 'p1.b134', 'p1.b138', 'p1.b168', 'p1.b172', 'p1.b179', 'p1.b183', 'p1.b184']",
-    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['dodatkowe_informacje_o_osiagnieciach_sportowych_osoby_objete']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczono_dane_pelnomocnika_klubu_sportowego']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b114', 'p1.b186']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b108', 'p1.b115', 'p1.b119', 'p1.b120', 'p1.b131', 'p1.b134', 'p1.b138', 'p1.b172', 'p1.b179', 'p1.b183', 'p1.b184']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_o_zgodnosci_danych_z_prawda_i_kompletnosci_wnio', 'inne_oswiadczenia']",
+    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b130']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina_sportowa_osoby_objetej_wnioskiem']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczyc_dane_reprezentanta_klubu_sportowego', 'czy_dolaczyc_dane_pelnomocnika_klubu_sportowego', 'zgoda_na_przetwarzanie_danych_osobowych']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 61.8,
+   "seconds": 48.6,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00661,
-   "coverage": 0.98,
-   "fails": [
-    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b202', 'p1.b217']",
-    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['czy_osoba_objeta_wnioskiem_jest_pelnoletnia']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Dodatkowe informacje o osiągnięciach sportowych']"
-   ],
-   "mode": "two_stage",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 27.4,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 3,
-   "cost": 0.02133,
+   "cost": 0.00791,
    "coverage": 1.0,
    "fails": [
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b31', 'p1.b122', 'p1.b186']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_pelnoletniej_objetej_wnioskiem', 'oswiadczenie_rodzica_opiekuna_prawnego']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina_sportowa_osoby_objetej_wnioskiem']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 36.2,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.02165,
+   "coverage": 0.97,
+   "fails": [
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b24', 'p1.b115', 'p1.b179']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 63.8,
+   "seconds": 68.8,
    "stage": "extract"
   },
   {
-   "accepted": false,
+   "accepted": true,
    "calls": 1,
-   "cost": 0.02046,
-   "coverage": 0.77,
-   "fails": [
-    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b24', 'p1.b40', 'p1.b67', 'p1.b70', 'p1.b74', 'p1.b115', 'p1.b131', 'p1.b134', 'p1.b138', 'p1.b179', 'p1.b195', 'p1.b198', 'p1.b202', 'p1.b207', 'p1.b209', 'p1.b212', 'p1.b214', 'p1.b217', 'p1.b220', 'p1.b223']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Imię i nazwisko kandydata (zgoda)', 'Imię i nazwisko podopiecznego (zgoda)', 'czy_podopieczny_trenera_jest_pelnoletni', 'zgoda 1', 'zgoda 2', 'zgoda 3', 'zgoda 4', 'zgoda 5', 'zgoda 6', 'zgoda 7']"
-   ],
+   "cost": 0.02698,
+   "coverage": 1.0,
+   "fails": [],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 59.0,
+   "seconds": 86.3,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": []
+ "warnings": [
+  "sekcja 'Dane klubu sportowego': pominięto adres_siedziby_klubu_sportowego, nazwa_klubu_sportowego, bo powtarzają dane podmiotu ze strony „Dane”",
+  "sekcja 'Adres do korespondencji klubu sportowego': pominięto inny_adres_korespondencyjny, wybierz_adres_do_korespondencji_poczta_tradycyjna, adres do korespondencji jest w szablonie „Dane”",
+  "pole 'zgoda_warunkowa_5': warunek wyświetlania odwołuje się do pola z sekcji powtarzalnej „dane_podopiecznych_trenera”, czego COI nie obsługuje; tę część warunku pominięto",
+  "pole 'zgoda_warunkowa_6': warunek wyświetlania odwołuje się do pola z sekcji powtarzalnej „dane_podopiecznych_trenera”, czego COI nie obsługuje; tę część warunku pominięto",
+  "strona 'Dane sportowca / trenera': cała treść warunkowa, sekcje przeniesione na stronę 'Rodzaj wniosku'"
+ ]
 }

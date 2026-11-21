@@ -1,17 +1,65 @@
 {
- "cost": 0.00076,
+ "cost": 0.01735,
  "needs_review": [
   {
-   "key": "uzasadnienie_wniosku",
-   "why": "optional marker not confirmed in source: 'opisz w polu poniżej dlaczego opłata skarbowa, której dotyczy wniosek została błędnie uiszczona'"
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_uiszczenia_oplaty', 'wysokosc_oplaty', 'nazwa_organu', 'numer_rachunku', 'imie', 'nazwisko', 'adres']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b57', 'p1.b59']"
+   ],
+   "field_id": null,
+   "key": "formularz",
+   "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
   },
   {
-   "key": "uzasadnienie_wniosku",
-   "why": "inside a choice block but has no show_if"
+   "field_id": "fc6ac6a9-acb5-4bb6-bc7a-d579048793ca",
+   "key": "data_uiszczenia_oplaty",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "0c2573af-31d2-4d6d-91a9-19a4fc745a4d",
+   "key": "wysokosc_oplaty",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "6a475f2e-e237-4a73-8052-8136cfb32d3b",
+   "key": "nazwa_organu",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "01c56ee5-d02d-45ba-bc31-50304b6f8e71",
+   "key": "numer_rachunku",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "2a7e3ecd-af12-4028-8cd9-c054fe2f2c69",
+   "key": "imie_dane_wlasciciela_rachunku",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "b53a7105-5fb3-42de-92a0-791b278b06ff",
+   "key": "nazwisko_dane_wlasciciela_rachunku",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": null,
+   "key": "adres",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "anchor": "p1.b57",
+   "field_id": null,
+   "key": "formularz",
+   "why": "blok z miejscem do wpisania usunięty jako szablon"
+  },
+  {
+   "anchor": "p1.b59",
+   "field_id": null,
+   "key": "formularz",
+   "why": "blok z miejscem do wpisania usunięty jako szablon"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 5.18,
+ "seconds": 50.96,
  "source": {
   "cost": 0,
   "filename": "Wniosek o zwrot opłaty skarbowej.docx",
@@ -65,16 +113,67 @@
    "step": "T0"
   },
   {
-   "accepted": true,
+   "accepted": false,
    "calls": 1,
-   "cost": 0.00076,
+   "cost": 0.00074,
    "coverage": 1.0,
-   "fails": [],
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_uiszczenia_oplaty', 'wysokosc_oplaty', 'nazwa_organu_w_ktorym_zaplacono_oplate', 'numer_rachunku_bankowego']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
+   ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 5.1,
+   "seconds": 5.9,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00089,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_uiszczenia_oplaty', 'wysokosc_oplaty', 'nazwa_organu_w_ktorym_zaplacono_oplate', 'numer_rachunku_bankowego']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 6.0,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.01194,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_uiszczenia_oplaty', 'wysokosc_oplaty', 'nazwa_organu_w_ktorym_zaplacono_oplate', 'numer_rachunku', 'imie', 'nazwisko', 'adres']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b57', 'p1.b59']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 23.5,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00378,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_uiszczenia_oplaty', 'wysokosc_oplaty', 'nazwa_organu', 'numer_rachunku', 'imie', 'nazwisko', 'adres']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b57', 'p1.b59']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "repair",
+   "rung": 1,
+   "seconds": 15.5,
    "stage": "extract"
   }
  ],

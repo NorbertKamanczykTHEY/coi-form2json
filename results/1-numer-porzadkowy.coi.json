@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "54a0a8ac-a2d5-4c16-82b8-761f598d2090",
+    "id": "04fa1ae4-2ba1-4768-9e79-07b92739ff07",
     "source": "3fbf7fc3-6299-4697-93c3-c7b170970344",
-    "target": "4d93c2ee-2b02-4c70-9cc7-399e30493ac4"
+    "target": "528bde12-ddf8-48a8-bf3c-b4e83dca26a1"
    },
    {
-    "id": "23c4f6ec-d739-4538-8387-4098eb4934c1",
-    "source": "4d93c2ee-2b02-4c70-9cc7-399e30493ac4",
+    "id": "eb60c6fa-375a-44ac-848d-ff3f35291907",
+    "source": "528bde12-ddf8-48a8-bf3c-b4e83dca26a1",
     "target": "8e405fed-5fd2-442e-bd33-96a7e5136f68"
    },
    {
@@ -334,7 +334,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -422,7 +424,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -555,6 +559,7 @@
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
+          "REQUIRED",
           "REGON"
          ]
         },
@@ -707,7 +712,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -789,7 +796,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -1080,7 +1089,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -1162,7 +1173,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -1459,7 +1472,7 @@
    "type": "MAIN"
   },
   {
-   "id": "4d93c2ee-2b02-4c70-9cc7-399e30493ac4",
+   "id": "528bde12-ddf8-48a8-bf3c-b4e83dca26a1",
    "questions": [
     {
      "cols": 3,
@@ -1473,7 +1486,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "",
+         "description": "<html><head></head><body><p>Miejscowość, w której zlokalizowany jest budynek.</p></body></html>",
          "id": "3bdbf7b2-6421-413b-b99c-bcb82ae03b43",
          "options": [],
          "questionOrder": 0,
@@ -1495,7 +1508,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "",
+         "description": "<html><head></head><body><p>Nazwa ulicy, przy której zlokalizowany jest budynek.</p></body></html>",
          "id": "4f1b59de-32ad-4fa9-aa49-32eb4c584398",
          "options": [],
          "questionOrder": 1,
@@ -1515,15 +1528,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "",
-         "id": "15212f18-e94c-4113-bd71-cdec8796413c",
+         "description": "<html><head></head><body><p>Numer ewidencyjny działki, na której zlokalizowany jest budynek.</p></body></html>",
+         "id": "af4d8e64-eb5d-4a02-82d6-a884f32f398c",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "numer_porzadkowy_budynku",
-         "title": "Numer porządkowy budynku",
+         "techName": "numer_ewidencyjny_dzialki",
+         "title": "Numer ewidencyjny działki",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1533,6 +1546,28 @@
         "rows": 1,
         "x": 0,
         "y": 2
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "<html><head></head><body><p>Nazwa obrębu ewidencyjnego, w którym zlokalizowana jest działka.</p></body></html>",
+         "id": "00e1f7f0-0e40-4756-b999-89b5c9657a05",
+         "options": [],
+         "questionOrder": 3,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "obreb_ewidencyjny",
+         "title": "Obręb ewidencyjny",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 3
        }
       ],
       "states": [],
@@ -1542,12 +1577,12 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 4,
+     "rows": 5,
      "x": 0,
      "y": 0
     }
    ],
-   "title": "Ustalenie numeru porządkowego budynku",
+   "title": "Informacje o budynku",
    "type": "MAIN"
   },
   {

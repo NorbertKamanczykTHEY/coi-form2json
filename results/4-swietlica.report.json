@@ -1,13 +1,29 @@
 {
- "cost": 0.00063,
+ "cost": 0.00946,
  "needs_review": [
   {
-   "key": "miejsce_wynajecia",
-   "why": "source label has no words"
+   "field_id": "1c276140-339e-4521-a093-787af9c43294",
+   "key": "osoba_odpowiedzialna_za_utrzymanie_porzadku_i_bezpieczenstwa",
+   "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
+  },
+  {
+   "field_id": "483a0795-2d28-4a1b-abd3-c2f9995d807b",
+   "key": "miejsce_swietlicy_wiejskiej",
+   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
+  },
+  {
+   "field_id": "23b370e4-db60-429c-9d59-44f34d402915",
+   "key": "data_rozpoczecia_wynajmu",
+   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
+  },
+  {
+   "field_id": "680dd27c-1aac-408e-bf95-e2ba2fffa3f9",
+   "key": "data_zakonczenia_wynajmu",
+   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 4.67,
+ "seconds": 45.19,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wynajęcie świetlicy.docx",
@@ -15,7 +31,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.0
+  "seconds": 0.01
  },
  "trace": [
   {
@@ -58,16 +74,62 @@
    "step": "T0"
   },
   {
-   "accepted": true,
+   "accepted": false,
    "calls": 1,
-   "cost": 0.00063,
+   "cost": 0.00141,
    "coverage": 1.0,
-   "fails": [],
+   "fails": [
+    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b10: „wynajem/użyczenie* świetlicy wiejskiej w ___”']; każde ___ to osobne pole"
+   ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 4.6,
+   "seconds": 6.3,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00129,
+   "coverage": 1.0,
+   "fails": [
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zapoznanie_sie_z_warunkami_wynajmu', 'odpowiedzialnosc_za_lad_i_porzadek', 'przestrzeganie_przepisow_sanitarnych_bhp_i_p_poz', 'odpowiedzialnosc_za_powierzone_mienie']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 10.7,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.003,
+   "coverage": 1.0,
+   "fails": [
+    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b10: „wraz z wyposażeniem w terminie od ___”']; każde ___ to osobne pole",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['zalacznik_zgoda_osoby_odpowiedzialnej']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 14.5,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00376,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "repair",
+   "rung": 1,
+   "seconds": 13.5,
    "stage": "extract"
   }
  ],

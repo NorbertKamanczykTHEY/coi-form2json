@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "f733b9a4-46ae-4b44-b171-e904970ce4ca",
+    "id": "6e29f69e-4004-437f-8ac9-390601539aa2",
     "source": "2fb8ba20-7f2e-4c01-b154-aac47018a02a",
-    "target": "ba19eb8b-209c-49f8-889d-d93cbf71c3e4"
+    "target": "8889d441-1c8e-4334-acf9-6248aee50270"
    },
    {
-    "id": "20b5bad6-762f-49c9-a41c-7592ea730714",
-    "source": "ba19eb8b-209c-49f8-889d-d93cbf71c3e4",
+    "id": "e8385416-5e07-493c-a63c-6f7f4278ae5f",
+    "source": "8889d441-1c8e-4334-acf9-6248aee50270",
     "target": "8dbbf6c4-c147-4238-b0eb-9c349a4d5696"
    },
    {
@@ -315,7 +315,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -403,7 +405,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -645,7 +649,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -727,7 +733,9 @@
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -956,13 +964,13 @@
    "type": "MAIN"
   },
   {
-   "id": "ba19eb8b-209c-49f8-889d-d93cbf71c3e4",
+   "id": "8889d441-1c8e-4334-acf9-6248aee50270",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "1b48f675-0863-473a-8ed9-fcf964bcdc60",
+      "id": "ad0577fd-7361-4ce0-b80e-bbeebce5cf49",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -970,28 +978,28 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Wybierz, jakie zaświadczenie jest potrzebne</p></body></html>",
-         "id": "9faa601b-f7b7-49ab-823a-ec3b9c59ca4d",
+         "description": "",
+         "id": "e6256e7c-33b6-4b83-8dec-3cfae585db46",
          "options": [
           {
-           "id": "Ilość posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "name": "Ilość posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "techName": "ilosc_posiadanych_uzytkow_rolnych_w_hektarach_fizycznych_i_p"
+           "id": "Ilości posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "name": "Ilości posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "techName": "ilosci_posiadanych_uzytkow_rolnych_w_hektarach_fizycznych_i_"
           },
           {
-           "id": "Ilość dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "name": "Ilość dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "techName": "ilosc_dzierzawionych_uzytkow_rolnych_w_hektarach_fizycznych_"
+           "id": "Ilości dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "name": "Ilości dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "techName": "ilosci_dzierzawionych_uzytkow_rolnych_w_hektarach_fizycznych"
           },
           {
-           "id": "Okres posiadania gospodarstwa rolnego",
-           "name": "Okres posiadania gospodarstwa rolnego",
-           "techName": "okres_posiadania_gospodarstwa_rolnego"
+           "id": "Okresie posiadania gospodarstwa rolnego",
+           "name": "Okresie posiadania gospodarstwa rolnego",
+           "techName": "okresie_posiadania_gospodarstwa_rolnego"
           },
           {
-           "id": "Nieposiadanie użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
-           "name": "Nieposiadanie użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
-           "techName": "nieposiadanie_uzytkow_rolnych_gospodarstwa_rolnego_na_tereni"
+           "id": "Nieposiadaniu użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
+           "name": "Nieposiadaniu użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
+           "techName": "nieposiadaniu_uzytkow_rolnych_gospodarstwa_rolnego_na_tereni"
           },
           {
            "id": "Inne",
@@ -1003,10 +1011,10 @@
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "rodzaj_zaswiadczenia",
-         "title": "Rodzaj zaświadczenia",
+         "techName": "prosze_o_wydanie_zaswiadczenia_o",
+         "title": "Proszę o wydanie zaświadczenia o",
          "tooltipMessage": "",
-         "type": "RADIO",
+         "type": "CHECKBOX",
          "validation": [
           "REQUIRED"
          ]
@@ -1026,7 +1034,7 @@
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Inne\" in tabs['Wniosek o wydanie zaświadczenia' in title].questions['rodzaj_wnioskowanego_zaswiadczenia' in field.techName].field.repeatingSectionGrid['rodzaj_zaswiadczenia' in field.techName].field.__userAnswer)",
+           "query": "(\"Inne\" in tabs['Informacje o wniosku' in title].questions['informacje_o_zaswiadczeniu' in field.techName].field.repeatingSectionGrid['prosze_o_wydanie_zaswiadczenia_o' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
@@ -1045,7 +1053,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Wpisz cel przedłożenia zaświadczenia</p></body></html>",
+         "description": "",
          "id": "a4464ffd-eba7-4bc6-aa5c-a7502bbb0be2",
          "options": [],
          "questionOrder": 2,
@@ -1066,8 +1074,8 @@
        }
       ],
       "states": [],
-      "techName": "rodzaj_wnioskowanego_zaswiadczenia",
-      "title": "Rodzaj wnioskowanego zaświadczenia",
+      "techName": "informacje_o_zaswiadczeniu",
+      "title": "Informacje o zaświadczeniu",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -1077,7 +1085,7 @@
      "y": 0
     }
    ],
-   "title": "Wniosek o wydanie zaświadczenia",
+   "title": "Informacje o wniosku",
    "type": "MAIN"
   },
   {
@@ -1253,5 +1261,5 @@
    "type": "FINISH"
   }
  ],
- "title": "Wniosek o wydanie zaświadczenia o posiadanych lub dzierżawionych użytkach rolnych"
+ "title": "Wniosek o wydanie zaświadczenia o posiadanych/dzierżawionych użytkach rolnych lub nieposiadaniu gospodarstwa rolnego"
 }

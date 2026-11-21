@@ -1,13 +1,8 @@
 {
- "cost": 0.0005,
- "needs_review": [
-  {
-   "key": "cel_przedlozenia_zaswiadczenia",
-   "why": "inside a choice block but has no show_if"
-  }
- ],
+ "cost": 0.00137,
+ "needs_review": [],
  "proposed_dictionaries": [],
- "seconds": 3.74,
+ "seconds": 4.51,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wydanie zaświadczenia.docx",
@@ -15,7 +10,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.0
+  "seconds": 0.01
  },
  "trace": [
   {
@@ -58,14 +53,14 @@
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.0005,
+   "cost": 0.00137,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 3.7,
+   "seconds": 4.4,
    "stage": "extract"
   }
  ],

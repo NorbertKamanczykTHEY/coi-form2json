@@ -1,5 +1,5 @@
 {
- "cost": 0.00133,
+ "cost": 0.00382,
  "needs_review": [
   {
    "field_id": "4bd8b70e-2ff3-405f-97d8-6dfbec78b619",
@@ -69,7 +69,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 9.86,
+ "seconds": 20.15,
  "source": {
   "cost": 0,
   "filename": "Wniosek o stwierdzenie nadpłaty podatku.docx",
@@ -120,29 +120,45 @@
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00058,
+   "cost": 0.00067,
    "coverage": 1.0,
    "fails": [
+    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b13: „w kwocie ___”']; każde ___ to osobne pole",
     "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b21']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 4.5,
+   "seconds": 5.5,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00096,
+   "coverage": 1.0,
+   "fails": [
+    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b13: „w kwocie ___”']; każde ___ to osobne pole"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 5.3,
    "stage": "extract"
   },
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00075,
+   "cost": 0.00219,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 5.2,
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 9.3,
    "stage": "extract"
   }
  ],

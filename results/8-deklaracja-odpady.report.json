@@ -1,8 +1,126 @@
 {
- "cost": 0.07494,
- "needs_review": [],
+ "cost": 0.05729,
+ "needs_review": [
+  {
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'numer_y_dzialki_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym', 'wysokosc_miesiecznego_zwolnienia']",
+    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
+    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczam_ze_nieruchomosc_wyposazona_jest_w_przydomowy_komp']"
+   ],
+   "field_id": null,
+   "key": "formularz",
+   "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
+  },
+  {
+   "field_id": "a8a3b632-59f6-40c8-893b-ea9ba5178264",
+   "key": "data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "1f011975-e575-4ca1-9cc5-439e29d9684d",
+   "key": "data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "302b0f6a-a476-4dc8-8732-520c606bf85f",
+   "key": "data_wystapienia_zmiany_danych",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "909bd605-a488-45c1-ad94-fed44435794a",
+   "key": "numer_y_dzialki_dzialek_geodezyjnych",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "ae986e76-9c08-426f-91eb-035f87e78c32",
+   "key": "liczba_gospodarstw_domowych_do_45_m2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "0e36e855-6f41-450a-a83d-3bb7d4521eaa",
+   "key": "liczba_gospodarstw_domowych_45_60_m2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "0b036906-075b-422e-9e5a-1b56458a14ea",
+   "key": "liczba_gospodarstw_domowych_60_80_m2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "f64e3284-c00b-4d6b-8dc8-c96a2aa2d751",
+   "key": "liczba_gospodarstw_domowych_powyzej_80_m2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "0d1185fb-05da-4d4f-a429-1b90336399a2",
+   "key": "liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "9e45b87a-46e4-4534-b678-bc6e983a865d",
+   "key": "wysokosc_miesiecznego_zwolnienia",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "5aec40fc-2c52-49f2-a5de-5e9a52edd25e",
+   "key": "suma_oplaty",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "157d9b60-5475-45c3-8061-fbb87bef0406",
+   "key": "liczba_gospodarstw_domowych_do_45_m2_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "66aaee6d-6e33-4b5c-9484-8814c18b5d46",
+   "key": "liczba_gospodarstw_domowych_45_60_m2_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "f6dcb707-add0-46b4-b209-ee93d17436f1",
+   "key": "liczba_gospodarstw_domowych_60_80_m2_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "4d928706-5112-4e92-a0af-1ac75dd519b3",
+   "key": "liczba_gospodarstw_domowych_powyzej_80_m2_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "77a4027d-4362-47ea-aedd-e99897227a75",
+   "key": "liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "f2fbbec4-6cf8-4e1f-a72e-91025cb74b68",
+   "key": "wysokosc_miesiecznego_zwolnienia_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "332423d4-ec1f-4727-ae48-5938dec84256",
+   "key": "suma_oplaty_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "2924ce08-e086-4c9b-ba7c-414089ded1b9",
+   "key": "kwota_oplaty_dla_czesci_nieruchomosci_na_ktorej_nie_zamieszk",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "f57fd507-4e70-485e-9622-bd7991fbfc60",
+   "key": "oswiadczam_ze_nieruchomosc_wyposazona_jest_w_przydomowy_komp",
+   "why": "pole wyboru ma mniej niż 2 opcje"
+  },
+  {
+   "anchor": "p1.b353",
+   "field_id": null,
+   "key": "formularz",
+   "why": "załącznik z listy bez pola do wgrania pliku"
+  }
+ ],
  "proposed_dictionaries": [],
- "seconds": 274.92,
+ "seconds": 184.45,
  "source": {
   "cost": 0,
   "filename": "Deklaracja o wysokości opłaty.docx",
@@ -52,68 +170,69 @@
   },
   {
    "accepted": false,
-   "calls": 2,
-   "cost": 0.01009,
-   "coverage": 1.0,
-   "fails": [
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wybrano_wspolmalzonka_do_deklaracji', 'oswiadczenie_o_wyposazeniu_nieruchomosci_w_kompostownik', 'zgoda_na_otrzymywanie_korespondencji_elektronicznej', 'wybrano_inne_zalaczniki']"
-   ],
-   "mode": "two_stage",
-   "model": "mistral/mistral-small-2603",
-   "round": "first",
-   "rung": 0,
-   "seconds": 60.3,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 2,
-   "cost": 0.01865,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_do_korekty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wybrano_inne_zalaczniki']"
-   ],
-   "mode": "two_stage",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 90.0,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
    "calls": 3,
-   "cost": 0.02345,
+   "cost": 0.00851,
    "coverage": 1.0,
    "fails": [
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Rodzaj nieruchomości i oświadczenie o kompostowniku']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczenie_o_posiadaniu_przydomowego_kompostownika']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b353']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['adres_zamieszkania_wspolmalzonka', 'numery_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2_2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym', 'wysokosc_miesiecznego_zwolnienia', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2_2_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2_2_2_2']",
+    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353', 'p1.b354']",
+    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inne_zalaczniki']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 51.2,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "cost": 0.00437,
+   "error": "repair collapsed the tree (73 -> 5 fields)",
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.02173,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_2', 'numer_y_dzialki_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o_', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2_2_2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym']",
+    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
+    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Oświadczenie o wyposażeniu nieruchomości w przydomowy kompostownik']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 63.9,
+   "seconds": 65.2,
    "stage": "extract"
   },
   {
-   "accepted": true,
+   "accepted": false,
    "calls": 1,
-   "cost": 0.02275,
+   "cost": 0.02267,
    "coverage": 1.0,
-   "fails": [],
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'numer_y_dzialki_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym', 'wysokosc_miesiecznego_zwolnienia']",
+    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
+    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczam_ze_nieruchomosc_wyposazona_jest_w_przydomowy_komp']"
+   ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 62.5,
+   "seconds": 57.4,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": [
-  "strona 'Dane współmałżonka': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta"
- ]
+ "warnings": []
 }
