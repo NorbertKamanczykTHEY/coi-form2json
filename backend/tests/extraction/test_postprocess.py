@@ -3,7 +3,9 @@ from coi.extraction.postprocess import normalize
 from coi.extraction.tree import FieldTree
 
 BLOCKS = {"p1.b1": "Kwotę proszę: zwrócić przelewem na rachunek ___", "p1.b2": "Telefon (opcjonalnie) ___ Uwagi ___",
-          "p1.b3": "2) ___", "p1.b4": "Do wniosku należy dołączyć zaświadczenie. Można dołączyć dyplomy."}
+          "p1.b3": "2) ___", "p1.b4": "Do wniosku należy dołączyć zaświadczenie. Można dołączyć dyplomy.",
+          "p1.b5": "w miejscowości ___ przy ulicy1)___", "p1.b6": "Numer konta ___", "p1.b9": "1) ) Dane nieobowiązkowe.",
+          "p1.b7": "Adres (*może być inny niż adres zamieszkania*) ___", "p1.b8": "*Ewentualne uwagi do wniosku*"}
 
 
 def f(key, label, type_="TEXT_FIELD", src="p1.b2", **kw):
@@ -19,7 +21,12 @@ def tree():
             f("child_pesel", "PESEL dziecka", description="11 cyfr", description_source="document"),
             f("tel2", "Telefon zapasowy", description="Telefon (opcjonalnie)", description_source="ai"),
             f("tel", "Telefon", optional_evidence="opcjonalnie"),
-            f("notes", "Uwagi", optional_evidence="nieobowiązkowe"),
+            f("notes", "Uwagi"),
+            f("acc2", "Numer konta", src="p1.b6", optional_evidence="nieobowiązkowe"),
+            f("city", "Miejscowość", src="p1.b5", source_label="w miejscowości"),
+            f("street", "Ulica", src="p1.b5", source_label="przy ulicy"),
+            f("dipl", "Dyplomy", "FILE_UPLOADER", "p1.b4", source_label="dyplomy"),
+            f("addr", "Adres", src="p1.b7", source_label="Adres"),
             f("slot", "Załącznik 2", "FILE_UPLOADER", "p1.b3", source_label="2) ___"),
             f("cert", "Zaświadczenie", "FILE_UPLOADER", "p1.b4", optional_evidence="Można dołączyć"),
             f("dup", "Telefon"),
@@ -39,7 +46,12 @@ def test_normalize_rules():
     assert fs["telefon_zapasowy"].description_source == "document"
     assert not any(r.get("key") in ("pesel_dziecka", "telefon_zapasowy") for r in review)  # suggestions are not needs_review
     assert fs["telefon"].optional_evidence == "opcjonalnie"  # R2: marker is in the source
-    assert fs["uwagi"].optional_evidence is None and any(r["key"] == "uwagi" for r in review)  # invented marker, flagged
+    assert fs["uwagi"].optional_evidence == "Uwagi"  # the label itself is a marker
+    assert fs["numer_konta"].optional_evidence is None and any(r["key"] == "numer_konta" for r in review)  # invented, flagged
+    assert fs["ulica"].optional_evidence == "Dane nieobowiązkowe."  # footnote 1) after the label
+    assert fs["miejscowosc"].optional_evidence is None
+    assert fs["adres"].optional_evidence is None  # "(*…*)" is emphasis, the italic "*Ewentualne…*" block is no footnote
+    assert fs["dyplomy"].optional_evidence == "Można dołączyć"  # its own sentence, not the "należy" one
     assert "zalacznik_2" not in fs and any(d.reason == "empty_slot" and d.src == ["p1.b3"] for d in out.dropped)
     assert fs["zaswiadczenie"].optional_evidence is None  # R4: "należy dołączyć" wins
     assert "telefon_2" in fs  # unique keys

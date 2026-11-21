@@ -78,9 +78,14 @@ def test_no_valid_schema_raises():
 
 
 def test_two_stage_for_multi_variant_document():
-    d = doc(["Wniosek o stypendium", "Wynik sportowy ___", "Wniosek o nagrodę", "Wynik sportowy ___", "Klub ___"])
+    d = doc(["Wniosek o stypendium", "Wynik sportowy ___", "Wniosek o nagrodę", "Wynik sportowy ___", "Klub ___",
+             "Zgoda osoby niepełnoletniej: wyrażam zgodę", "Zgoda dla nagrody: akceptuję regulamin"])
     skel = {"title": "Wniosek o stypendium lub nagrodę", "applicant_kinds": ["person"], "variants": ["Stypendium", "Nagroda"],
-            "dropped": [{"reason": "title", "src": ["p1.b0"]}, {"reason": "title", "src": ["p1.b2"]}],
+            "dropped": [{"reason": "title", "src": ["p1.b0"]}, {"reason": "title", "src": ["p1.b2"]}, {"reason": "consent", "src": ["p1.b5-p1.b6"]}],
+            "conditions": [{"key": "pelnoletni", "label": "Czy osoba jest pełnoletnia", "options": ["Tak", "Nie"]}],
+            "consents": [{"text": "Wyrażam zgodę", "src": ["p1.b5"], "condition": {"field": "pelnoletni", "options": ["Nie"]}},
+                         {"text": "Akceptuję regulamin", "src": ["p1.b6"], "variants": ["Nagroda"]},
+                         {"text": "Zgoda wspólna", "src": ["p1.b6"], "variants": ["Stypendium", "Nagroda"]}],
             "pages": [{"title": "Osiągnięcia", "sections": [
                 {"title": "Wyniki", "src": ["p1.b1", "p1.b3"], "variants": ["Stypendium", "Nagroda"]},
                 {"title": "Klub", "src": ["p1.b4"], "variants": ["Nagroda"]}]}]}
@@ -93,7 +98,12 @@ def test_two_stage_for_multi_variant_document():
     assert "[p1.b0]" not in p.calls[1][1]  # stage two sees only the page's blocks
     secs = r.tree.pages[0].sections
     assert [s.title for s in secs] == ["Rodzaj wniosku", "Wyniki", "Klub"]
-    radio = secs[0].fields[0]
+    radio, adult = secs[0].fields
+    assert adult.type == "RADIO" and adult.source_label.startswith("Zgoda osoby")  # grounded in the consent it controls
+    c1, c2, c3 = r.tree.consents
+    assert [(x.field, x.options) for x in c1.show_if] == [(adult.key, ["Nie"])]
+    assert [(x.field, x.options) for x in c2.show_if] == [(radio.key, ["Nagroda"])]
+    assert c3.show_if == []
     assert radio.type == "RADIO" and radio.options == ["Stypendium", "Nagroda"]
     assert secs[1].show_if is None  # common to all variants
     assert secs[2].show_if.field == radio.key and secs[2].show_if.options == ["Nagroda"]
@@ -112,3 +122,14 @@ def test_real_form1_via_eden():
     fields = [f for p in r.tree.pages for s in p.sections for f in s.fields]
     print(f"\n#1: {len(fields)} fields, needs_review={len(r.needs_review)}, cost=${r.cost}, trace={[(t['model'], t['round'], t['accepted']) for t in r.trace]}")
     assert 3 <= len(fields) <= 10 and r.cost > 0
+
+
+def test_repair_keeps_control_fields_that_show_if_still_names():
+    first = bad()
+    first["pages"][0]["sections"][0]["fields"].append({"key": "pelnoletni", "label": "Czy osoba jest pełnoletnia", "source_label": "Sposób",
+                                                       "type": "RADIO", "options": ["Tak", "Nie"], "src": ["p1.b1"]})
+    repaired = good()
+    repaired["consents"] = [{"text": "Zgoda", "show_if": [{"field": "czy_osoba_jest_pelnoletnia", "options": ["Nie"]}]}]
+    r = extract(DOC, provider=Fake([first, repaired]))
+    keys = [f.key for p in r.tree.pages for s in p.sections for f in s.fields]
+    assert "czy_osoba_jest_pelnoletnia" in keys and r.trace[-1]["accepted"], r.trace

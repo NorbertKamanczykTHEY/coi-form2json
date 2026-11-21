@@ -48,11 +48,26 @@ class SkeletonSection(BaseModel):
     variants: StrList = Field(default_factory=list, description="rodzaje wniosków, których dotyczy sekcja; pusto = wspólna")
     repeating: bool = False
     person_role: Literal["third_party"] | None = None
+    condition: ShowIf | None = Field(default=None, description="gdy sekcja dotyczy tylko jednej sytuacji: pytanie z `conditions` i opcje")
 
 
 class SkeletonPage(BaseModel):
     title: str
-    sections: list[SkeletonSection]
+    sections: list[SkeletonSection] = Field(default_factory=list)
+
+
+class Condition(BaseModel):
+    key: str
+    label: str = Field(description="pytanie, np. 'Czy osoba jest pełnoletnia'")
+    options: StrList = Field(description="co najmniej 2 opcje")
+    src: StrList = Field(default_factory=list, description="bloki, z których wynika ta sytuacja")
+
+
+class SkeletonConsent(BaseModel):
+    text: str
+    src: StrList = Field(default_factory=list)
+    variants: StrList = Field(default_factory=list, description="rodzaje wniosków, których dotyczy zgoda; pusto = wszystkie")
+    condition: ShowIf | None = Field(default=None, description="gdy zgoda dotyczy tylko jednej sytuacji: pytanie z `conditions` i opcje")
 
 
 class Skeleton(BaseModel):
@@ -61,8 +76,9 @@ class Skeleton(BaseModel):
     applicant_kinds: list[Literal["person", "legal_entity"]]
     entity_option: str | None = None
     variants: StrList = Field(default_factory=list, description="krótkie nazwy rodzajów wniosków, gdy dokument łączy kilka; inaczej pusto")
+    conditions: list[Condition] = Field(default_factory=list, description="pytania RADIO rozstrzygające sytuacje, od których zależą zgody lub sekcje")
     pages: list[SkeletonPage]
-    consents: list[Consent] = Field(default_factory=list)
+    consents: list[SkeletonConsent] = Field(default_factory=list)
     dropped: list[Drop] = Field(default_factory=list)
     issues: StrList = Field(default_factory=list)
 
@@ -119,9 +135,15 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
     skel = calls.ask(model, prompt("field_extraction_skeleton", schema=json.dumps(Skeleton.model_json_schema(), ensure_ascii=False),
                                    text=anchored(doc)), Skeleton)
     variants = skel.variants if len(skel.variants) >= 2 else []
-    fixed = skel.model_dump_json(include={"title", "variants", "pages"}, exclude_none=True)
+    conds = {c.key: c for c in skel.conditions if len(c.options) >= 2}
+    fixed = skel.model_dump_json(include={"title", "variants", "conditions", "pages"}, exclude_none=True)
     rule = (f"Sekcje z niepustym `variants` dostaną `show_if` na pole `{VARIANT_KEY}` (opcje: {variants}) automatycznie: "
             "nie dodawaj pola „Rodzaj wniosku” i nie ustawiaj show_if na rodzaj wniosku.") if variants else ""
+    if conds:
+        rule += f" Pytania z `conditions` ({list(conds)}) dodaje kod: nie twórz ich jako pól, ale możesz wskazać je w `show_if`."
+
+    def cond_of(c: ShowIf | None) -> ShowIf | None:
+        return c if c and c.field in conds and c.options else None
     schema = json.dumps(SubjectPage.model_json_schema(), ensure_ascii=False)
 
     def fields_of(sp: SkeletonPage) -> SubjectPage:
@@ -144,14 +166,43 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
             opts = [v for v in sk.variants if v in variants]
             if opts and set(opts) != set(variants) and not sec.show_if:  # Q2: variant sections are SHOW, not copies
                 sec.show_if = ShowIf(field=VARIANT_KEY, options=opts)
+            if c := cond_of(sk.condition):  # a second condition goes onto the fields (one show_if per node)
+                if not sec.show_if:
+                    sec.show_if = c
+                else:
+                    for f in sec.fields:
+                        f.show_if = f.show_if or c
     pages = [p for p in pages if p.sections]
-    if variants and pages:
+    intro = []
+    if variants:
         heads = _variant_headings(blocks)
-        pages[0].sections.insert(0, Section(title="Rodzaj wniosku", src=heads, fields=[FormField(
-            key=VARIANT_KEY, label="Wybierz rodzaj wniosku", source_label=blocks.get(heads[0], "Wniosek o") if heads else "Wniosek o",
-            type="RADIO", options=variants, src=heads[:1])]))
+        intro.append(FormField(key=VARIANT_KEY, label="Wybierz rodzaj wniosku", type="RADIO", options=variants, src=heads[:1],
+                               source_label=blocks.get(heads[0], "Wniosek o") if heads else "Wniosek o"))
+    for c in conds.values():
+        c.src = c.src or next((x.src for x in skel.consents if x.condition and x.condition.field == c.key), [])
+        intro.append(FormField(key=c.key, label=c.label, type="RADIO", options=c.options, src=c.src,
+                               source_label=" ".join(blocks.get(a, "") for a in expand(c.src[:1], blocks)) or c.label))
+    if intro and pages:
+        pages[0].sections.insert(0, Section(title="Rodzaj wniosku" if variants else "Informacje wstępne",
+                                            src=[a for f in intro for a in f.src], fields=intro))
+    consents = []
+    for c in skel.consents:
+        show = [ShowIf(field=VARIANT_KEY, options=o)] if (o := [v for v in c.variants if v in variants]) and set(o) != set(variants) else []
+        consents.append(Consent(text=c.text, src=c.src, show_if=show + [x for x in [cond_of(c.condition)] if x]))
     return FieldTree(title=skel.title, addressee=skel.addressee, applicant_kinds=skel.applicant_kinds, entity_option=skel.entity_option,
-                     pages=pages, consents=skel.consents, dropped=skel.dropped, issues=skel.issues)
+                     pages=pages, consents=consents, dropped=skel.dropped, issues=skel.issues)
+
+
+def _restore_controls(tree: FieldTree, prev: FieldTree) -> FieldTree:
+    """A repair returns the whole tree again and sometimes drops a control field that show_if still names;
+    put the previous version of such a field back at the start of the first page."""
+    have = {f.key for p in tree.pages for s in p.sections for f in s.fields}
+    refs = {si.field for p in tree.pages for s in p.sections for si in [s.show_if, *(f.show_if for f in s.fields)] if si}
+    refs |= {si.field for c in tree.consents for si in c.show_if}
+    lost = [f for p in prev.pages for s in p.sections for f in s.fields if f.key in refs - have]
+    if lost and tree.pages:
+        tree.pages[0].sections.insert(0, Section(title="Informacje wstępne", src=[a for f in lost for a in f.src], fields=lost))
+    return tree
 
 
 def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.Provider | None = None) -> ExtractionResult:
@@ -186,8 +237,8 @@ def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.
             cost0, secs0, n0 = calls.cost, calls.seconds, calls.n
             base = _base_prompt(doc)  # repair is one full call even for two-stage trees (#9 fits: ~9k tokens in)
             try:
-                tree = calls.ask(model, prompt("field_extraction_repair", base=base, errors="\n".join(g["fails"]),
-                                               previous=tree.model_dump_json(exclude_none=True)), FieldTree)
+                tree = _restore_controls(calls.ask(model, prompt("field_extraction_repair", base=base, errors="\n".join(g["fails"]),
+                                                                 previous=tree.model_dump_json(exclude_none=True)), FieldTree), tree)
             except ExtractionError as e:
                 trace.append(step | {"round": "repair", "accepted": False, "error": str(e), "cost": round(calls.cost - cost0, 5)})
                 break
