@@ -1,612 +1,17 @@
 {
- "cost": 0.05403,
+ "cost": 0.05899,
  "needs_review": [
   {
-   "key": "dodatkowe_osiagniecia_opcjonalnie",
-   "why": "optional marker not confirmed in source: 'opcjonalnie'"
+   "key": "ewentualne_dodatkowe_informacje_o_osiagnieciach_sportowych",
+   "why": "label not found in the document"
   },
   {
-   "key": "dodatkowe_osiagniecia_opcjonalnie_2",
-   "why": "optional marker not confirmed in source: 'opcjonalnie'"
+   "why": "quality gate: G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['ewentualne_dodatkowe_informacje_o_osiagnieciach_sportowych']"
   },
   {
-   "key": "uzasadnienie_wniosku",
-   "why": "optional marker not confirmed in source: 'opcjonalnie'"
-  },
-  {
-   "key": "odpis_danych_z_krajowego_rejestru_sadowego",
-   "why": "optional marker not confirmed in source: 'jeżeli tak, należy dołączyć'"
-  },
-  {
-   "key": "wybierz_rodzaj_wniosku",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "pesel",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "numer_telefonu",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "adres_e_mail",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "numer_rachunku_bankowego",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "pesel_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "numer_telefonu_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "adres_e_mail_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "wybierz_dyscypliny_sportowe",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "podaj_inne_dyscypliny_sportowe",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "nazwa_klubu_sportowego",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "numer_licencji",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "wybierz_poziom_sportowy",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "liczba_lat_uprawiania_sportu",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "opisz_osiagniecia_sportowe",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "uzasadnienie_wniosku_o_przyznanie_stypendium",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "wypelnij_tabele_osiagniec_sportowych",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "rok",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "nazwa_zawodow",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "miejsce",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zajete_miejsce_osiagniecie",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "rok_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "nazwa_zawodow_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "miejsce_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zajete_miejsce_osiagniecie_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "dodatkowe_osiagniecia_opcjonalnie",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "podpis_i_pieczec_klubu",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zalacznik_z_opinia_klubu",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "imie_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "pesel_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "data_urodzenia_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "dyscyplina_sportowa",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "osiagniecia_sportowe",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "rok_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "nazwa_zawodow_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "miejsce_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zajete_miejsce_osiagniecie_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "rok_2_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "nazwa_zawodow_2_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "miejsce_2_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zajete_miejsce_osiagniecie_2_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "dodatkowe_osiagniecia_opcjonalnie_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "opisz_osiagniecia_podopiecznych",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zalacznik_z_osiagnieciami_podopiecznych",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "oswiadczenie_macierzystego_klubu_sportowego_o_osiagnieciach_",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "licencja_sportowa_wazna_w_roku_kalendarzowym_w_ktorym_sklada",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "zaswiadczenie_organizatora_zawodow_o_zajeciu_miejsca_na_podi",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "potwierdzenie_osiagniec_sportowych_podopiecznych",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "uzasadnienie_wniosku",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "czy_klub_sportowy_posiada_aktualny_odpis_danych_z_krajowego_",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "odpis_danych_z_krajowego_rejestru_sadowego",
-   "why": "label not found in cited source"
-  },
-  {
-   "anchor": "p2.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b3",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b5",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b6",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b7",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b8",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b9",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b10",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b11",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b12",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b13",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b16",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b17",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b18",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b20",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b21",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b22",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b23",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p2.b24",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b16",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b17",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b18",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b19",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b20",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b21",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b22",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b23",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b24",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b25",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b26",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b27",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b28",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b29",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b30",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b31",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b32",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b33",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b34",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p3.b35",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p4.b10",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p4.b11",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p6.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p6.b5",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p6.b7",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p6.b10",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b3",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b5",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b6",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b7",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b8",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b9",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b10",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b11",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b12",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b13",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b16",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b17",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b18",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b20",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b21",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b22",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b23",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p7.b24",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p9.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p10.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p10.b5",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p10.b7",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p10.b10",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b3",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b5",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b6",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b7",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b8",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b9",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b10",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b11",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b12",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b13",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b16",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b17",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b18",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b20",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b21",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b22",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b23",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p11.b24",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p14.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p14.b8",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p15.b2",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p15.b5",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p16.b3",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p16.b6",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p16.b8",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "anchor": "p16.b11",
-   "why": "fill mark not used by any field or drop"
-  },
-  {
-   "why": "quality gate: G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b6', 'p2.b7', 'p2.b8', 'p2.b9', 'p2.b10', 'p2.b11', 'p2.b12', 'p2.b13', 'p2.b16', 'p2.b17', 'p2.b18', 'p2.b20', 'p2.b21', 'p2.b22', 'p2.b23', 'p2.b24', 'p3.b16']"
+   "field_id": "f65f94c7-329a-4c6a-ac17-32eaa4822207",
+   "key": "wybierz_rodzaje_dyscyplin_sportowych",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   },
   {
    "field_id": "87aefc4d-82e5-4d0a-b9fe-8a100169d45e",
@@ -614,13 +19,8 @@
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   },
   {
-   "field_id": "6f681197-996a-4545-840a-019b4879b6a1",
-   "key": "podaj_inne_dyscypliny_sportowe",
-   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
-  },
-  {
-   "field_id": "04586756-39f0-4cb5-b39d-df332463454e",
-   "key": "dyscyplina_sportowa",
+   "field_id": "ca2987ec-61bf-47fb-a260-5cd8f44833c2",
+   "key": "podaj_inna_dyscypline_sportowa",
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   }
  ],
@@ -628,9 +28,9 @@
   {
    "description": "Rodzaje dyscyplin (zespołowa, indywidualna – inna, indywidualna – lekkoatletyka) i dyscypliny z wniosku #9 (Zgierz).",
    "fields": [
+    "wybierz_rodzaje_dyscyplin_sportowych",
     "wybierz_dyscypliny_sportowe",
-    "podaj_inne_dyscypliny_sportowe",
-    "dyscyplina_sportowa"
+    "podaj_inna_dyscypline_sportowa"
    ],
    "id": "DYSCYPLINY_SPORTOWE",
    "items": [
@@ -741,15 +141,15 @@
    "source": "catalog"
   }
  ],
- "seconds": 167.33,
+ "seconds": 187.26,
  "source": {
-  "cost": 0.00648,
+  "cost": 0.006478,
   "filename": "Wniosek o przyznanie stypendium.png",
   "kind": "image",
   "mime": "image/png",
   "parser": "mistral/ministral-8b-2512",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 20.54
+  "seconds": 20.24
  },
  "trace": [
   {
@@ -770,7 +170,7 @@
    },
    "page": 1,
    "parser": "tesseract",
-   "seconds": 0.38,
+   "seconds": 0.72,
    "step": "T0"
   },
   {
@@ -789,7 +189,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 1,
    "parser": "vlm",
-   "seconds": 1.61,
+   "seconds": 1.73,
    "step": "VLM1",
    "tiles": 1
   },
@@ -812,12 +212,12 @@
    },
    "page": 2,
    "parser": "tesseract",
-   "seconds": 0.93,
+   "seconds": 1.32,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.00043335,
+   "cost": 0.00042284999999999995,
    "error": null,
    "gate": {
     "fails": [],
@@ -831,7 +231,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 2,
    "parser": "vlm",
-   "seconds": 5.56,
+   "seconds": 4.25,
    "step": "VLM1",
    "tiles": 1
   },
@@ -853,7 +253,7 @@
    },
    "page": 3,
    "parser": "tesseract",
-   "seconds": 0.51,
+   "seconds": 0.92,
    "step": "T0"
   },
   {
@@ -872,7 +272,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 3,
    "parser": "vlm",
-   "seconds": 5.34,
+   "seconds": 3.11,
    "step": "VLM1",
    "tiles": 1
   },
@@ -894,26 +294,26 @@
    },
    "page": 4,
    "parser": "tesseract",
-   "seconds": 0.65,
+   "seconds": 0.96,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.00041474999999999997,
+   "cost": 0.00042344999999999997,
    "error": null,
    "gate": {
     "fails": [],
     "ok": true,
     "signals": {
      "caps_coverage": 1.0,
-     "witness_coverage": 0.951,
+     "witness_coverage": 0.967,
      "witness_words": 61
     }
    },
    "model": "mistral/ministral-8b-2512",
    "page": 4,
    "parser": "vlm",
-   "seconds": 5.99,
+   "seconds": 4.5,
    "step": "VLM1",
    "tiles": 1
   },
@@ -936,7 +336,7 @@
    },
    "page": 5,
    "parser": "tesseract",
-   "seconds": 0.3,
+   "seconds": 0.33,
    "step": "T0"
   },
   {
@@ -955,7 +355,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 5,
    "parser": "vlm",
-   "seconds": 1.93,
+   "seconds": 1.59,
    "step": "VLM1",
    "tiles": 1
   },
@@ -978,7 +378,7 @@
    },
    "page": 6,
    "parser": "tesseract",
-   "seconds": 0.58,
+   "seconds": 0.67,
    "step": "T0"
   },
   {
@@ -997,7 +397,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 6,
    "parser": "vlm",
-   "seconds": 3.63,
+   "seconds": 3.94,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1020,7 +420,7 @@
    },
    "page": 7,
    "parser": "tesseract",
-   "seconds": 0.84,
+   "seconds": 0.86,
    "step": "T0"
   },
   {
@@ -1039,7 +439,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 7,
    "parser": "vlm",
-   "seconds": 3.64,
+   "seconds": 5.19,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1061,7 +461,7 @@
    },
    "page": 8,
    "parser": "tesseract",
-   "seconds": 0.44,
+   "seconds": 0.42,
    "step": "T0"
   },
   {
@@ -1080,7 +480,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 8,
    "parser": "vlm",
-   "seconds": 4.24,
+   "seconds": 3.74,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1103,12 +503,12 @@
    },
    "page": 9,
    "parser": "tesseract",
-   "seconds": 0.38,
+   "seconds": 0.37,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.0003966,
+   "cost": 0.00039674999999999997,
    "error": null,
    "gate": {
     "fails": [],
@@ -1122,7 +522,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 9,
    "parser": "vlm",
-   "seconds": 2.62,
+   "seconds": 8.84,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1145,12 +545,12 @@
    },
    "page": 10,
    "parser": "tesseract",
-   "seconds": 0.46,
+   "seconds": 0.53,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.0004029,
+   "cost": 0.00040349999999999994,
    "error": null,
    "gate": {
     "fails": [],
@@ -1164,7 +564,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 10,
    "parser": "vlm",
-   "seconds": 2.64,
+   "seconds": 3.03,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1187,12 +587,12 @@
    },
    "page": 11,
    "parser": "tesseract",
-   "seconds": 0.89,
+   "seconds": 0.87,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.0004227,
+   "cost": 0.00042254999999999994,
    "error": null,
    "gate": {
     "fails": [],
@@ -1206,7 +606,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 11,
    "parser": "vlm",
-   "seconds": 4.18,
+   "seconds": 9.05,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1235,7 +635,7 @@
   },
   {
    "accepted": true,
-   "cost": 0.00039315,
+   "cost": 0.00038999999999999994,
    "error": null,
    "gate": {
     "fails": [],
@@ -1249,7 +649,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 12,
    "parser": "vlm",
-   "seconds": 2.02,
+   "seconds": 2.35,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1271,26 +671,26 @@
    },
    "page": 13,
    "parser": "tesseract",
-   "seconds": 0.37,
+   "seconds": 0.38,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.00039989999999999996,
+   "cost": 0.00039975,
    "error": null,
    "gate": {
     "fails": [],
     "ok": true,
     "signals": {
      "caps_coverage": 1.0,
-     "witness_coverage": 1.0,
+     "witness_coverage": 0.973,
      "witness_words": 37
     }
    },
    "model": "mistral/ministral-8b-2512",
    "page": 13,
    "parser": "vlm",
-   "seconds": 3.33,
+   "seconds": 3.09,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1312,12 +712,12 @@
    },
    "page": 14,
    "parser": "tesseract",
-   "seconds": 0.46,
+   "seconds": 0.5,
    "step": "T0"
   },
   {
    "accepted": true,
-   "cost": 0.00041144999999999995,
+   "cost": 0.000414,
    "error": null,
    "gate": {
     "fails": [],
@@ -1331,7 +731,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 14,
    "parser": "vlm",
-   "seconds": 3.64,
+   "seconds": 3.6,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1353,7 +753,7 @@
    },
    "page": 15,
    "parser": "tesseract",
-   "seconds": 0.28,
+   "seconds": 0.29,
    "step": "T0"
   },
   {
@@ -1372,7 +772,7 @@
    "model": "mistral/ministral-8b-2512",
    "page": 15,
    "parser": "vlm",
-   "seconds": 1.81,
+   "seconds": 1.43,
    "step": "VLM1",
    "tiles": 1
   },
@@ -1395,7 +795,7 @@
    },
    "page": 16,
    "parser": "tesseract",
-   "seconds": 0.62,
+   "seconds": 0.58,
    "step": "T0"
   },
   {
@@ -1414,77 +814,83 @@
    "model": "mistral/ministral-8b-2512",
    "page": 16,
    "parser": "vlm",
-   "seconds": 4.57,
+   "seconds": 3.13,
    "step": "VLM1",
    "tiles": 1
   },
   {
    "accepted": false,
-   "calls": 4,
-   "cost": 0.00875,
-   "coverage": 0.74,
+   "calls": 5,
+   "cost": 0.01147,
+   "coverage": 0.98,
    "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b9', 'p4.b11', 'p7.b2', 'p7.b3', 'p7.b5', 'p7.b6', 'p7.b7', 'p7.b9', 'p7.b10', 'p7.b11', 'p7.b12', 'p7.b16', 'p7.b18', 'p8.b2', 'p8.b3', 'p8.b4', 'p8.b6', 'p8.b8', 'p8.b11', 'p8.b14']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['imie_i_nazwisko_podopiecznego_trenera', 'opis_osiagniec_sportowych_podopiecznego_trenera']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata', 'akceptacja_regulaminu_przyznawania_stypendiow_sportowych', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_', 'akceptacja_regulaminu_przyznawania_stypendiow_sportowych_2', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_2', 'akceptacja_regulaminu_przyznawania_nagrod_sportowych', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata__2', 'akceptacja_regulaminu_przyznawania_nagrod_sportowych_2', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_2_2', 'akceptacja_regulaminu_przyznawania_wyroznien_sportowych']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p7.b25', 'p7.b26', 'p11.b25', 'p11.b26']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p8.b8', 'p8.b11']",
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['typ_wnioskodawcy']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_wnioskodawca_jest_reprezentant_klubu_sportowego_z_krs_lu', 'czy_wnioskodawca_jest_pelnomocnik_klubu_sportowego', 'wskaz_dyscypline_zespolowa', 'wskaz_dyscypline_indywidualna_inna_niz_lekkoatletyka', 'wskaz_dyscypline_indywidualna_lekkoatletyka', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata', 'akceptacja_regulaminu_przyznawania_stypendiow_sportowych', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_', 'akceptacja_regulaminu_przyznawania_stypendiow_sportowych_prz', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_2']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 49.0,
+   "seconds": 65.4,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.0047,
-   "coverage": 0.87,
+   "cost": 0.00688,
+   "coverage": 0.88,
    "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p4.b5', 'p4.b10', 'p4.b11', 'p6.b2', 'p6.b7', 'p8.b14', 'p9.b3', 'p10.b2', 'p10.b7', 'p12.b8', 'p12.b10', 'p12.b13', 'p14.b8', 'p14.b9', 'p15.b2', 'p16.b3', 'p16.b8']",
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b9', 'p7.b2', 'p7.b3', 'p7.b5', 'p7.b9', 'p11.b2', 'p11.b3', 'p11.b5', 'p11.b9', 'p12.b12', 'p12.b15', 'p13.b10', 'p14.b5']",
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['data_i_podpis', 'data_i_podpis_2']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina']",
     "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p2.b25', 'p2.b26', 'p7.b25', 'p7.b26', 'p11.b25', 'p11.b26']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "repair",
    "rung": 0,
-   "seconds": 17.3,
+   "seconds": 29.0,
    "stage": "extract"
   },
   {
    "accepted": false,
-   "calls": 3,
-   "cost": 0.01841,
-   "coverage": 0.28,
+   "calls": 2,
+   "cost": 0.01635,
+   "coverage": 0.99,
    "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b6', 'p2.b7', 'p2.b8', 'p2.b9', 'p2.b10', 'p2.b11', 'p2.b12', 'p2.b13', 'p2.b16', 'p2.b17', 'p2.b18', 'p2.b20', 'p2.b21', 'p2.b22', 'p2.b23', 'p2.b24', 'p3.b16']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p12.b12']",
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['podaj_ewentualne_dodatkowe_informacje_o_osiagnieciach_sporto']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p2.b25', 'p2.b26', 'p7.b25', 'p7.b26', 'p11.b25', 'p11.b26']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 66.3,
+   "seconds": 53.6,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.01568,
-   "coverage": 0.16,
+   "cost": 0.01781,
+   "coverage": 1.0,
    "fails": [
-    "G2: nieistniejące kotwice ['p3.b5-p3.6', 'p8.b5-p8.6', 'p3.b7-p3.8', 'p8.b7-p8.8', 'p3.b10-p3.13', 'p3.b14-p3.35', 'p4.b4-p4.5', 'p8.b13-p8.14', 'p4.b9-p4.10', 'p9.b1-p9.2']",
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b6', 'p2.b7', 'p2.b8', 'p2.b9', 'p2.b10', 'p2.b11', 'p2.b12', 'p2.b13', 'p2.b16', 'p2.b17', 'p2.b18', 'p2.b20', 'p2.b21', 'p2.b22', 'p2.b23', 'p2.b24', 'p3.b6']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p2.b26', 'p7.b26', 'p11.b26']"
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['ewentualne_dodatkowe_informacje_o_osiagnieciach_sportowych']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 46.0,
+   "seconds": 51.8,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": []
+ "warnings": [
+  "sekcja 'Dane klubu sportowego (jeśli wnioskodawcą jest klub)': pominięto adres_siedziby, nazwa_klubu_sportowego, bo powtarzają dane podmiotu ze strony „Dane”",
+  "strona 'Dane sportowca (stypendium / nagroda)': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta",
+  "strona 'Dane trenera i podopiecznych (wyróżnienie)': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta"
+ ]
 }

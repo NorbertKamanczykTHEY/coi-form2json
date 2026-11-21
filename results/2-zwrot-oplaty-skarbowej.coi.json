@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "74144adc-1c34-4d57-995c-41f52ba5205a",
+    "id": "c07c0ea2-405d-4238-b02f-f2471fd42410",
     "source": "3ef35c3d-b4ab-4210-b67b-9c99301cbbc1",
-    "target": "b6d88b05-802a-4551-bd98-e04d08e1f713"
+    "target": "ff237c53-e4e6-4635-9649-734b0bafd462"
    },
    {
-    "id": "a8a5746b-f872-4d98-847f-5f727d13ac62",
-    "source": "b6d88b05-802a-4551-bd98-e04d08e1f713",
+    "id": "37a2a6f9-9603-426d-8bf9-ab9c7f145ee7",
+    "source": "ff237c53-e4e6-4635-9649-734b0bafd462",
     "target": "26195370-e961-489d-89ff-19770f8cb57a"
    },
    {
@@ -34,7 +34,7 @@
        {
         "cols": 3,
         "field": {
-         "defaultValue": "",
+         "defaultValue": "Urząd Gminy Stawiguda",
          "description": "",
          "id": "957f999d-a7af-4b35-b95a-6e1d56ccfbc9",
          "options": [],
@@ -360,7 +360,7 @@
           }
          ],
          "techName": "wojewodztwo",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -731,7 +731,7 @@
           }
          ],
          "techName": "wojewodztwo_siedziba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -1104,7 +1104,7 @@
           }
          ],
          "techName": "wojewodztwo_inna_osoba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -1459,13 +1459,13 @@
    "type": "MAIN"
   },
   {
-   "id": "b6d88b05-802a-4551-bd98-e04d08e1f713",
+   "id": "ff237c53-e4e6-4635-9649-734b0bafd462",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "67bfb580-8e5c-4d22-a268-f43624fac019",
+      "id": "ca7181d9-9e0f-47c6-af65-4994de414d52",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1473,17 +1473,22 @@
        {
         "cols": 3,
         "field": {
-         "description": "",
-         "id": "fc6ac6a9-acb5-4bb6-bc7a-d579048793ca",
+         "description": "<html><head></head><body><p>Wpisz numer rachunku bankowego, na który ma zostać dokonany zwrot opłaty skarbowej.</p></body></html>",
+         "id": "ffb418ed-fcfc-4bd8-97ff-6dd0a70ad245",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "data_uiszczenia_oplaty",
-         "title": "Data uiszczenia opłaty",
+         "states": [
+          {
+           "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o zwrocie opłaty skarbowej' in title].questions['sposob_zwrotu_oplaty_skarbowej' in field.techName].field.repeatingSectionGrid['sposob_zwrotu_oplaty_skarbowej_sposob_zwrotu_oplaty_skarbowe' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "numer_rachunku_bankowego",
+         "title": "Numer rachunku bankowego",
          "tooltipMessage": "",
-         "type": "DATEPICKER",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1495,37 +1500,20 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Kwota w złotych</p></body></html>",
-         "id": "0c2573af-31d2-4d6d-91a9-19a4fc745a4d",
+         "description": "<html><head></head><body><p>Wpisz imię i nazwisko właściciela rachunku bankowego, na który ma zostać dokonany zwrot opłaty skarbowej.</p></body></html>",
+         "id": "c8bf8fe2-9d24-4eef-bcb0-17c9f6e13b3a",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "wysokosc_oplaty",
-         "title": "Wysokość opłaty",
-         "tooltipMessage": "",
-         "type": "NUMBER",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 1
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "c7b419dd-b148-4c77-b4b8-91a2848a00c5",
-         "options": [],
-         "questionOrder": 2,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "nazwa_organu_w_ktorym_zaplacono_oplate",
-         "title": "Nazwa organu, w którym zapłacono opłatę",
+         "states": [
+          {
+           "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o zwrocie opłaty skarbowej' in title].questions['sposob_zwrotu_oplaty_skarbowej' in field.techName].field.repeatingSectionGrid['sposob_zwrotu_oplaty_skarbowej_sposob_zwrotu_oplaty_skarbowe' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "wlasciciel_rachunku_bankowego",
+         "title": "Właściciel rachunku bankowego",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1534,17 +1522,17 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 2
+        "y": 1
        }
       ],
       "states": [],
-      "techName": "dane_oplaty_skarbowej",
-      "title": "Dane opłaty skarbowej",
+      "techName": "dane_rachunku_bankowego_do_zwrotu_oplaty",
+      "title": "Dane rachunku bankowego do zwrotu opłaty",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 4,
+     "rows": 3,
      "x": 0,
      "y": 0
     },
@@ -1552,15 +1540,69 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "0677603f-190f-4551-886f-476b0c759e5c",
+      "id": "8978a055-4459-463a-a75a-dc4173a42241",
       "options": [],
-      "questionOrder": 4,
+      "questionOrder": 3,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
          "description": "",
+         "id": "a124f2b2-882e-4ed6-85d0-df38abb0bf78",
+         "options": [
+          {
+           "id": "Gotówką w kasie organu",
+           "name": "Gotówką w kasie organu",
+           "techName": "gotowka_w_kasie_organu"
+          },
+          {
+           "id": "Przelewem na rachunek w banku",
+           "name": "Przelewem na rachunek w banku",
+           "techName": "przelewem_na_rachunek_w_banku"
+          }
+         ],
+         "questionOrder": 0,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "sposob_zwrotu_oplaty_skarbowej_sposob_zwrotu_oplaty_skarbowe",
+         "title": "Sposób zwrotu opłaty skarbowej",
+         "tooltipMessage": "",
+         "type": "RADIO",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 0
+       }
+      ],
+      "states": [],
+      "techName": "sposob_zwrotu_oplaty_skarbowej",
+      "title": "Sposób zwrotu opłaty skarbowej",
+      "tooltipMessage": "",
+      "type": "SECTION",
+      "validation": []
+     },
+     "rows": 2,
+     "x": 0,
+     "y": 3
+    },
+    {
+     "cols": 3,
+     "field": {
+      "description": "<html><head></head><body></body></html>",
+      "id": "0677603f-190f-4551-886f-476b0c759e5c",
+      "options": [],
+      "questionOrder": 5,
+      "readOnly": false,
+      "repeatingSectionGrid": [
+       {
+        "cols": 3,
+        "field": {
+         "description": "<html><head></head><body><p>Opisz, dlaczego opłata skarbowa została błędnie uiszczona. Możesz podać np. błędny tytuł, nadpłatę, podwójną płatność lub inne okoliczności.</p></body></html>",
          "id": "3bfa6cad-55c7-4eaa-a51f-6c692e6fca24",
          "options": [],
          "questionOrder": 0,
@@ -1589,419 +1631,10 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 4
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "601af714-9c32-44da-ae39-82d41aae2e52",
-      "options": [],
-      "questionOrder": 6,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "4dbdbdc7-6ad9-434d-aa07-cc321eb8fcad",
-         "options": [
-          {
-           "id": "Gotówką w kasie organu",
-           "name": "Gotówką w kasie organu",
-           "techName": "gotowka_w_kasie_organu"
-          },
-          {
-           "id": "Przelewem na rachunek w banku",
-           "name": "Przelewem na rachunek w banku",
-           "techName": "przelewem_na_rachunek_w_banku"
-          }
-         ],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "wybierz_sposob_zwrotu_oplaty_skarbowej",
-         "title": "Wybierz sposób zwrotu opłaty skarbowej",
-         "tooltipMessage": "",
-         "type": "RADIO",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "<html><head></head><body><p>Numer rachunku bankowego w formacie XXXXXXXXXXXXXXXXXXXXXXXXXXXX</p></body></html>",
-         "id": "01c56ee5-d02d-45ba-bc31-50304b6f8e71",
-         "options": [],
-         "questionOrder": 1,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['sposob_zwrotu_oplaty' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty_skarbowej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "numer_rachunku",
-         "title": "Numer rachunku",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 1
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "<html><head></head><body><p>Imię, nazwisko oraz adres właściciela rachunku</p></body></html>",
-         "id": "18125a4b-55d3-4a83-b95d-be50d0421451",
-         "options": [],
-         "questionOrder": 2,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['sposob_zwrotu_oplaty' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty_skarbowej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "dane_wlasciciela_rachunku",
-         "title": "Dane właściciela rachunku",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 2
-       }
-      ],
-      "states": [],
-      "techName": "sposob_zwrotu_oplaty",
-      "title": "Sposób zwrotu opłaty",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 4,
-     "x": 0,
-     "y": 6
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "438524a5-5bfc-4dc4-a975-1dc3551a6124",
-      "options": [],
-      "questionOrder": 10,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "499be796-643b-462b-9a7c-a8f13c0689e1",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "imie_dane_wlasciciela_rachunku_2",
-         "title": "Imię",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "2cc13727-c1ae-4cff-98b6-bfc5c891b8ce",
-         "options": [],
-         "questionOrder": 1,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "nazwisko_dane_wlasciciela_rachunku_2",
-         "title": "Nazwisko",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 1
-       },
-       {
-        "cols": 3,
-        "field": {
-         "defaultValue": [
-          "Polska"
-         ],
-         "description": "",
-         "dictionaryName": "Kraje",
-         "id": "dfc528da-4187-4842-b379-40b5ecda4194",
-         "options": [],
-         "questionOrder": 2,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "kraj_adres",
-         "title": "Kraj",
-         "tooltipMessage": "",
-         "type": "SELECT",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 2
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "d2a04fe6-cfa2-47a0-8a7e-6723a29b2fc0",
-         "options": [],
-         "questionOrder": 3,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['dane_wlasciciela_rachunku_2' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "miejscowosc_adres_zagranica",
-         "title": "Miejscowość",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 3
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "2eb43735-03b9-437c-a8ea-db9612641559",
-         "options": [],
-         "questionOrder": 4,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['dane_wlasciciela_rachunku_2' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "kod_pocztowy_adres_zagranica",
-         "title": "Kod pocztowy",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 4
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "6c763f7f-544a-4286-b8df-5819ccd09630",
-         "options": [],
-         "questionOrder": 5,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['dane_wlasciciela_rachunku_2' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "ulica_adres_zagranica",
-         "title": "Ulica",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 5
-       },
-       {
-        "cols": 3,
-        "field": {
-         "defaultValue": [],
-         "description": "",
-         "dictionaryName": "TERYT_4G_DOWODOWY",
-         "id": "64de92c3-93ff-46cb-b5c5-fb41e21f6225",
-         "multiLevelTree": true,
-         "options": [],
-         "questionOrder": 6,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "searchEnabled": true,
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['dane_wlasciciela_rachunku_2' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "wojewodztwo_adres",
-         "title": "TERYT_4G_DOWODOWY",
-         "tooltipMessage": "",
-         "type": "SELECT",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 6
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "e5901c60-2fa4-4052-82db-53561064f79b",
-         "options": [],
-         "questionOrder": 7,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['dane_wlasciciela_rachunku_2' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "kod_pocztowy_adres",
-         "title": "Kod pocztowy",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED",
-          "ZIP_CODE"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 7
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "8e11d523-1ea4-4584-8ee0-77895fd86cb5",
-         "options": [],
-         "questionOrder": 8,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['dane_wlasciciela_rachunku_2' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "ulica_adres",
-         "title": "Ulica",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 8
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "e57bed79-ec3e-43ee-87fb-91f8003838fb",
-         "options": [],
-         "questionOrder": 9,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_budynku_adres",
-         "title": "Numer budynku",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 9
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "2aa4e516-7fa3-4979-b509-28bf21eb3d22",
-         "options": [],
-         "questionOrder": 10,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_lokalu_adres",
-         "title": "Numer lokalu",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 10
-       }
-      ],
-      "states": [
-       {
-        "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej i zwrocie' in title].questions['sposob_zwrotu_oplaty' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty_skarbowej' in field.techName].field.__userAnswer)",
-        "type": "SHOW"
-       }
-      ],
-      "techName": "dane_wlasciciela_rachunku_2",
-      "title": "Dane właściciela rachunku",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 12,
-     "x": 0,
-     "y": 10
+     "y": 5
     }
    ],
-   "title": "Informacje o opłacie skarbowej i zwrocie",
+   "title": "Informacje o zwrocie opłaty skarbowej",
    "type": "MAIN"
   },
   {
@@ -2090,10 +1723,6 @@
           "consents": [
            {
             "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z </span><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"klauzulą informacyjną\" aria-label=\"Link otwiera się w nowej karcie\">klauzulą informacyjną</a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\" title=\" \" aria-label=\"Link otwiera się w nowej karcie\"> </a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></p></body></html>",
-            "required": true
-           },
-           {
-            "description": "<html><head></head><body><p>Oświadczam, że opłata skarbowa, której dotyczy wniosek, została błędnie uiszczona.</p></body></html>",
             "required": true
            }
           ],

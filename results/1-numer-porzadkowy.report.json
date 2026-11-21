@@ -1,26 +1,8 @@
 {
- "cost": 0.01046,
- "needs_review": [
-  {
-   "key": "numer_domu",
-   "why": "source label has no words"
-  },
-  {
-   "key": "numer_domu",
-   "why": "Brak jednoznacznego wskazania, że puste miejsce przy ulicy dotyczy numeru domu"
-  },
-  {
-   "key": "numer_domu",
-   "why": "label not found in cited source"
-  },
-  {
-   "field_id": "e464eec1-cbf5-49cb-9d9e-fd7d2665a1e2",
-   "key": "numer_domu",
-   "why": "Brak jednoznacznego wskazania, że puste miejsce przy ulicy dotyczy numeru domu"
-  }
- ],
+ "cost": 0.0004,
+ "needs_review": [],
  "proposed_dictionaries": [],
- "seconds": 24.28,
+ "seconds": 3.58,
  "source": {
   "cost": 0,
   "filename": "Wniosek o ustalenie numeru porządkowego nieruchomości.docx",
@@ -28,7 +10,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.04
+  "seconds": 0.05
  },
  "trace": [
   {
@@ -69,67 +51,21 @@
    "step": "T0"
   },
   {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00129,
-   "coverage": 0.86,
-   "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b0']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "first",
-   "rung": 0,
-   "seconds": 5.4,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00142,
-   "coverage": 0.86,
-   "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b0']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 4.6,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00361,
-   "coverage": 0.86,
-   "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b8']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-large-2512",
-   "round": "first",
-   "rung": 1,
-   "seconds": 5.7,
-   "stage": "extract"
-  },
-  {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00414,
+   "cost": 0.0004,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
-   "model": "mistral/mistral-large-2512",
-   "round": "repair",
-   "rung": 1,
-   "seconds": 8.5,
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 3.4,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
-  "Blok p1.b32 zawiera informację o nieobowiązkowości danych, ale nie wskazano jednoznacznie, których pól dotyczy.",
-  "Puste miejsce przy ulicy (p1.b8) może dotyczyć numeru domu, ale brak jasnego wskazania w źródle."
+  "Tytuł formularza sugeruje wniosek o ustalenie numeru porządkowego, ale treść dotyczy budynku (nieruchomości), co może być niespójne."
  ]
 }

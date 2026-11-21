@@ -1,21 +1,13 @@
 {
- "cost": 0.00947,
+ "cost": 0.00063,
  "needs_review": [
   {
-   "key": "miejsce_swietlicy_wiejskiej",
-   "why": "inside a choice block but has no show_if"
-  },
-  {
-   "key": "data_rozpoczecia",
-   "why": "inside a choice block but has no show_if"
-  },
-  {
-   "key": "data_zakonczenia",
-   "why": "inside a choice block but has no show_if"
+   "key": "miejsce_wynajecia",
+   "why": "source label has no words"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 48.41,
+ "seconds": 4.67,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wynajęcie świetlicy.docx",
@@ -66,65 +58,16 @@
    "step": "T0"
   },
   {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00099,
-   "coverage": 1.0,
-   "fails": [
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zapoznanie_sie_z_warunkami_wynajmu', 'odpowiedzialnosc_za_lad_i_porzadek', 'przestrzeganie_przepisow_sanitarnych_bhp_i_p_poz', 'odpowiedzialnosc_za_powierzone_mienie']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b1', 'p1.b3', 'p1.b5', 'p1.b7', 'p1.b22']",
-    "strony bez pól: ['Dane osoby odpowiedzialnej', 'Załączniki']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "first",
-   "rung": 0,
-   "seconds": 8.5,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00184,
-   "coverage": 0.78,
-   "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b5', 'p1.b7']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zapoznanie_sie_z_warunkami_wynajmu', 'odpowiedzialnosc_za_lad_i_porzadek', 'przestrzeganie_przepisow_sanitarnych_bhp_i_p_poz', 'odpowiedzialnosc_za_powierzone_mienie']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b1', 'p1.b3']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 7.5,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00297,
-   "coverage": 0.89,
-   "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b5']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-large-2512",
-   "round": "first",
-   "rung": 1,
-   "seconds": 14.8,
-   "stage": "extract"
-  },
-  {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00367,
+   "cost": 0.00063,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
-   "model": "mistral/mistral-large-2512",
-   "round": "repair",
-   "rung": 1,
-   "seconds": 17.5,
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 4.6,
    "stage": "extract"
   }
  ],

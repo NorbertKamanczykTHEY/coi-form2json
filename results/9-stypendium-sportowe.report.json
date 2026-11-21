@@ -1,84 +1,8 @@
 {
- "cost": 0.04781,
+ "cost": 0.05991,
  "needs_review": [
   {
-   "key": "adres_zameldowania_2",
-   "why": "source label has no words"
-  },
-  {
-   "key": "adres_do_korespondencji_2",
-   "why": "source label has no words"
-  },
-  {
-   "key": "osiagniecia_sportowe",
-   "why": "source label has no words"
-  },
-  {
-   "key": "dodatkowe_informacje",
-   "why": "source label has no words"
-  },
-  {
-   "key": "opinia_klubu",
-   "why": "source label has no words"
-  },
-  {
-   "key": "adres_zameldowania_2_2_2",
-   "why": "source label has no words"
-  },
-  {
-   "key": "adres_do_korespondencji_2_2",
-   "why": "source label has no words"
-  },
-  {
-   "key": "opinia_klubu_2",
-   "why": "source label has no words"
-  },
-  {
-   "key": "dodatkowe_informacje_2",
-   "why": "source label has no words"
-  },
-  {
-   "key": "telefon_kontaktowy",
-   "why": "looks like applicant/proxy data (template), not subject"
-  },
-  {
-   "key": "adres_zameldowania_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "adres_do_korespondencji_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "osiagniecia_sportowe",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "dodatkowe_informacje",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "opinia_klubu",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "adres_zameldowania_2_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "adres_do_korespondencji_2_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "opinia_klubu_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "dodatkowe_informacje_2",
-   "why": "label not found in cited source"
-  },
-  {
-   "why": "quality gate: G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['adres_siedziby_klubu']"
+   "why": "quality gate: G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b31', 'p1.b122', 'p1.b186']"
   },
   {
    "field_id": "4d8a66bb-e80c-4a5c-9244-f6b3cdc249e2",
@@ -213,7 +137,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 147.81,
+ "seconds": 177.85,
  "source": {
   "cost": 0,
   "filename": "Wniosek o przyznanie stypendium.docx",
@@ -221,7 +145,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.05
+  "seconds": 0.11
  },
  "trace": [
   {
@@ -263,76 +187,71 @@
   },
   {
    "accepted": false,
-   "calls": 4,
-   "cost": 0.00944,
-   "coverage": 0.67,
+   "calls": 5,
+   "cost": 0.01151,
+   "coverage": 0.91,
    "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b104', 'p1.b105', 'p1.b106', 'p1.b107', 'p1.b108', 'p1.b109', 'p1.b110', 'p1.b111', 'p1.b112', 'p1.b115', 'p1.b116', 'p1.b117', 'p1.b125', 'p1.b126', 'p1.b127', 'p1.b129', 'p1.b131', 'p1.b134', 'p1.b168', 'p1.b169']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina_sportowa_osoby_trzeciej']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczono_dane_reprezentanta_klubu_sportowego', 'czy_dolaczono_dane_pelnomocnika_klubu_sportowego', 'zgoda_na_przetwarzanie_danych_osobowych_kandydata', 'zgoda_na_akceptacje_regulaminu', 'zgoda_rodzica_opiekuna_prawnego_na_przetwarzanie_danych_osob', 'zgoda_rodzica_opiekuna_prawnego_na_akceptacje_regulaminu', 'zgoda_na_przetwarzanie_danych_osobowych_kandydata_2', 'zgoda_na_akceptacje_regulaminu_2', 'zgoda_rodzica_opiekuna_prawnego_na_przetwarzanie_danych_osob_2', 'zgoda_rodzica_opiekuna_prawnego_na_akceptacje_regulaminu_2']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b121', 'p1.b122', 'p1.b185', 'p1.b186', 'p1.b75', 'p1.b136', 'p1.b137', 'p1.b138', 'p1.b139', 'p1.b199']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b131', 'p1.b134', 'p1.b138', 'p1.b168', 'p1.b172', 'p1.b179', 'p1.b183', 'p1.b184']",
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['dodatkowe_informacje_o_osiagnieciach_sportowych_osoby_objete']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczono_dane_pelnomocnika_klubu_sportowego']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b114', 'p1.b186']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 51.4,
+   "seconds": 61.8,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00622,
-   "coverage": 0.62,
+   "cost": 0.00661,
+   "coverage": 0.98,
    "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b87', 'p1.b90', 'p1.b93', 'p1.b94', 'p1.b96', 'p1.b115', 'p1.b116', 'p1.b117', 'p1.b119', 'p1.b120', 'p1.b125', 'p1.b126', 'p1.b127', 'p1.b129', 'p1.b131', 'p1.b134', 'p1.b144', 'p1.b151', 'p1.b154', 'p1.b157']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina_sportowa_osoby_trzeciej']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczono_dane_reprezentanta_klubu_sportowego', 'czy_dolaczono_dane_pelnomocnika_klubu_sportowego']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b75', 'p1.b121', 'p1.b122', 'p1.b136', 'p1.b137', 'p1.b138', 'p1.b139', 'p1.b185', 'p1.b186', 'p1.b199']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b202', 'p1.b217']",
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['czy_osoba_objeta_wnioskiem_jest_pelnoletnia']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Dodatkowe informacje o osiągnięciach sportowych']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "repair",
    "rung": 0,
-   "seconds": 28.2,
+   "seconds": 27.4,
    "stage": "extract"
   },
   {
    "accepted": false,
-   "calls": 2,
-   "cost": 0.01519,
-   "coverage": 0.89,
-   "fails": [
-    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b24', 'p1.b25', 'p1.b26', 'p1.b115', 'p1.b116', 'p1.b117', 'p1.b179', 'p1.b180', 'p1.b181', 'p1.b240']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b30', 'p1.b31', 'p1.b121', 'p1.b122', 'p1.b185', 'p1.b186']"
-   ],
-   "mode": "two_stage",
-   "model": "mistral/mistral-large-2512",
-   "round": "first",
-   "rung": 1,
-   "seconds": 44.4,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.01696,
+   "calls": 3,
+   "cost": 0.02133,
    "coverage": 1.0,
    "fails": [
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['adres_siedziby_klubu']"
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b31', 'p1.b122', 'p1.b186']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 63.8,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.02046,
+   "coverage": 0.77,
+   "fails": [
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b24', 'p1.b40', 'p1.b67', 'p1.b70', 'p1.b74', 'p1.b115', 'p1.b131', 'p1.b134', 'p1.b138', 'p1.b179', 'p1.b195', 'p1.b198', 'p1.b202', 'p1.b207', 'p1.b209', 'p1.b212', 'p1.b214', 'p1.b217', 'p1.b220', 'p1.b223']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Imię i nazwisko kandydata (zgoda)', 'Imię i nazwisko podopiecznego (zgoda)', 'czy_podopieczny_trenera_jest_pelnoletni', 'zgoda 1', 'zgoda 2', 'zgoda 3', 'zgoda 4', 'zgoda 5', 'zgoda 6', 'zgoda 7']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 49.9,
+   "seconds": 59.0,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": [
-  "strona 'Dane klubu sportowego': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta",
-  "strona 'Dane sportowca (stypendium/nagroda)': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta",
-  "strona 'Dane trenera (wyróżnienie)': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta"
- ]
+ "warnings": []
 }

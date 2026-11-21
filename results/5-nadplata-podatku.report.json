@@ -1,10 +1,6 @@
 {
- "cost": 0.00158,
+ "cost": 0.00133,
  "needs_review": [
-  {
-   "key": "kwota_nadplaty",
-   "why": "label not found in cited source"
-  },
   {
    "field_id": "4bd8b70e-2ff3-405f-97d8-6dfbec78b619",
    "key": "rodzaj_podatku",
@@ -73,7 +69,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 10.39,
+ "seconds": 9.86,
  "source": {
   "cost": 0,
   "filename": "Wniosek o stwierdzenie nadpłaty podatku.docx",
@@ -81,7 +77,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.02
+  "seconds": 0.01
  },
  "trace": [
   {
@@ -124,36 +120,32 @@
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00074,
+   "cost": 0.00058,
    "coverage": 1.0,
    "fails": [
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['numer_rachunku_bankowego', 'sposob_rozliczenia_nadplaty', 'tytul_przyszlego_zobowiazania_podatkowego']",
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b20', 'p1.b21']"
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b21']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 5.7,
+   "seconds": 4.5,
    "stage": "extract"
   },
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00084,
+   "cost": 0.00075,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "repair",
    "rung": 0,
-   "seconds": 4.6,
+   "seconds": 5.2,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": [
-  "Brak jednoznacznego określenia, kto jest adresatem wniosku (organ czy konkretny wydział urzędu).",
-  "Tekst formularza sugeruje, że PESEL i NIP są wzajemnie wykluczające się, ale nie precyzuje, które pole jest obowiązkowe w zależności od statusu wnioskodawcy."
- ]
+ "warnings": []
 }

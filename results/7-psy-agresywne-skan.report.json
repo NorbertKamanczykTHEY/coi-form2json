@@ -1,17 +1,13 @@
 {
- "cost": 0.00933,
+ "cost": 0.00878,
  "needs_review": [
   {
    "key": "pochodzenie_psa",
-   "why": "optional marker not confirmed in source: 'Opcjonalnie'"
-  },
-  {
-   "key": "numer_oznakowania",
-   "why": "source label has no words"
+   "why": "optional marker not confirmed in source: '**Opcjonalnie'"
   },
   {
    "key": "data_szczepienia_przeciwko_wsciekliznie",
-   "why": "optional marker not confirmed in source: 'w przypadku jego braku'"
+   "why": "optional marker not confirmed in source: '**Opcjonalnie'"
   },
   {
    "key": "rasa_psa",
@@ -24,18 +20,6 @@
   {
    "key": "data_szczepienia_przeciwko_wsciekliznie",
    "why": "inside a choice block but has no show_if"
-  },
-  {
-   "key": "adres_poprzedniego_wlasciciela",
-   "why": "looks like applicant/proxy data (template), not subject"
-  },
-  {
-   "key": "numer_oznakowania",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "addressee",
-   "why": "brak adresata, wstawiono pustą nazwę urzędu"
   },
   {
    "field_id": "0eeeb1ca-e0ae-430b-b544-bafe2a32190c",
@@ -103,15 +87,15 @@
    "source": "catalog"
   }
  ],
- "seconds": 63.84,
+ "seconds": 53.29,
  "source": {
-  "cost": 0.004662,
+  "cost": 0.004672,
   "filename": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.JPG",
   "kind": "image",
   "mime": "image/jpeg",
   "parser": "mistral/ministral-8b-2512 + mistral/mistral-small-2603",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 35.14
+  "seconds": 32.68
  },
  "trace": [
   {
@@ -132,33 +116,34 @@
    },
    "page": 1,
    "parser": "tesseract",
-   "seconds": 1.1,
+   "seconds": 1.09,
    "step": "T0"
   },
   {
-   "cost": 0.00045149999999999997,
+   "cost": 0.00045239999999999994,
    "error": null,
    "gate": {
     "fails": [
+     "M3 misses witness text",
      "M5 misses capitalised headings",
      "M5 lost * footnote"
     ],
     "ok": false,
     "signals": {
      "caps_coverage": 0.0,
-     "witness_coverage": 0.907,
+     "witness_coverage": 0.729,
      "witness_words": 118
     }
    },
    "model": "mistral/ministral-8b-2512",
    "page": 1,
    "parser": "vlm",
-   "seconds": 5.16,
+   "seconds": 6.26,
    "step": "VLM1",
    "tiles": 1
   },
   {
-   "cost": 0.0006083999999999999,
+   "cost": 0.0006094,
    "error": null,
    "gate": {
     "fails": [
@@ -167,14 +152,14 @@
     "ok": false,
     "signals": {
      "caps_coverage": 0.75,
-     "witness_coverage": 0.924,
+     "witness_coverage": 0.907,
      "witness_words": 118
     }
    },
    "model": "mistral/ministral-14b-2512",
    "page": 1,
    "parser": "vlm",
-   "seconds": 6.47,
+   "seconds": 7.54,
    "step": "VLM2",
    "tiles": 1
   },
@@ -196,29 +181,28 @@
    "model": "mistral/mistral-small-2603",
    "page": 1,
    "parser": "vlm",
-   "seconds": 6.67,
+   "seconds": 7.63,
    "step": "VLM3",
    "tiles": 1
   },
   {
-   "cost": 0.002276,
+   "cost": 0.0022835,
    "error": null,
    "gate": {
     "fails": [
-     "M5 misses capitalised headings",
-     "M5 lost * footnote"
+     "M5 misses capitalised headings"
     ],
     "ok": false,
     "signals": {
      "caps_coverage": 0.75,
-     "witness_coverage": 0.924,
+     "witness_coverage": 0.915,
      "witness_words": 118
     }
    },
    "model": "mistral/mistral-large-2512",
    "page": 1,
    "parser": "vlm",
-   "seconds": 15.59,
+   "seconds": 10.02,
    "step": "VLM4",
    "tiles": 1
   },
@@ -241,7 +225,7 @@
    },
    "page": 2,
    "parser": "tesseract",
-   "seconds": 1.49,
+   "seconds": 1.45,
    "step": "T0"
   },
   {
@@ -260,42 +244,43 @@
    "model": "mistral/ministral-8b-2512",
    "page": 2,
    "parser": "vlm",
-   "seconds": 6.85,
+   "seconds": 9.1,
    "step": "VLM1",
    "tiles": 1
   },
   {
    "accepted": false,
-   "calls": 2,
-   "cost": 0.00328,
+   "calls": 1,
+   "cost": 0.00196,
    "coverage": 1.0,
    "fails": [
-    "strony bez pól: ['Poprzedni właściciel psa']"
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b26']",
+    "strony bez pól: ['Dane rachunku bankowego']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 18.0,
+   "seconds": 11.6,
    "stage": "extract"
   },
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00139,
+   "cost": 0.00215,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "repair",
    "rung": 0,
-   "seconds": 10.5,
+   "seconds": 8.9,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
   "page 1: no VLM tier passed the gate; kept mistral/mistral-small-2603, needs review",
-  "Brak jednoznacznego określenia, czy pole 'Pochodzenie psa' dotyczy wszystkich psów w przypadku wniosku o utrzymywanie więcej niż jednego psa."
+  "Blok 'TABLE' (p1.b15) nie zawiera danych do przeniesienia na e-formularz; pominięto."
  ]
 }

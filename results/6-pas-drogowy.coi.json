@@ -2,18 +2,18 @@
  "flow": {
   "links": [
    {
-    "id": "88cdc3ba-e185-4e3e-bd90-a3c05828ff5f",
+    "id": "844b4229-7f7c-409b-a43b-72dd8a8277a7",
     "source": "91a4f9cb-c0db-4c3d-8c34-1a9da254cf92",
-    "target": "9ac66b93-b855-4e24-98f7-a10f80f359e6"
+    "target": "003e9a86-cda1-4285-83b0-1679c83c030c"
    },
    {
-    "id": "682d2e43-af08-471f-88ed-ff311efcd585",
-    "source": "9ac66b93-b855-4e24-98f7-a10f80f359e6",
-    "target": "1ab397b5-9d06-4ff5-97ea-f189de6d9dd1"
+    "id": "a4bd1936-c035-4216-ac93-5add86583264",
+    "source": "003e9a86-cda1-4285-83b0-1679c83c030c",
+    "target": "61c3814e-11d7-48f1-9a89-d8031c6adbb0"
    },
    {
-    "id": "d9e32482-afe5-4aaf-b7d6-053ea0b8e6d7",
-    "source": "1ab397b5-9d06-4ff5-97ea-f189de6d9dd1",
+    "id": "db92d626-2aa7-4aff-bb05-1ff07870270b",
+    "source": "61c3814e-11d7-48f1-9a89-d8031c6adbb0",
     "target": "0997d6dd-fd67-4ec9-a114-3d7881f17381"
    },
    {
@@ -31,7 +31,7 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "30b4191a-9fa7-40d4-ab8d-88281d0fb2a1",
+      "id": "8a7f9d94-5a4b-4568-8b6d-60bdf92dc8ee",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -39,16 +39,16 @@
        {
         "cols": 3,
         "field": {
-         "defaultValue": "",
+         "defaultValue": "Burmistrz Miasta i Gminy w Daleszycach",
          "description": "",
-         "id": "2dcc4612-7abb-4273-b950-47b4cfd95932",
+         "id": "ee6f3c52-7fa0-480b-ae14-637165bf2618",
          "options": [],
          "questionOrder": 0,
          "readOnly": true,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "nazwa_urzedu",
-         "title": "Nazwa urzędu",
+         "techName": "nazwa_organu",
+         "title": "Nazwa organu",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": []
@@ -59,8 +59,8 @@
        }
       ],
       "states": [],
-      "techName": "urzad_do_ktorego_jest_skladany_wniosek",
-      "title": "Urząd, do którego jest składany wniosek",
+      "techName": "organ_do_ktorego_jest_skladany_wniosek",
+      "title": "Organ, do którego jest składany wniosek",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -365,7 +365,7 @@
           }
          ],
          "techName": "wojewodztwo",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -736,7 +736,7 @@
           }
          ],
          "techName": "wojewodztwo_siedziba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -1109,7 +1109,7 @@
           }
          ],
          "techName": "wojewodztwo_inna_osoba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -1464,13 +1464,13 @@
    "type": "MAIN"
   },
   {
-   "id": "9ac66b93-b855-4e24-98f7-a10f80f359e6",
+   "id": "003e9a86-cda1-4285-83b0-1679c83c030c",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "2de15d52-5861-49d0-ab25-0ffd60370097",
+      "id": "94cd3696-5e1d-4e0b-bb86-37ecd14712f1",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1522,19 +1522,20 @@
        {
         "cols": 3,
         "field": {
-         "defaultValue": "Miasteczko",
-         "description": "",
-         "id": "7f0c7598-2a5d-480e-8c77-2daa8bc0fdc5",
+         "description": "<html><head></head><body><p>Opis zakresu robót i metody ich wykonania</p></body></html>",
+         "id": "2c7ac451-17e8-4d10-8e5b-0482ab13c27a",
          "options": [],
          "questionOrder": 2,
-         "readOnly": true,
+         "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "nazwa_gminy",
-         "title": "Nazwa gminy",
+         "techName": "rodzaj_robot_i_sposob_wykonania",
+         "title": "Rodzaj robót i sposób wykonania",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
+         "type": "TEXTAREA",
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
@@ -1542,8 +1543,8 @@
        }
       ],
       "states": [],
-      "techName": "dane_drogi_i_lokalizacji",
-      "title": "Dane drogi i lokalizacji",
+      "techName": "informacje_o_zajeciu_pasa_drogowego",
+      "title": "Informacje o zajęciu pasa drogowego",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -1556,7 +1557,7 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "2c7ac451-17e8-4d10-8e5b-0482ab13c27a",
+      "id": "7e6c85b7-2f69-4789-9080-f4a383142e6f",
       "options": [],
       "questionOrder": 4,
       "readOnly": false,
@@ -1564,60 +1565,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Opis zakresu robót i sposobu ich wykonania</p></body></html>",
-         "id": "3caab3a4-b727-430d-b27f-dfa5f54bbc5e",
+         "description": "<html><head></head><body><p>Wypełnić dla każdego zajętego odcinka jezdni</p></body></html>",
+         "id": "e583874b-474d-464e-88dc-2b8fdc221104",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "rodzaj_robot_i_sposob_wykonania_rodzaj_robot_i_sposob_wykona",
-         "title": "Rodzaj robót i sposób wykonania",
+         "techName": "powierzchnia_jezdni_do_zajecia_do_20_szerokosci_dlugosc_szer",
+         "title": "Powierzchnia jezdni do zajęcia do 20% szerokości (długość, szerokość, powierzchnia w m²)",
          "tooltipMessage": "",
-         "type": "TEXTAREA",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "rodzaj_robot_i_sposob_wykonania",
-      "title": "Rodzaj robót i sposób wykonania",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 4
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "7e6c85b7-2f69-4789-9080-f4a383142e6f",
-      "options": [],
-      "questionOrder": 6,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "<html><head></head><body><p>Wartość w m²</p></body></html>",
-         "id": "8d6dcbd1-b49e-4c76-b35a-936775d4aee6",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "powierzchnia_jezdni_do_zajecia_ponizej_20_szerokosci",
-         "title": "Powierzchnia jezdni do zajęcia (poniżej 20% szerokości)",
-         "tooltipMessage": "",
-         "type": "NUMBER",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1629,17 +1587,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Wartość w m²</p></body></html>",
-         "id": "dd964ce7-a558-4a74-bec4-1629d42c4195",
+         "description": "<html><head></head><body><p>Wypełnić dla każdego zajętego odcinka jezdni</p></body></html>",
+         "id": "2a523dfe-1c5d-43c3-a01c-a5b61f4dc749",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "powierzchnia_jezdni_do_zajecia_2050_szerokosci",
-         "title": "Powierzchnia jezdni do zajęcia (20–50% szerokości)",
+         "techName": "powierzchnia_jezdni_do_zajecia_powyzej_20_do_50_szerokosci_d",
+         "title": "Powierzchnia jezdni do zajęcia powyżej 20% do 50% szerokości (długość, szerokość, powierzchnia w m²)",
          "tooltipMessage": "",
-         "type": "NUMBER",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1651,17 +1609,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Wartość w m²</p></body></html>",
-         "id": "040160f6-6708-41ec-b63c-676512f25e37",
+         "description": "<html><head></head><body><p>Wypełnić dla każdego zajętego odcinka jezdni</p></body></html>",
+         "id": "9c0491f0-247c-460e-9557-2c272a4f6107",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "powierzchnia_jezdni_do_zajecia_powyzej_50_szerokosci",
-         "title": "Powierzchnia jezdni do zajęcia (powyżej 50% szerokości)",
+         "techName": "powierzchnia_jezdni_do_zajecia_powyzej_50_szerokosci_dlugosc",
+         "title": "Powierzchnia jezdni do zajęcia powyżej 50% szerokości (długość, szerokość, powierzchnia w m²)",
          "tooltipMessage": "",
-         "type": "NUMBER",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1673,17 +1631,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Wartość w m²</p></body></html>",
-         "id": "5498a196-1fe5-47df-800e-d74adb798ee2",
+         "description": "<html><head></head><body><p>Wypełnić dla każdego zajętego odcinka chodnika</p></body></html>",
+         "id": "a195f481-ee18-477c-bde8-c6aef44a72fb",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "powierzchnia_chodnika_do_zajecia",
-         "title": "Powierzchnia chodnika do zajęcia",
+         "techName": "powierzchnia_chodnika_do_zajecia_dlugosc_szerokosc_powierzch",
+         "title": "Powierzchnia chodnika do zajęcia (długość, szerokość, powierzchnia w m²)",
          "tooltipMessage": "",
-         "type": "NUMBER",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1695,15 +1653,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Suma powierzchni zajęcia w m²</p></body></html>",
-         "id": "60b5b541-7d67-46cf-8c8e-5ce56b4a0bcf",
+         "description": "<html><head></head><body><p>Suma powierzchni zajętych odcinków</p></body></html>",
+         "id": "f6ec01d3-8461-4d77-9413-f85c2e452f59",
          "options": [],
          "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "calkowita_powierzchnia_zajecia",
-         "title": "Całkowita powierzchnia zajęcia",
+         "techName": "calkowita_powierzchnia_zajecia_pasa_drogowego",
+         "title": "Całkowita powierzchnia zajęcia pasa drogowego",
          "tooltipMessage": "",
          "type": "NUMBER",
          "validation": [
@@ -1724,7 +1682,7 @@
      },
      "rows": 6,
      "x": 0,
-     "y": 6
+     "y": 4
     },
     {
      "cols": 3,
@@ -1732,23 +1690,23 @@
       "description": "<html><head></head><body></body></html>",
       "id": "a3d11067-051f-4431-abf9-dde279df87bf",
       "options": [],
-      "questionOrder": 12,
+      "questionOrder": 10,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
-         "description": "",
-         "id": "8c3e09cd-780c-4352-b421-397b3c81842c",
+         "description": "<html><head></head><body><p>Wypełnić daty rozpoczęcia i zakończenia robót</p></body></html>",
+         "id": "c91f84b0-94db-465b-8141-fc367d7ce91a",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "termin_rozpoczecia_robot",
-         "title": "Termin rozpoczęcia robót",
+         "techName": "termin_realizacji_robot_od_do",
+         "title": "Termin realizacji robót od do",
          "tooltipMessage": "",
-         "type": "DATEPICKER",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1760,15 +1718,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Liczba dni trwania robót</p></body></html>",
-         "id": "6e33fdf5-17a6-487c-bbf2-92f22ab0565b",
+         "description": "<html><head></head><body><p>Czas trwania robót w dniach</p></body></html>",
+         "id": "cb9d0d33-c1e4-4462-b1be-8c1ae1934e64",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "termin_zakonczenia_robot",
-         "title": "Termin zakończenia robót",
+         "techName": "liczba_dni_trwania_robot",
+         "title": "Liczba dni trwania robót",
          "tooltipMessage": "",
          "type": "NUMBER",
          "validation": [
@@ -1789,72 +1747,29 @@
      },
      "rows": 3,
      "x": 0,
-     "y": 12
+     "y": 10
     },
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "203f5d92-0043-496b-9153-6e9e393ef348",
+      "id": "8b7dfda9-f8dd-4b8f-b4c8-4e1972088f83",
       "options": [],
-      "questionOrder": 15,
+      "questionOrder": 13,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
          "description": "",
-         "id": "c4d3358d-ca57-41fe-9408-d5fd17bcdb34",
+         "id": "2063fe79-21c1-4d44-9312-dc4fa34b2236",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "nazwa_przedsiebiorstwa_lub_osoby_fizycznej_wykonawcy_robot",
-         "title": "Nazwa przedsiębiorstwa lub osoby fizycznej wykonawcy robót",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "dane_wykonawcy_robot",
-      "title": "Dane wykonawcy robót",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 15
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "d8e94823-3e46-4eb1-ad0c-6457a853c0c1",
-      "options": [],
-      "questionOrder": 17,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "7d206f03-1c20-4341-a80e-1e34cf46074b",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "imie_i_nazwisko_osoby_odpowiedzialnej",
-         "title": "Imię i nazwisko osoby odpowiedzialnej",
+         "techName": "nazwa_przedsiebiorstwa_lub_osoby_fizycznej_wykonujacej_robot",
+         "title": "Nazwa przedsiębiorstwa lub osoby fizycznej wykonującej roboty",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1868,21 +1783,17 @@
        {
         "cols": 3,
         "field": {
-         "defaultValue": [
-          "Polska"
-         ],
          "description": "",
-         "dictionaryName": "Kraje",
-         "id": "a20c863d-8707-4886-b697-2a3d13bc6ea5",
+         "id": "17377d1b-42af-4517-a3aa-0a774cf3eebc",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "kraj_adres_osoby_odpowiedzialnej",
-         "title": "Kraj",
+         "techName": "imie_i_nazwisko_osoby_odpowiedzialnej_za_wykonanie_robot",
+         "title": "Imię i nazwisko osoby odpowiedzialnej za wykonanie robót",
          "tooltipMessage": "",
-         "type": "SELECT",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1895,19 +1806,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "760c17d9-8558-411d-b27c-f0ebb78c6a29",
+         "id": "dd7c601a-3cbd-4bcb-a273-5d4e36f788b0",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o zajęciu pasa drogowego' in title].questions['dane_osoby_odpowiedzialnej_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_osoby_odpowiedzialnej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "miejscowosc_adres_osoby_odpowiedzialnej_zagranica",
-         "title": "Miejscowość",
+         "states": [],
+         "techName": "adres_osoby_odpowiedzialnej_za_wykonanie_robot",
+         "title": "Adres osoby odpowiedzialnej za wykonanie robót",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1922,19 +1828,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "fe5e3937-47b6-4cd4-a49c-304e67e83fbe",
+         "id": "1d8986eb-4881-49bb-8dd0-8579ab88ac91",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o zajęciu pasa drogowego' in title].questions['dane_osoby_odpowiedzialnej_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_osoby_odpowiedzialnej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "kod_pocztowy_adres_osoby_odpowiedzialnej_zagranica",
-         "title": "Kod pocztowy",
+         "states": [],
+         "techName": "telefon_osoby_odpowiedzialnej_za_wykonanie_robot",
+         "title": "Telefon osoby odpowiedzialnej za wykonanie robót",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1944,204 +1845,31 @@
         "rows": 1,
         "x": 0,
         "y": 3
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "1bb8b6c5-4ce5-4d1f-aa38-6089781a3fe3",
-         "options": [],
-         "questionOrder": 4,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o zajęciu pasa drogowego' in title].questions['dane_osoby_odpowiedzialnej_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_osoby_odpowiedzialnej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "ulica_adres_osoby_odpowiedzialnej_zagranica",
-         "title": "Ulica",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 4
-       },
-       {
-        "cols": 3,
-        "field": {
-         "defaultValue": [],
-         "description": "",
-         "dictionaryName": "TERYT_4G_DOWODOWY",
-         "id": "c08e8f9d-1a0f-42fd-abab-a578ca10b733",
-         "multiLevelTree": true,
-         "options": [],
-         "questionOrder": 5,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "searchEnabled": true,
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o zajęciu pasa drogowego' in title].questions['dane_osoby_odpowiedzialnej_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_osoby_odpowiedzialnej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "wojewodztwo_adres_osoby_odpowiedzialnej",
-         "title": "TERYT_4G_DOWODOWY",
-         "tooltipMessage": "",
-         "type": "SELECT",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 5
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "dd840d6b-0df6-48a9-bb6a-41c44eab9fe8",
-         "options": [],
-         "questionOrder": 6,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o zajęciu pasa drogowego' in title].questions['dane_osoby_odpowiedzialnej_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_osoby_odpowiedzialnej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "kod_pocztowy_adres_osoby_odpowiedzialnej",
-         "title": "Kod pocztowy",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED",
-          "ZIP_CODE"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 6
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "1a7cf3fa-1f66-4cf7-a4b3-8635ad543ef5",
-         "options": [],
-         "questionOrder": 7,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o zajęciu pasa drogowego' in title].questions['dane_osoby_odpowiedzialnej_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_osoby_odpowiedzialnej' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "ulica_adres_osoby_odpowiedzialnej",
-         "title": "Ulica",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 7
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "b9f4914f-14f3-44bc-9a2d-6c3bae9b609b",
-         "options": [],
-         "questionOrder": 8,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_budynku_adres_osoby_odpowiedzialnej",
-         "title": "Numer budynku",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 8
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "a29def09-4f77-416c-a8e1-ef35bcc6bef2",
-         "options": [],
-         "questionOrder": 9,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_lokalu_adres_osoby_odpowiedzialnej",
-         "title": "Numer lokalu",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 9
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "6a9581d9-f339-4e10-aeb6-ae03bf8bbbcf",
-         "options": [],
-         "questionOrder": 10,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_telefonu_osoby_odpowiedzialnej",
-         "title": "Numer telefonu osoby odpowiedzialnej",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 10
        }
       ],
       "states": [],
-      "techName": "dane_osoby_odpowiedzialnej_za_wykonanie_robot",
-      "title": "Dane osoby odpowiedzialnej za wykonanie robót",
+      "techName": "informacje_o_wykonawcy_robot",
+      "title": "Informacje o wykonawcy robót",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 12,
+     "rows": 5,
      "x": 0,
-     "y": 17
+     "y": 13
     }
    ],
-   "title": "Informacje o zajęciu pasa drogowego",
+   "title": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego w celu prowadzenia robót",
    "type": "MAIN"
   },
   {
-   "id": "1ab397b5-9d06-4ff5-97ea-f189de6d9dd1",
+   "id": "61c3814e-11d7-48f1-9a89-d8031c6adbb0",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "66599b58-9350-4cb7-9ca1-7922ed22c121",
+      "id": "30ec8566-3517-4f00-bdb0-68ab6fdb8154",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -2149,15 +1877,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Plik w formacie PDF lub JPG</p></body></html>",
-         "id": "a68401fe-8d3e-475c-96fc-b327dd618fac",
+         "description": "",
+         "id": "f47d1b15-7835-4c77-90b6-b71bda1f07d4",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "ogolny_plan_orientacyjny",
-         "title": "Ogólny plan orientacyjny",
+         "techName": "ogolny_plan_orientacyjny_z_zaznaczeniem_zajmowanego_odcinka_",
+         "title": "Ogólny plan orientacyjny z zaznaczeniem zajmowanego odcinka pasa drogowego",
          "tooltipMessage": "",
          "type": "FILE_UPLOADER",
          "validation": [
@@ -2171,15 +1899,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Plik w formacie PDF lub JPG</p></body></html>",
-         "id": "a10a7038-572a-403e-a23c-c6ed58cd2823",
+         "description": "",
+         "id": "19aab094-2ba6-4da5-b93f-91859d9a58c4",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "szczegolowy_plan_sytuacyjny",
-         "title": "Szczegółowy plan sytuacyjny",
+         "techName": "szczegolowy_plan_sytuacyjny_z_zaznaczeniem_granic_i_wymiarow",
+         "title": "Szczegółowy plan sytuacyjny z zaznaczeniem granic i wymiarów planowanej powierzchni zajęcia pasa drogowego",
          "tooltipMessage": "",
          "type": "FILE_UPLOADER",
          "validation": [
@@ -2193,7 +1921,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Plik w formacie PDF</p></body></html>",
+         "description": "",
          "id": "54cb0953-76fc-42bd-afdf-dd9c425d0de3",
          "options": [],
          "questionOrder": 2,
@@ -2215,15 +1943,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Plik w formacie PDF; pole nieobowiązkowe</p></body></html>",
-         "id": "e9ff14c5-a65e-4da9-a90c-897777862dc1",
+         "description": "",
+         "id": "a1599927-4ba7-4d14-8fcd-81ee3689714a",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "zatwierdzony_projekt_organizacji_ruchu",
-         "title": "Zatwierdzony projekt organizacji ruchu",
+         "techName": "zatwierdzony_projekt_organizacji_ruchu_jesli_dotyczy",
+         "title": "Zatwierdzony projekt organizacji ruchu (jeśli dotyczy)",
          "tooltipMessage": "",
          "type": "FILE_UPLOADER",
          "validation": [
@@ -2237,20 +1965,18 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Plik w formacie PDF; pole nieobowiązkowe</p></body></html>",
-         "id": "e5f1597f-ffb3-46a9-9332-af72f822d375",
+         "description": "",
+         "id": "1b4fcc2b-02a3-4b03-8864-bdc1ab63acbb",
          "options": [],
          "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "informacja_o_sposobie_zabezpieczenia_robot",
-         "title": "Informacja o sposobie zabezpieczenia robót",
+         "techName": "informacja_o_sposobie_zabezpieczenia_robot_jesli_nie_jest_wy",
+         "title": "Informacja o sposobie zabezpieczenia robót (jeśli nie jest wymagany projekt organizacji ruchu)",
          "tooltipMessage": "",
          "type": "FILE_UPLOADER",
-         "validation": [
-          "REQUIRED"
-         ]
+         "validation": []
         },
         "rows": 1,
         "x": 0,
@@ -2258,8 +1984,8 @@
        }
       ],
       "states": [],
-      "techName": "wymagane_dokumenty",
-      "title": "Wymagane dokumenty",
+      "techName": "zalaczniki_do_wniosku",
+      "title": "Załączniki do wniosku",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -2269,7 +1995,7 @@
      "y": 0
     }
    ],
-   "title": "Załączniki",
+   "title": "Załączniki do wniosku",
    "type": "MAIN"
   },
   {
@@ -2361,7 +2087,7 @@
             "required": true
            },
            {
-            "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie przez Urząd Miasta i Gminy w Daleszycach moich danych osobowych w celu wydania zezwolenia na zajęcie pasa drogowego/ prowadzenie robót.</p></body></html>",
+            "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie moich danych osobowych przez Urząd Miasta i Gminy w Daleszycach w celu wydania zezwolenia na zajęcie pasa drogowego/prowadzenie robót.</p></body></html>",
             "required": true
            }
           ],

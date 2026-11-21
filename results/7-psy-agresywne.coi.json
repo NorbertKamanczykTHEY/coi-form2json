@@ -2,28 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "ac100523-5c07-4028-9494-6ce9d86842c3",
+    "id": "f64efb7a-3f96-4a78-844b-1a239fa4ca12",
     "source": "27e01a88-a782-4f0c-8de4-6b0d936e644b",
-    "target": "398feaff-29fb-468b-8534-b6a975dc1c9c"
+    "target": "08c9f619-f3b9-443c-b92c-6e433d200d8c"
    },
    {
-    "id": "4be36baa-3a3d-4c5b-a153-33caeac62736",
-    "source": "398feaff-29fb-468b-8534-b6a975dc1c9c",
-    "target": "c351a9cb-3459-4153-b1dd-4566556724d8"
-   },
-   {
-    "id": "9a46ad13-360e-43e7-8711-46678eda2885",
-    "source": "c351a9cb-3459-4153-b1dd-4566556724d8",
-    "target": "3bd45733-f8ad-45ce-940d-a65cc01238ba"
-   },
-   {
-    "id": "138a4f00-d0dd-45f0-beb7-a04486294cf9",
-    "source": "3bd45733-f8ad-45ce-940d-a65cc01238ba",
-    "target": "39c3ad84-b246-43b3-b022-097f3997a964"
-   },
-   {
-    "id": "e67b9ac0-9456-4752-b64f-fc8546dc0662",
-    "source": "39c3ad84-b246-43b3-b022-097f3997a964",
+    "id": "2e0f3ca0-7924-4269-bdbf-fb1b0cfdcce9",
+    "source": "08c9f619-f3b9-443c-b92c-6e433d200d8c",
     "target": "81498ae0-2c33-4d3f-8d9f-d2b6b55e8545"
    },
    {
@@ -49,7 +34,7 @@
        {
         "cols": 3,
         "field": {
-         "defaultValue": "",
+         "defaultValue": "Urząd Miejski Wrocławia, Wydział Środowiska",
          "description": "",
          "id": "00dbf6d4-8fe8-4011-9c41-1f832ee1e34a",
          "options": [],
@@ -332,7 +317,7 @@
           }
          ],
          "techName": "wojewodztwo",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -660,7 +645,7 @@
           }
          ],
          "techName": "wojewodztwo_inna_osoba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -947,7 +932,7 @@
    "type": "MAIN"
   },
   {
-   "id": "398feaff-29fb-468b-8534-b6a975dc1c9c",
+   "id": "08c9f619-f3b9-443c-b92c-6e433d200d8c",
    "questions": [
     {
      "cols": 3,
@@ -962,25 +947,55 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "3669a4b0-4a29-495e-8ace-bafffb74107e",
+         "id": "4d69ecf8-665d-4199-b732-bf37d2ef4ff9",
          "options": [
           {
-           "id": "Hodowanie psów ras uznawanych za agresywne",
-           "name": "Hodowanie psów ras uznawanych za agresywne",
-           "techName": "hodowanie_psow_ras_uznawanych_za_agresywne"
+           "id": "Hodowanie charta",
+           "name": "Hodowanie charta",
+           "techName": "hodowanie_charta"
           },
           {
-           "id": "Utrzymywanie psów ras uznawanych za agresywne",
-           "name": "Utrzymywanie psów ras uznawanych za agresywne",
-           "techName": "utrzymywanie_psow_ras_uznawanych_za_agresywne"
+           "id": "Hodowanie chartów",
+           "name": "Hodowanie chartów",
+           "techName": "hodowanie_chartow"
+          },
+          {
+           "id": "Hodowanie mieszańca charta",
+           "name": "Hodowanie mieszańca charta",
+           "techName": "hodowanie_mieszanca_charta"
+          },
+          {
+           "id": "Hodowanie mieszańców chartów",
+           "name": "Hodowanie mieszańców chartów",
+           "techName": "hodowanie_mieszancow_chartow"
+          },
+          {
+           "id": "Utrzymywanie charta",
+           "name": "Utrzymywanie charta",
+           "techName": "utrzymywanie_charta"
+          },
+          {
+           "id": "Utrzymywanie chartów",
+           "name": "Utrzymywanie chartów",
+           "techName": "utrzymywanie_chartow"
+          },
+          {
+           "id": "Utrzymywanie mieszańca charta",
+           "name": "Utrzymywanie mieszańca charta",
+           "techName": "utrzymywanie_mieszanca_charta"
+          },
+          {
+           "id": "Utrzymywanie mieszańców chartów",
+           "name": "Utrzymywanie mieszańców chartów",
+           "techName": "utrzymywanie_mieszancow_chartow"
           }
          ],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "rodzaj_wniosku_rodzaj_wniosku",
-         "title": "Rodzaj wniosku",
+         "techName": "wybierz_rodzaj_wniosku",
+         "title": "Wybierz rodzaj wniosku",
          "tooltipMessage": "",
          "type": "RADIO",
          "validation": [
@@ -1007,57 +1022,9 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "b82a2d38-1052-40b7-94f8-6810525cf546",
-      "options": [],
-      "questionOrder": 2,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "<html><head></head><body><p>Informacja o posiadanych psach</p></body></html>",
-         "id": "4e4783b1-20c4-45fa-be96-c730df80c2cb",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "informacja_o_posiadanych_psach_informacja_o_posiadanych_psac",
-         "title": "",
-         "tooltipMessage": "",
-         "type": "TEXT_BLOCK",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "informacja_o_posiadanych_psach",
-      "title": "Informacja o posiadanych psach",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 2
-    }
-   ],
-   "title": "Rodzaj wniosku i informacje ogólne",
-   "type": "MAIN"
-  },
-  {
-   "id": "c351a9cb-3459-4153-b1dd-4566556724d8",
-   "questions": [
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
       "id": "78995104-debc-47b4-bc3d-95bf02e544aa",
       "options": [],
-      "questionOrder": 0,
+      "questionOrder": 2,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1130,14 +1097,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "d2f3858b-48c7-41d5-b33c-cbae3f5aed16",
+         "id": "86e0ea8c-e613-4622-b72c-5282219bbc21",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "data_szczepienia_psa_przeciwko_wsciekliznie",
-         "title": "Data szczepienia psa przeciwko wściekliźnie",
+         "techName": "data_szczepienia_przeciwko_wsciekliznie",
+         "title": "Data szczepienia przeciwko wściekliźnie",
          "tooltipMessage": "",
          "type": "DATEPICKER",
          "validation": [
@@ -1230,7 +1197,7 @@
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Mikroprocesor\" in tabs['Dane psów' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['sposob_oznakowania_psa' in fieldTechName].answers)",
+           "query": "(\"Mikroprocesor\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['sposob_oznakowania_psa' in fieldTechName].answers)",
            "type": "SHOW"
           }
          ],
@@ -1257,7 +1224,7 @@
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Tatuaż\" in tabs['Dane psów' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['sposob_oznakowania_psa' in fieldTechName].answers)",
+           "query": "(\"Tatuaż\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['sposob_oznakowania_psa' in fieldTechName].answers)",
            "type": "SHOW"
           }
          ],
@@ -1276,20 +1243,46 @@
        {
         "cols": 3,
         "field": {
+         "defaultValue": [
+          "Polska"
+         ],
          "description": "",
-         "id": "18e8e038-2126-4513-9e5a-1f48b7eab051",
+         "dictionaryName": "Kraje",
+         "id": "470df2a0-bd82-4989-b22d-2694da8b80a1",
          "options": [],
          "questionOrder": 8,
          "readOnly": false,
          "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "kraj_adres_miejsca_utrzymywania_psa",
+         "title": "Kraj",
+         "tooltipMessage": "",
+         "type": "SELECT",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 8
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "bb563922-34aa-48a1-8b4b-b9e25e0cfa46",
+         "options": [],
+         "questionOrder": 9,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Brak\" in tabs['Dane psów' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['sposob_oznakowania_psa' in fieldTechName].answers)",
+           "query": "$not(\"Polska\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['kraj_adres_miejsca_utrzymywania_psa' in fieldTechName].answers)",
            "type": "SHOW"
           }
          ],
-         "techName": "numer_identyfikacyjny_psa",
-         "title": "Numer identyfikacyjny psa",
+         "techName": "miejscowosc_adres_miejsca_utrzymywania_psa_zagranica",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1298,7 +1291,229 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 8
+        "y": 9
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "072ec1d1-7883-47c4-a5ac-fc8b11d7bd67",
+         "options": [],
+         "questionOrder": 10,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "$not(\"Polska\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['kraj_adres_miejsca_utrzymywania_psa' in fieldTechName].answers)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "kod_pocztowy_adres_miejsca_utrzymywania_psa_zagranica",
+         "title": "Kod pocztowy",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 10
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "bb3a3da0-30b5-4588-9aae-1675736cec02",
+         "options": [],
+         "questionOrder": 11,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "$not(\"Polska\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['kraj_adres_miejsca_utrzymywania_psa' in fieldTechName].answers)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "ulica_adres_miejsca_utrzymywania_psa_zagranica",
+         "title": "Ulica",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": []
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 11
+       },
+       {
+        "cols": 3,
+        "field": {
+         "defaultValue": [],
+         "description": "",
+         "dictionaryName": "TERYT_4G_DOWODOWY",
+         "id": "9058664c-40b0-4348-9612-551823a87cc7",
+         "multiLevelTree": true,
+         "options": [],
+         "questionOrder": 12,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "searchEnabled": true,
+         "states": [
+          {
+           "query": "(\"Polska\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['kraj_adres_miejsca_utrzymywania_psa' in fieldTechName].answers)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "wojewodztwo_adres_miejsca_utrzymywania_psa",
+         "title": "Miejscowość",
+         "tooltipMessage": "",
+         "type": "SELECT",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 12
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "d0f56e2f-8c53-4fc2-984a-db08f6ca895d",
+         "options": [],
+         "questionOrder": 13,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Polska\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['kraj_adres_miejsca_utrzymywania_psa' in fieldTechName].answers)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "kod_pocztowy_adres_miejsca_utrzymywania_psa",
+         "title": "Kod pocztowy",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED",
+          "ZIP_CODE"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 13
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "c87c4bec-5c10-4070-a982-fe649c53227a",
+         "options": [],
+         "questionOrder": 14,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Polska\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.__userAnswer[$repeatingSectionIndex]['kraj_adres_miejsca_utrzymywania_psa' in fieldTechName].answers)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "ulica_adres_miejsca_utrzymywania_psa",
+         "title": "Ulica",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": []
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 14
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "82c94535-e77a-434b-b99d-61c79b723237",
+         "options": [],
+         "questionOrder": 15,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_budynku_adres_miejsca_utrzymywania_psa",
+         "title": "Numer budynku",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 15
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "2707150b-4702-4ea6-a6f6-0c03cdb326ac",
+         "options": [],
+         "questionOrder": 16,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_lokalu_adres_miejsca_utrzymywania_psa",
+         "title": "Numer lokalu",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": []
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 16
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "ec6c2746-b81e-42f4-b53b-6632af86550b",
+         "options": [],
+         "questionOrder": 17,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "opis_warunkow_utrzymywania_psa",
+         "title": "Opis warunków utrzymywania psa",
+         "tooltipMessage": "",
+         "type": "TEXTAREA",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 17
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "17dc0535-fabf-4aa5-ac88-da15f65bccfe",
+         "options": [],
+         "questionOrder": 18,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "kopia_ksiazeczki_szczepien_przeciwko_wsciekliznie",
+         "title": "Kopia książeczki szczepień przeciwko wściekliźnie",
+         "tooltipMessage": "",
+         "type": "FILE_UPLOADER",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 18
        }
       ],
       "states": [],
@@ -1308,196 +1523,12 @@
       "type": "REPEATING_SECTION",
       "validation": []
      },
-     "rows": 10,
-     "x": 0,
-     "y": 0
-    }
-   ],
-   "title": "Dane psów",
-   "type": "MAIN"
-  },
-  {
-   "id": "3bd45733-f8ad-45ce-940d-a65cc01238ba",
-   "questions": [
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "cc10e6b7-d658-4411-b083-a0253ff6ee0d",
-      "options": [],
-      "questionOrder": 0,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "b45c20ef-28df-49a1-a084-1720133eeb97",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "adres_miejsca_utrzymywania_psow_adres_miejsca_utrzymywania_p",
-         "title": "Adres miejsca utrzymywania psów",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "adres_miejsca_utrzymywania_psow",
-      "title": "Adres miejsca utrzymywania psów",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 0
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "f53735f1-4798-4c6b-a917-9fdb746ce5d9",
-      "options": [],
-      "questionOrder": 2,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "c62b7e8c-17ba-498f-865a-a8ee0f00fcb2",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "opis_miejsca_i_warunkow_utrzymywania_psow",
-         "title": "Opis miejsca i warunków utrzymywania psów",
-         "tooltipMessage": "",
-         "type": "TEXTAREA",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "opis_miejsca_i_warunkow_utrzymywania",
-      "title": "Opis miejsca i warunków utrzymywania",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
+     "rows": 20,
      "x": 0,
      "y": 2
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "a5a42e05-6f88-4130-b6d6-8494cf941d95",
-      "options": [],
-      "questionOrder": 4,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "fbdc73f0-c214-495a-8d5a-20b7df2f7466",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "uwagi_uwagi",
-         "title": "Uwagi",
-         "tooltipMessage": "",
-         "type": "TEXTAREA",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "uwagi",
-      "title": "Uwagi",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 4
     }
    ],
-   "title": "Miejsce i warunki utrzymywania psów",
-   "type": "MAIN"
-  },
-  {
-   "id": "39c3ad84-b246-43b3-b022-097f3997a964",
-   "questions": [
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "362121a6-94fc-485f-82bd-a1520621261b",
-      "options": [],
-      "questionOrder": 0,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "c8d0919e-2cd8-480d-aa94-59ddbba0968b",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "kopia_zaswiadczenia_o_szczepieniu_przeciwko_wsciekliznie",
-         "title": "Kopia zaświadczenia o szczepieniu przeciwko wściekliźnie",
-         "tooltipMessage": "",
-         "type": "FILE_UPLOADER",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "dokumenty_dolaczenia",
-      "title": "Dokumenty dołączenia",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 0
-    }
-   ],
-   "title": "Załączniki",
+   "title": "Informacje o psie",
    "type": "MAIN"
   },
   {

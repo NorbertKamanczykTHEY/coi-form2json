@@ -1,45 +1,8 @@
 {
- "cost": 0.01451,
- "needs_review": [
-  {
-   "key": "dzien_zdarzenia",
-   "why": "source label has no words"
-  },
-  {
-   "key": "miesiac_zdarzenia",
-   "why": "source label has no words"
-  },
-  {
-   "key": "rok_zdarzenia",
-   "why": "source label has no words"
-  },
-  {
-   "key": "adres_lub_opis_miejsca_lokalizacji_pojemnikow",
-   "why": "optional marker not confirmed in source: 'W przypadku nieruchomości zabudowanej budynkiem wielolokalowym, w którym ustanowiono odrębną własność lokalu'"
-  },
-  {
-   "key": "numery_dzialek_geodezyjnych_nieruchomosci",
-   "why": "optional marker not confirmed in source: 'Wypełnić jeżeli nieruchomość nie ma urzędowo nadanego adresu'"
-  },
-  {
-   "key": "kwota_z_zalacznika_a_lub_b",
-   "why": "optional marker not confirmed in source: 'Wypełnić tylko w przypadku złożenia załącznika A lub B'"
-  },
-  {
-   "key": "liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "suma_oplat_pozycje_38_41_44_47_pomniejszona_o_pozycje_50",
-   "why": "label not found in cited source"
-  },
-  {
-   "key": "addressee",
-   "why": "brak adresata, wstawiono pustą nazwę urzędu"
-  }
- ],
+ "cost": 0.07494,
+ "needs_review": [],
  "proposed_dictionaries": [],
- "seconds": 64.97,
+ "seconds": 274.92,
  "source": {
   "cost": 0,
   "filename": "Deklaracja o wysokości opłaty.docx",
@@ -89,35 +52,68 @@
   },
   {
    "accepted": false,
-   "calls": 3,
-   "cost": 0.00967,
+   "calls": 2,
+   "cost": 0.01009,
    "coverage": 1.0,
    "fails": [
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['dane_identyfikacyjne_wspolmalzonka', 'oswiadczenie_o_wyposazeniu_nieruchomosci_w_przydomowy_kompos', 'zgoda_na_otrzymywanie_korespondencji_elektronicznej']"
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wybrano_wspolmalzonka_do_deklaracji', 'oswiadczenie_o_wyposazeniu_nieruchomosci_w_kompostownik', 'zgoda_na_otrzymywanie_korespondencji_elektronicznej', 'wybrano_inne_zalaczniki']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 58.9,
+   "seconds": 60.3,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.01865,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_do_korekty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wybrano_inne_zalaczniki']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 90.0,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 3,
+   "cost": 0.02345,
+   "coverage": 1.0,
+   "fails": [
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Rodzaj nieruchomości i oświadczenie o kompostowniku']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczenie_o_posiadaniu_przydomowego_kompostownika']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b353']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 63.9,
    "stage": "extract"
   },
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00484,
+   "cost": 0.02275,
    "coverage": 1.0,
    "fails": [],
    "mode": "two_stage",
-   "model": "mistral/mistral-small-2603",
+   "model": "mistral/mistral-large-2512",
    "round": "repair",
-   "rung": 0,
-   "seconds": 14.5,
+   "rung": 1,
+   "seconds": 62.5,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
-  "W bloku B.1.2 (p1.b22) występuje błędna numeracja pozycji (1.1.2 zamiast 1.2)."
+  "strona 'Dane współmałżonka': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta"
  ]
 }

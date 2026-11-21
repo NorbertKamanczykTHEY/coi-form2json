@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "a944744a-80e4-499d-98f9-4ccb292cf750",
+    "id": "54a0a8ac-a2d5-4c16-82b8-761f598d2090",
     "source": "3fbf7fc3-6299-4697-93c3-c7b170970344",
-    "target": "0e6c1cab-199b-4b45-94af-9bfcf84b1533"
+    "target": "4d93c2ee-2b02-4c70-9cc7-399e30493ac4"
    },
    {
-    "id": "2e0d94b0-df31-4ae8-9b64-877768269c06",
-    "source": "0e6c1cab-199b-4b45-94af-9bfcf84b1533",
+    "id": "23c4f6ec-d739-4538-8387-4098eb4934c1",
+    "source": "4d93c2ee-2b02-4c70-9cc7-399e30493ac4",
     "target": "8e405fed-5fd2-442e-bd33-96a7e5136f68"
    },
    {
@@ -360,7 +360,7 @@
           }
          ],
          "techName": "wojewodztwo",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -731,7 +731,7 @@
           }
          ],
          "techName": "wojewodztwo_siedziba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -1104,7 +1104,7 @@
           }
          ],
          "techName": "wojewodztwo_inna_osoba",
-         "title": "TERYT_4G_DOWODOWY",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "SELECT",
          "validation": [
@@ -1459,13 +1459,13 @@
    "type": "MAIN"
   },
   {
-   "id": "0e6c1cab-199b-4b45-94af-9bfcf84b1533",
+   "id": "4d93c2ee-2b02-4c70-9cc7-399e30493ac4",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "c546e5da-73d5-4e9a-9bf2-791009e020cb",
+      "id": "438572bd-224c-4868-8b0a-370d540fa152",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1495,20 +1495,18 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Nazwa ulicy bez numeru domu</p></body></html>",
-         "id": "c0c161d9-ff31-49a4-8cdf-7826855e09ab",
+         "description": "",
+         "id": "4f1b59de-32ad-4fa9-aa49-32eb4c584398",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "ulica_lokalizacja_budynku",
+         "techName": "ulica_dane_budynku",
          "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
+         "validation": []
         },
         "rows": 1,
         "x": 0,
@@ -1518,80 +1516,38 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "e464eec1-cbf5-49cb-9d9e-fd7d2665a1e2",
+         "id": "15212f18-e94c-4113-bd71-cdec8796413c",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "numer_domu",
-         "title": "Numer domu",
+         "techName": "numer_porzadkowy_budynku",
+         "title": "Numer porządkowy budynku",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
-         "validation": []
+         "validation": [
+          "REQUIRED"
+         ]
         },
         "rows": 1,
         "x": 0,
         "y": 2
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "af4d8e64-eb5d-4a02-82d6-a884f32f398c",
-         "options": [],
-         "questionOrder": 3,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_ewidencyjny_dzialki",
-         "title": "Numer ewidencyjny działki",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 3
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "5414e021-2ad1-4074-9e41-95cb9512b28c",
-         "options": [],
-         "questionOrder": 4,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "obreb",
-         "title": "Obręb",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 4
        }
       ],
       "states": [],
-      "techName": "lokalizacja_budynku",
-      "title": "Lokalizacja budynku",
+      "techName": "dane_budynku",
+      "title": "Dane budynku",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 6,
+     "rows": 4,
      "x": 0,
      "y": 0
     }
    ],
-   "title": "Dane budynku",
+   "title": "Ustalenie numeru porządkowego budynku",
    "type": "MAIN"
   },
   {
