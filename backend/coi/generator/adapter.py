@@ -219,7 +219,7 @@ def sig(sec: dict):
     return tuple((f["label"], f["type"], tuple(f.get("options") or ()), f.get("required", True)) for f in sec["fields"])
 
 
-def merge_variant_twins(pages: list[dict], consents: list[dict], party: list[dict]) -> tuple[dict, list[str]]:
+def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, list[str]]:
     """G12: a block repeated for each variant (same fields, SHOW on different options of one field) becomes one section with
     SHOW on all those options. Returns the key aliases (dropped twin -> kept field) applied to every condition."""
     alias, seen, notes = {}, {}, []
@@ -253,7 +253,7 @@ def merge_variant_twins(pages: list[dict], consents: list[dict], party: list[dic
             return {op: [ren(x) for x in c[op]]}
         return {**c, "field": alias.get(c["field"], c["field"])}
     if alias:
-        for n in [s for p in pages for s in p["sections"]] + party:
+        for n in [s for p in pages for s in p["sections"]]:
             n["show_if"] = ren(n.get("show_if"))
             for f in n["fields"]:
                 f["show_if"] = ren(f.get("show_if"))
@@ -276,12 +276,19 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
     kinds = set(tree.applicant_kinds)
     applicant = "ENTITY" if kinds == {"legal_entity"} else "PERSON" if kinds == {"person"} else "ANY"
     no_pesel = bool(NO_PESEL.search(" ".join((blocks or {}).values())))
-    correspondence = correspondence_asked(tree, blocks or {})
-    pages, party, files = [], [], {}
+    # Section.party is the applicant's own address (residence or seat, correspondence): the template's "Dane" blocks
+    # ask for it already, so the section only switches the correspondence block on
+    own_address = [s for p in tree.pages for s in p.sections if getattr(s, "party", False)]
+    correspondence = correspondence_asked(tree, blocks or {}) or any(
+        CORRESPONDENCE.search(" ".join([s.title] + [f"{f.label} {f.source_label}" for f in s.fields])) for s in own_address)
+    warnings += [f"sekcja {s.title!r}: adres wnioskodawcy jest w szablonie „Dane”, pominięto" for s in own_address]
+    pages, files = [], {}
     taken = {p.title for p in tree.pages}
     for p in tree.pages:
         secs = []
         for s in p.sections:
+            if getattr(s, "party", False):
+                continue
             dup = entity_duplicates(s) if applicant == "ENTITY" else set()
             if dup:
                 warnings.append(f"sekcja {s.title!r}: pominięto {', '.join(sorted(dup))}, bo powtarzają dane podmiotu ze strony „Dane”")
@@ -305,13 +312,12 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
                 fields = pesel_alternative(fields)
             if not fields:
                 continue
-            # Standardy s.6: the first page holds the data of every party of the proceedings, not only the applicant's
             parts = [x for part in split_multiple(s, fields) for x in split_by_numbering(part, getattr(s, "number", None))]
-            (party if getattr(s, "party", False) else secs).extend(parts)
+            secs.extend(parts)
         if secs:
             pages.extend(split_page(p.title, secs, taken))
     consents = [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if]), "required": getattr(c, "required", True)} for c in tree.consents]
-    _, notes = merge_variant_twins(pages, consents, party)
+    _, notes = merge_variant_twins(pages, consents)
     warnings += notes
     entity_option = settings["entity_option"]  # G5: the Standardy's text; the paper's wording names a role, not the option
     if tree.entity_option and tree.entity_option != entity_option:
@@ -327,7 +333,6 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         "entity_extract": bool(getattr(tree, "entity_extract_required", False)),  # registry extract from every entity applicant
         "no_pesel": no_pesel,
         "correspondence": correspondence,
-        "party": party,
         "proxy_id_card": bool(getattr(tree, "proxy_id_card", False)) or any(ID_CARD.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "proxy_data"),
         "pages": pages,
         "consents": consents,

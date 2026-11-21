@@ -153,7 +153,7 @@ Każda reguła wynika z treści dokumentu albo ze Standardów, nigdy z numeru fo
 | G16 | Etykieta pola przedmiotu równa etykiecie szablonu (np. „Nazwa organu”) dostaje pełną etykietę z papieru (`source_label`) | `build.resolve` |
 | Q33 | „Dane innej osoby” zawsze ma „Numer PESEL” z walidatorem PESEL (Standardy s. 15 ponad wzorce, ADR 0023) | `templates/dane.json` |
 
-Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyślną: `case_fee`, `case_fee_src`, `case_fee_proof`, `Consent.required` (zgoda dobrowolna → `required: false`), `proxy_id_card` (pole serii i numeru dowodu w „Pełnomocnictwo”); od `d0d3821` także `Section.number` i `FormField.number` (G12).
+Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyślną: `case_fee`, `case_fee_src`, `case_fee_proof`, `Consent.required` (zgoda dobrowolna → `required: false`), `proxy_id_card` (pole serii i numeru dowodu w „Pełnomocnictwo”); od `d0d3821` także `Section.number` i `FormField.number` (G12). `Section.party` (od `d0d3821`: tylko adres wnioskodawcy, czyli zamieszkania, siedziby lub do korespondencji) nie tworzy sekcji, bo adres zbiera szablon „Dane”; adres do korespondencji w takiej sekcji włącza szablonowy blok korespondencji. Osoby trzecie (współmałżonek) są sekcjami `third_party` w przedmiocie.
 
 ## 8. Konfiguracja (`coi/config/`)
 

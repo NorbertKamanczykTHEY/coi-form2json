@@ -137,8 +137,6 @@ def resolve(tree: dict, templates: Path) -> list:
     for p in subject:
         p["subject"] = True
     dane = load("dane")
-    at = next(i for i, s in enumerate(dane["sections"]) if s.get("key") == "__party__")
-    dane["sections"][at:at + 1] = copy.deepcopy(tree.get("party", []))  # parties' sections, after the applicant's data
     pages = [dane, *subject, load("kontakt"), load("finish")]
     if tree.get("case_fee"):  # G8: the fee for the case itself, before the consents
         fee = [{"key": "informacja_o_oplacie", "label": "", "type": "TEXT_BLOCK", "description": tree["case_fee"]}]

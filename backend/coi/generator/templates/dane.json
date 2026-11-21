@@ -601,11 +601,6 @@
    ]
   },
   {
-   "key": "__party__",
-   "title": "",
-   "fields": []
-  },
-  {
    "key": "potwierdzenie_ze_jestes_reprezentantem",
    "description_html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dołącz aktualny odpis danych z Krajowego Rejestru Sądowego lub innego rejestru. Odpis powinien potwierdzać, że jesteś reprezentantem podmiotu lub instytucji.</span></p></body></html>",
    "show_if": {
