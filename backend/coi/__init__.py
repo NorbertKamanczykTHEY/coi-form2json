@@ -37,7 +37,7 @@ def create_app() -> APIFlask:
         JWT_ISSUER=e.get("JWT_ISSUER", ""),
         JWT_AUDIENCE=e.get("JWT_AUDIENCE", ""),
         JWT_LEEWAY_S=float(e.get("JWT_LEEWAY_S", "30")),
-        STORE=Store(e.get("DB_PATH", "/data/coi.sqlite")),
+        STORE=Store(e.get("DATABASE_URL") or f"sqlite:///{e.get('DB_PATH', '/data/coi.sqlite')}"),  # DB_PATH: legacy alias
     )
     app.config["STORE"].init()
     app.error_processor(api.problem)

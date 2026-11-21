@@ -20,7 +20,7 @@ SECRET = "test-secret-at-least-32-bytes-long!!"
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("JWT_SECRET", SECRET)
     monkeypatch.setenv("JWT_ALG", "HS256")
-    monkeypatch.setenv("DB_PATH", str(tmp_path / "coi.sqlite"))
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'coi.sqlite'}")
     monkeypatch.setenv("MAX_FILE_MB", "5")
     for k in ("JWT_ISSUER", "JWT_AUDIENCE"):
         monkeypatch.delenv(k, raising=False)
