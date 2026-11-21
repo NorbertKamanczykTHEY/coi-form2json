@@ -33,3 +33,4 @@ Gdy decyzja wynika ze specyfikacji tylko częściowo, są dwa źródła, a Konte
 | 0021 | Nowy słownik tylko wtedy, gdy mamy listę pozycji | przyjęta | SPEC (R-II) + ZESPÓŁ | [0021-nowy-slownik-tylko-z-lista-pozycji.md](0021-nowy-slownik-tylko-z-lista-pozycji.md) |
 | 0022 | Dane inicjalne: konfigurujemy źródło i atrybut, niczego nie wypełniamy | proponowana | SPEC (R-I) + ZESPÓŁ | [0022-dane-inicjalne-tylko-konfiguracja.md](0022-dane-inicjalne-tylko-konfiguracja.md) |
 | 0023 | Przy rozbieżności schematu i wzorców trzymamy się wzorców #1 i #5 | proponowana | SPEC (M3) + ZESPÓŁ | [0023-wzorce-ponad-schemat.md](0023-wzorce-ponad-schemat.md) |
+| 0024 | Reguły, prompty i bramki są uniwersalne, bez poprawek pod konkretny formularz | przyjęta | ZESPÓŁ | [0024-uniwersalne-reguly-bez-poprawek-pod-formularz.md](0024-uniwersalne-reguly-bez-poprawek-pod-formularz.md) |
