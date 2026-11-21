@@ -83,3 +83,27 @@ def test_empty_attachment_list_lines_become_one_optional_multi_upload():
     assert len(other) == 1 and other[0].multiple and other[0].type == "FILE_UPLOADER" and other[0].optional_evidence
     assert set(other[0].src) == {"p1.b3", "p1.b4"} and "zalacznik_3" not in fs
     assert [d.src for d in out.dropped] == [["p1.b6"]]  # an empty line of another list stays empty_slot
+
+
+def test_signature_and_date_fields_are_dropped():
+    blocks = {"p1.b0": "Data sporządzenia wniosku ___ Podpis i pieczątka wnioskodawcy ___", "p1.b1": "Data urodzenia ___"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+        f("d", "Data sporządzenia wniosku", "DATEPICKER", "p1.b0"), f("p", "Podpis i pieczątka wnioskodawcy", "TEXT_BLOCK", "p1.b0"),
+        f("m", "Miejscowość i data", src="p1.b0"), f("b", "Data urodzenia", "DATEPICKER", "p1.b1")]}]}]})
+    out, _ = normalize(t, blocks)
+    assert [x.key for x in out.pages[0].sections[0].fields] == ["data_urodzenia"]
+    assert all(d.reason == "signature_date" for d in out.dropped) and len(out.dropped) == 3
+
+
+def test_control_question_is_scoped_to_its_dependents_variants_and_conditional_label_is_flagged():
+    blocks = {"p1.b0": "Adres do korespondencji (jeśli różni się od adresu zamieszkania) ___"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Wstęp", "fields": [f("kind", "Rodzaj", "RADIO", "p1.b0", options=["A", "B", "C"]), f("adult", "Czy pełnoletni", "RADIO", "p1.b0", options=["Tak", "Nie"])]},
+        {"title": "Adres", "fields": [f("addr", "Adres do korespondencji", src="p1.b0")]}]}],
+        "consents": [{"text": "x", "show_if": [{"field": "kind", "options": ["A"]}, {"field": "adult", "options": ["Tak"]}]},
+                     {"text": "y", "show_if": [{"field": "kind", "options": ["B"]}, {"field": "adult", "options": ["Nie"]}]}]})
+    out, review = normalize(t, blocks)
+    fs = {x.key: x for s in out.pages[0].sections for x in s.fields}
+    assert fs["czy_pelnoletni"].show_if.field == "rodzaj" and fs["czy_pelnoletni"].show_if.options == ["A", "B"]
+    assert fs["rodzaj"].show_if is None
+    assert any(r["key"] == "adres_do_korespondencji" and "warunk" in r["why"] for r in review)

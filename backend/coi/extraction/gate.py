@@ -17,12 +17,20 @@ SIGN_SLOT = re.compile(r"^\W*(___\W*)+$|imi[eę] i nazwisko|podpis|\bdata\b", re
 ORGAN = re.compile(r"\badresat\b|\b(wójt|burmistrz|prezydent miasta|starost[ay]|marszałek|urząd (gminy|miasta|miejski|skarbowy|marszałkowski)|starostwo)\b", re.I)
 SIGN_LABEL = re.compile(r"podpis|\bdata\b|miejscowość|imi[eę]|nazwisko|\bnazwa\b|\badres|telefon|e-?mail|pesel|\bnip\b|regon", re.I)  # captions of template data
 PERSON_PRESETS = {"first_name", "last_name", "pesel", "birth_date", "id_card", "address", "phone", "email"}
+SLOT = re.compile(r"_{3,}")
+LEADING_FILL = re.compile(r"^\W*(___|☐)")
+TRAILING_FILL = re.compile(r"(___|☐)\W*$")
+SIGN_ONLY = re.compile(r"podpis|pieczęć|pieczątk|\bdata\b", re.I)
 EACH = re.compile(r"dla każdego|każdego (psa|zwierzęcia|dziecka|podopiecznego)", re.I)
 
 
 def norm(s: str) -> str:
     s = unicodedata.normalize("NFC", s or "").lower()
     return re.sub(r"\s+", " ", re.sub(r"[^\w\s/]|_", " ", s)).strip()
+
+
+def _stems(s: str) -> set[str]:
+    return {w[:5] for w in re.findall(r"[^\W\d_]{3,}", (s or "").lower())}
 
 
 def all_fields(tree: FieldTree):
@@ -35,7 +43,14 @@ def all_fields(tree: FieldTree):
 def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     ex = lambda anchors: expand(anchors, blocks)  # noqa: E731
     cited, bad_anchor, ungrounded, review = set(), [], [], []
+    order = list(blocks)
     doc = norm(FILL.sub(" ", " ".join(blocks.values())))
+    titles = {a for d in tree.dropped if d.reason == "title" for a in ex(d.src)}
+    def fillable(i):  # a block with a place to fill, a table row, or the caption right above/below a blank line
+        t = blocks[order[i]]
+        return bool(FILL.search(t)) or " | " in t or (i + 1 < len(order) and LEADING_FILL.match(blocks[order[i + 1]])) \
+            or (i > 0 and TRAILING_FILL.search(blocks[order[i - 1]]))
+    ground = norm(FILL.sub(" ", " ".join(blocks[a] for i, a in enumerate(order) if a not in titles and fillable(i))))
     for d in tree.dropped:
         cited |= set(ex(d.src))
     for c in tree.consents:
@@ -47,8 +62,10 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         cited |= set(ex(f.src)) | set(ex(s.src))
         bad_anchor += [a for a in ex(f.src) if a not in blocks]
         lab = norm(FILL.sub(" ", f.source_label))
-        m = SequenceMatcher(None, lab, doc, autojunk=False).find_longest_match(0, len(lab), 0, len(doc)) if lab else None
-        if f.type != "TEXT_BLOCK" and lab and (not m or m.size / len(lab) < 0.7):  # G7: no basis anywhere in the document
+        # G7: an input field needs its label next to a place to fill; words only from a title or running text are no basis
+        hay = doc if f.type in ("TEXT_BLOCK", "FILE_UPLOADER", "RADIO", "CHECKBOX", "SELECT") else ground
+        m = SequenceMatcher(None, lab, hay, autojunk=False).find_longest_match(0, len(lab), 0, len(hay)) if lab and hay else None
+        if f.type != "TEXT_BLOCK" and lab and (not m or m.size / len(lab) < 0.7):
             ungrounded.append(f.key)
     broken_show = []  # G4
     for _, s, f in all_fields(tree):
@@ -64,7 +81,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     choice_src = {f.key: set(ex(f.src)) for _, _, f in all_fields(tree) if f.type in ("RADIO", "CHECKBOX")}
     orphans = [f.key for _, s, f in all_fields(tree) if f.key not in choice_src and not (f.show_if or s.show_if)
                and any(set(ex(f.src)) <= cs for cs in choice_src.values())]
-    review += [{"key": k, "why": "inside a choice block but has no show_if"} for k in orphans]
+    review += [{"key": k, "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"} for k in orphans]
     # G12: JSONata in COI cannot point from outside a repeating section into it
     in_rep = {f.key for _, sec, f in all_fields(tree) if sec.repeating}
     rep_dep = [f.key for _, sec, f in all_fields(tree) if not sec.repeating and f.show_if and f.show_if.field in in_rep]
@@ -86,10 +103,10 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
             hits = [f.key for f in sec.fields if sec.person_role != "third_party" and f.preset not in PERSON_PRESETS and TEMPLATE_LABEL.search(f.source_label)]
             if len(hits) >= 2:
                 leaks.append(hits[0])
-    review += [{"key": k, "why": "looks like applicant/proxy data (template), not subject"} for k in leaks]
+    review += [{"key": k, "why": "wygląda na dane wnioskodawcy lub pełnomocnika (szablon), nie przedmiot wniosku"} for k in leaks]
     # #7: an attachment required "for each" element belongs to the repeating section
     if in_rep:
-        review += [{"key": f.key, "why": "attachment 'for each' element is outside the repeating section"}
+        review += [{"key": f.key, "why": "załącznik „dla każdego” elementu leży poza sekcją powtarzalną"}
                    for _, sec, f in all_fields(tree) if f.type == "FILE_UPLOADER" and not sec.repeating
                    and EACH.search(" ".join(blocks.get(a, "") for a in ex(f.src)))]
     # G11: a drop reason must fit the block: only template data / signatures / empty slots hold fill marks,
@@ -101,7 +118,6 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         or (d.reason == "template_attachment" and not re.search(r"pełnomocn|opłat", blocks[a], re.I)))]
     marks = [a for a, t in blocks.items() if FILL.search(t)]
     uncovered = [a for a in marks if a not in cited]  # G3
-    order = list(blocks)
     def sign_slot(a):  # signature/date/template-data slots: the label is in the block or, for a bare line, the caption below it
         nxt = blocks.get(order[order.index(a) + 1], "") if order.index(a) + 1 < len(order) else ""
         own = FILL.sub(" ", blocks[a])
@@ -111,6 +127,21 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         i = order.index(a)
         return i > 0 and not re.search(r"[^\W\d_]{3,}", blocks[a]) and order[i - 1] in field_cited
     missing = [a for a in uncovered if not sign_slot(a) and not label_above(a)]
+    # G3 per place to fill: in a block a field cites, every "___" needs a field whose label shares a word with the text before it
+    lost_slots = []
+    for a in order:
+        segs = list(SLOT.finditer(blocks[a]))
+        cites = [f for _, _, f in all_fields(tree) if a in ex(f.src)]
+        if len(segs) < 2 or not cites:
+            continue
+        words = _stems(" ".join(f"{f.source_label} {f.label} {' '.join(f.options)} {f.description or ''}" for f in cites))
+        prev = 0
+        for m in segs:
+            before = blocks[a][prev:m.start()]
+            prev = m.end()
+            last = _stems(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:]))
+            if last and not (last & words) and not SIGN_ONLY.search(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:])):  # the label precedes "___"
+                lost_slots.append(f"{a}: „{before.strip()[-40:]} ___”")
     template = {a for d in tree.dropped if d.reason not in ("rodo", "legal_info") for a in ex(d.src)}
     no_addressee = tree.addressee is None and any(ORGAN.search(t) for a, t in blocks.items() if a in template or a not in cited)
     empty_pages = [p.title for p in tree.pages if not any(s.fields for s in p.sections)]
@@ -120,10 +151,12 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         fails.append(f"G2: nieistniejące kotwice {bad_anchor[:10]}")
     if missing:  # uncovered template-data / signature slots are harmless: the template has those fields
         fails.append(f"G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: {missing[:20]}")
+    if lost_slots:
+        fails.append(f"G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: {lost_slots[:10]}; każde ___ to osobne pole")
     controls = {si.field for _, sec, f in all_fields(tree) for si in (f.show_if, sec.show_if) if si} | {si.field for c in tree.consents for si in c.show_if}
     hard = [k for k in ungrounded if not (k in controls and fields[k].type in ("RADIO", "CHECKBOX", "SELECT"))]  # an added control question has no verbatim label
     if hard:
-        fails.append(f"G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: {hard[:10]}")
+        fails.append(f"G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: {hard[:10]}")
     uploads = {a for _, _, f in all_fields(tree) if f.type == "FILE_UPLOADER" for a in ex(f.src)}
     templ = {a for d in tree.dropped if d.reason == "template_attachment" for a in ex(d.src)}
     lost_att = [a for a in attachment_items(blocks) if a not in uploads and a not in templ]
@@ -143,8 +176,10 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         fails.append(f"G12: pole spoza sekcji powtarzalnej zależy od pola wewnątrz niej: {rep_dep[:10]}")
     if empty_pages:
         fails.append(f"strony bez pól: {empty_pages}")
-    review += [{"key": k, "why": "label not found in the document"} for k in hard]  # added control questions are expected
-    review += [{"anchor": a, "why": "fill mark not used by any field or drop"} for a in missing]
+    review += [{"key": k, "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"} for k in hard]  # added control questions are expected
+    near = {a: f.key for _, _, f in all_fields(tree) for a in ex(f.src)}
+    review += [{"key": near.get(order[max(order.index(a) - 1, 0)]), "anchor": a, "why": "miejsce do wpisania bez pola"} for a in missing]
+    review += [{"key": near.get(x.split(":")[0]), "anchor": x.split(":")[0], "why": f"brak pola dla{x.split(':', 1)[1]}"} for x in lost_slots]
     return {"ok": not fails, "fails": fails, "coverage": cov, "needs_review": review, "bad_anchors": bad_anchor, "uncovered": uncovered,
             "broken_show_if": broken_show, "no_options": no_opts, "dup_sections": dup_sections, "bad_drops": bad_drops,
-            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "empty_pages": empty_pages, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}
+            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "empty_pages": empty_pages, "lost_slots": lost_slots, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}

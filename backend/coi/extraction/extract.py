@@ -247,5 +247,11 @@ def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.
     if best is None:
         raise ExtractionError("no rung of the extraction ladder returned a valid FieldTree")
     _, tree, review, g = best
-    review += [{"why": f"quality gate: {f}"} for f in g["fails"]]  # no rung passed: hand the best tree to a human
+    if not g["ok"]:  # no rung passed: hand the best tree to a human, with the objections per field where possible
+        keys = {f.key for p in tree.pages for s in p.sections for f in s.fields}
+        review.insert(0, {"key": None, "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie", "fails": g["fails"]})
+        review += [{"key": k if k in keys else None, "why": "warunek wyświetlania wskazuje nieistniejące pole albo opcję", "where": k} for k in g["broken_show_if"]]
+        review += [{"key": k, "why": "pole wyboru ma mniej niż 2 opcje"} for k in g["no_options"]]
+        review += [{"key": None, "anchor": a, "why": "blok z miejscem do wpisania usunięty jako szablon"} for a in dict.fromkeys(g["bad_drops"])]
+        review += [{"key": None, "anchor": a, "why": "załącznik z listy bez pola do wgrania pliku"} for a in g["lost_attachments"]]
     return ExtractionResult(tree=tree, needs_review=review, trace=trace, cost=round(calls.cost, 5))

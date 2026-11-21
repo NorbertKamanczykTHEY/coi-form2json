@@ -14,7 +14,7 @@ E-formularz ma stały szablon, którego NIE opisujesz sekcjami:
 Takie bloki wpisz do `dropped` z powodem (łącz sąsiednie w zakresy).
 Adresata (organ albo urząd, do którego składa się wniosek) ZAWSZE wpisz do `addressee` (`kind`, `name` bez adresu, `src`); `null` tylko wtedy, gdy dokument go nie wskazuje. Blok z `___` lub `☐` usuwaj tylko jako dane wnioskodawcy, pełnomocnika, kontakt, podpis, „wypełnia organ” albo pusty slot. Oświadczenia i zgody przenieś do `consents` i do `dropped` z powodem `consent`. Zgoda dotycząca tylko części rodzajów wniosku ma `variants`. Zgoda dotycząca tylko jednej sytuacji (np. tylko osoby niepełnoletniej) ma `condition`: `{{field: key, options: [...]}}` wskazujące pytanie z `conditions`. `conditions` to pytania RADIO rozstrzygające takie sytuacje (np. `{{key: "czy_pelnoletni", label: "Czy osoba jest pełnoletnia", options: ["Tak", "Nie"], src: [...]}}`), gdy dokument nie ma na nie pola. Identyczne zgody z kilku wariantów opisz raz. Miejsca do wpisania w treści zgody (np. imię i nazwisko opiekuna) to sekcja przedmiotu z tym samym `variants` i `condition`.
 Gdy papier każe zaznaczyć, kto składa wniosek (np. „☐ Prezydent Miasta ☐ Klub sportowy”), ustaw `applicant_kinds`, tekst opcji podmiotu wpisz do `entity_option`, a bloki do `dropped` jako `applicant_data`.
-Każdy blok z `___` lub `☐` musi należeć do sekcji albo do `dropped`.
+Każdy blok z `___` lub `☐` musi należeć do sekcji albo do `dropped`. Data sporządzenia, podpis i pieczątka to `dropped` z powodem `signature_date`.
 
 Odpowiedz WYŁĄCZNIE obiektem JSON zgodnym z tym schematem, pomijając klucze z wartością null, false lub pustą listą:
 {schema}

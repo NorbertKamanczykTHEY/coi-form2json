@@ -89,3 +89,29 @@ def test_named_attachment_list_item_needs_an_upload():
     assert any(f.startswith("G14") and "p1.b6" in f for f in gate(t, blocks)["fails"])
     t.pages[0].sections[0].fields.append(FormField(key="z", label="Zaświadczenie", source_label="zaświadczenie o dochodach", type="FILE_UPLOADER", src=["p1.b6"]))
     assert gate(t, blocks)["ok"]
+
+
+ADDR = {"p1.b0": "WNIOSEK O USTALENIE NUMERU PORZĄDKOWEGO", "p1.b1": "Wnoszę o ustalenie numeru porządkowego budynkowi zlokalizowanemu",
+        "p1.b2": "w miejscowości___ przy ulicy___", "p1.b3": "nr ewidencyjny działki ___w obrębie ___ (podpis wnioskodawcy)"}
+
+
+def _addr_tree(fields):
+    return FieldTree.model_validate({"title": "Wniosek o ustalenie numeru", "applicant_kinds": ["person"],
+                                     "dropped": [{"reason": "title", "src": ["p1.b0"]}],
+                                     "pages": [{"title": "Budynek", "sections": [{"title": "Lokalizacja", "src": ["p1.b1-p1.b3"], "fields": [
+                                         {"key": k, "label": l, "source_label": l, "type": "TEXT_FIELD", "src": [a]} for k, l, a in fields]}]}]})
+
+
+def test_each_place_to_fill_in_a_paragraph_needs_its_own_field():
+    g = gate(_addr_tree([("m", "w miejscowości", "p1.b2"), ("u", "przy ulicy", "p1.b2"), ("d", "nr ewidencyjny działki", "p1.b3")]), ADDR)
+    assert any(f.startswith("G3") and "w obrębie" in f for f in g["fails"]), g["fails"]
+    assert any(r["anchor"] == "p1.b3" and r["key"] == "d" for r in g["needs_review"])
+    full = _addr_tree([("m", "w miejscowości", "p1.b2"), ("u", "przy ulicy", "p1.b2"), ("d", "nr ewidencyjny działki", "p1.b3"), ("o", "w obrębie", "p1.b3")])
+    assert gate(full, ADDR)["ok"], gate(full, ADDR)["fails"]
+
+
+def test_label_only_in_title_or_running_text_is_not_grounded():
+    t = _addr_tree([("m", "w miejscowości", "p1.b2"), ("u", "przy ulicy", "p1.b2"), ("d", "nr ewidencyjny działki", "p1.b3"),
+                    ("o", "w obrębie", "p1.b3"), ("n", "numer porządkowy", "p1.b1")])
+    g = gate(t, ADDR)
+    assert any(f.startswith("G7") and "'n'" in f for f in g["fails"]), g["fails"]

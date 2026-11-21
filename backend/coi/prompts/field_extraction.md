@@ -33,7 +33,8 @@ Zasady:
 14. `key` pola jest unikalny w całym dokumencie. `show_if` = `{{field: key, options: [...]}}` (widoczne, gdy wybrano którąkolwiek z opcji), `negate: true` odwraca warunek. Pole poza sekcją powtarzalną nie może zależeć od pola wewnątrz niej.
 15. `src` każdego pola i sekcji wskazuje kotwice bloków, z których pochodzi. W `dropped` łącz sąsiednie bloki w zakresy `p1.b24-p1.b59`.
 16. Odpowiedź ma być zwięzła: pomijaj klucze z wartością null, false lub pustą listą.
-
+17. Miejscowość i data sporządzenia, podpis, pieczątka i „data i podpis” nie są polami (e-formularz podpisuje się elektronicznie): wpisz je do `dropped` z powodem `signature_date`.
+18. Pole albo sekcja, która dotyczy tylko jednej opcji innego pola, jednego rodzaju wniosku albo jednej sytuacji, ma `show_if`. Pole opisane warunkiem („jeśli różni się…”, „w przypadku…”) dostaje pole RADIO, które ten warunek rozstrzyga (np. Tak / Nie), i `show_if` na nie. Nie pomijaj takich pól sterujących ani wyborów z miejscami do wpisania (np. wybór sposobu doręczania korespondencji): to pola przedmiotu.
 Odpowiedz WYŁĄCZNIE obiektem JSON zgodnym z tym schematem:
 {schema}
 

@@ -7,8 +7,8 @@ import re
 import unicodedata
 from difflib import SequenceMatcher
 
-from .anchors import src_text
-from .tree import Drop, FieldTree, FormField, Section
+from .anchors import expand, src_text
+from .tree import Drop, FieldTree, FormField, Section, ShowIf
 
 # R2: markers that make a field optional (ADR 0018: required by default)
 OPTIONAL = re.compile(r"opcjonaln|nieobowiązkow|nie jest (obowiązkow|wymagan)|fakultatywn|można (dołączyć|załączyć|podać|wpisać)|"
@@ -16,7 +16,8 @@ OPTIONAL = re.compile(r"opcjonaln|nieobowiązkow|nie jest (obowiązkow|wymagan)|
 MUST_ATTACH = re.compile(r"należy (dołączyć|załączyć)|wymagan[ey] (jest )?(dołączenie|załączenie)", re.I)
 # "1) ) Dane nieobowiązkowe." as the parser emits it, or "* Dane …"; "*text*" is Markdown emphasis, not a footnote
 FOOTNOTE = re.compile(r"^\s*(\d{1,2}(?=\s*\))|\*{1,3}(?=[\s)]))\s*\)?\s*\)?\s*([^*]{3,200})$", re.S)
-EMPTY_ITEM = re.compile(r"^\s*\d{1,2}[.)]\s*([_.…]{3,}\s*)+$")  # "2) ___", "3) ........"
+# "2) ___", "3) ........", or a bare "2)" when the parser drops the dots (ODS cells, OCR)
+EMPTY_ITEM = re.compile(r"^\s*\d{1,2}[.)]\s*([_.…‥·\-–]{2,}\s*)*$")
 LIST_ITEM = re.compile(r"^\s*\d{1,2}[.)]")
 ATTACH_LIST = re.compile(r"załącz|dołącz", re.I)
 
@@ -25,6 +26,8 @@ def list_heading(t: str) -> bool:
     """The short intro of an attachment list ("w załączeniu:", "Załączniki"), not a paragraph that mentions attaching."""
     t = t.strip(" *_")
     return bool(ATTACH_LIST.search(t)) and not LIST_ITEM.match(t) and (t.endswith(":") or len(t) <= 40)
+SIGNATURE = re.compile(r"podpis|pieczęć|pieczątk|^\W*data\W*$|data (sporządzenia|wypełnienia|złożenia)|miejscowość,? (i )?data", re.I)
+CONDITIONAL = re.compile(r"\bje[śs]li\b|\bje[żz]eli\b|\bw przypadku\b", re.I)
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -129,7 +132,7 @@ def _other_attachments(tree: FieldTree, blocks: dict[str, str], seen: set[str]) 
         before = set(order[max(0, order.index(slots[0]) - 10):order.index(slots[0])])
         for p in tree.pages:
             for s in p.sections:
-                s.fields = [f for f in s.fields if not (f.src and set(f.src) <= slot_set)]
+                s.fields = [f for f in s.fields if not (f.src and set(expand(f.src, blocks)) <= slot_set)]
                 if any(f.type == "FILE_UPLOADER" and set(f.src) & before for f in s.fields):
                     home = s
         if home is None:
@@ -145,7 +148,7 @@ def _other_attachments(tree: FieldTree, blocks: dict[str, str], seen: set[str]) 
         seen.add(key)
         home.fields.append(FormField(key=key, label="Inne załączniki", source_label=blocks[head], type="FILE_UPLOADER",
                                      multiple=True, optional_evidence=blocks[slots[0]], src=slots))
-        tree.dropped = [d for d in tree.dropped if not (d.src and set(d.src) <= slot_set)]
+        tree.dropped = [d for d in tree.dropped if not (d.src and set(expand(d.src, blocks)) <= slot_set)]
 
 
 def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[dict]]:
@@ -177,8 +180,15 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                     if f.type == "FILE_UPLOADER" or (f.src and all(EMPTY_ITEM.match(blocks.get(a, "")) for a in f.src)):
                         tree.dropped.append(Drop(reason="empty_slot", src=f.src))  # unnamed list items; the #5 reference skips them
                         continue
-                    review.append({"key": new_key[id(f)], "why": "source label has no words"})
+                    order = list(blocks)
+                    first = expand(f.src[:1], blocks)[:1]
+                    above = blocks.get(order[order.index(first[0]) - 1], "") if first and first[0] in blocks and order.index(first[0]) else ""
+                    if not re.search(r"[^\W\d_]{3,}", src_text(f.src, blocks) + " " + above):  # a blank line under its label is fine
+                        review.append({"key": new_key[id(f)], "why": "etykieta źródłowa bez słów, sprawdź, czego dotyczy pole"})
                 f.key = new_key[id(f)]
+                if SIGNATURE.search(f.source_label) or SIGNATURE.search(f.label):  # the e-form is signed electronically (standard p. 29)
+                    tree.dropped.append(Drop(reason="signature_date", src=f.src))
+                    continue
                 f.options = [clean_option(o) for o in f.options]
                 if not f.preset and (hit := next((ps for rx, ps in LABEL_PRESETS if rx.search(f.label + " " + f.source_label)), None)):
                     f.preset = hit
@@ -193,7 +203,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                 bare = FOOTNOTE.sub(r"\2", ev or "")  # "1) Dane nieobowiązkowe" -> the footnote text
                 if ev and not (OPTIONAL.search(ev) and norm_ws(bare) in norm_ws(seg + " " + (note or "") + " " + s.title)):
                     if not (f.show_if or s.show_if):  # a conditional field is required only while shown: not worth a review
-                        review.append({"key": f.key, "why": f"optional marker not confirmed in source: {ev!r}"})
+                        review.append({"key": f.key, "why": f"model oznaczył pole jako opcjonalne, ale w źródle nie ma znacznika ({ev!r}); zostaje wymagane"})
                     ev = None
                 ev = ev or note or (found and found[0])
                 if f.type == "FILE_UPLOADER" and MUST_ATTACH.search(seg) and not OPTIONAL.search(seg):
@@ -202,6 +212,8 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                 # Q3: a hint the source does not contain is an AI suggestion, whatever the model claimed
                 if f.description:
                     f.description_source = "document" if grounded(f.description, text) else "ai"
+                if CONDITIONAL.search(seg) and not (f.show_if or s.show_if or f.optional_evidence):
+                    review.append({"key": f.key, "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"})
                 if f.doubt:
                     review.append({"key": f.key, "why": f.doubt})  # R7: stays required, flagged
                 keep.append(f)
@@ -216,8 +228,40 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     _other_attachments(tree, blocks, seen)  # after the per-field rules: its optionality comes from the list, not a marker
     for p in tree.pages:
         for s in p.sections:
-            for si in [s.show_if] + [f.show_if for f in s.fields] + [c for x in tree.consents for c in x.show_if]:
+            for si in [s.show_if] + [f.show_if for f in s.fields]:
                 if si:
                     si.field = rename.get(si.field, si.field)
                     si.options = [clean_option(o) for o in si.options]
+    for si in [c for x in tree.consents for c in x.show_if]:
+        si.field = rename.get(si.field, si.field)
+        si.options = [clean_option(o) for o in si.options]
+    scope_controls(tree)
     return tree, review
+
+
+def scope_controls(tree: FieldTree) -> None:
+    """A control question (e.g. "is the person an adult") whose every dependent is limited to some options of another
+    field (e.g. one kind of application) is shown only for those options too, instead of always being required."""
+    owner = {f.key: (s, f) for p in tree.pages for s in p.sections for f in s.fields}
+    deps: dict[str, list[list[ShowIf]]] = {}
+    for p in tree.pages:
+        for s in p.sections:
+            if s.show_if:
+                deps.setdefault(s.show_if.field, []).append([])
+            for f in s.fields:
+                if f.show_if:
+                    deps.setdefault(f.show_if.field, []).append([s.show_if] if s.show_if else [])
+    for c in tree.consents:
+        for si in c.show_if:
+            deps.setdefault(si.field, []).append([x for x in c.show_if if x is not si])
+    for key, others in deps.items():
+        if key not in owner:
+            continue
+        sec, ctl = owner[key]
+        if ctl.show_if or sec.show_if or not others or not all(others):
+            continue
+        fields = {x.field for o in others for x in o if not x.negate}
+        if len(fields) == 1 and (v := fields.pop()) != key and all(any(x.field == v and not x.negate for x in o) for o in others):
+            opts = list(dict.fromkeys(opt for o in others for x in o if x.field == v for opt in x.options))
+            if not (v in owner and set(opts) >= set(owner[v][1].options)):  # all options = always shown anyway
+                ctl.show_if = ShowIf(field=v, options=opts)

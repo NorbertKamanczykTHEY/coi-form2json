@@ -64,12 +64,15 @@ def test_schema_repair_then_gate_repair_then_escalation():
     assert "POPRZEDNIA ODPOWIEDŹ MA BŁĘDY" in p.calls[1][1] and "G5" in p.calls[2][1]
     assert [(t["model"], t["round"], t["accepted"]) for t in r.trace] == [("small", "first", False), ("small", "repair", False), ("large", "first", True)]
     assert r.cost == 0.004 and events[-1]["accepted"]
-    assert not any("quality gate" in x["why"] for x in r.needs_review)
+    assert not any("wynik niepewny" in x["why"] for x in r.needs_review)
 
 
 def test_nothing_passes_returns_best_with_needs_review():
     r = extract(DOC, provider=Fake([bad()] * 4))
-    assert any(x["why"].startswith("quality gate: G5") for x in r.needs_review)
+    head = r.needs_review[0]
+    assert head["why"].startswith("wynik niepewny") and any(f.startswith("G5") for f in head["fails"])
+    assert all("key" in x for x in r.needs_review)
+    assert any(x["key"] == "wybierz_sposob" and "2 opcje" in x["why"] for x in r.needs_review)
 
 
 def test_no_valid_schema_raises():
