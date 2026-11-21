@@ -1,0 +1,13 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env  # EDENAI_API_KEY and optional overrides, see .env.example
+    ports:
+      - "8000:8000"
+    volumes:
+      - data:/data  # SQLite (DB_PATH=/data/coi.sqlite): stored forms and dictionaries
+    restart: unless-stopped
+  # frontend: to be added
+
+volumes:
+  data:

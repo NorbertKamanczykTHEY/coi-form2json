@@ -1,0 +1,23 @@
+# Kreuzberg ships only manylinux (glibc) wheels, no musllinux: Alpine would mean building its Rust core + Tesseract + PDFium from source.
+FROM ghcr.io/astral-sh/uv:0.11.9 AS uv
+
+FROM python:3.14.10-slim-trixie AS build
+COPY --from=uv /uv /bin/uv
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+FROM python:3.14.10-slim-trixie
+# Tesseract is linked into the Kreuzberg wheel; it only needs the Polish model (Apache-2.0, tessdata 4.1.0)
+ADD --checksum=sha256:179e91afb3232949288a4e186de44eb0beffb6a295283bebf4af35a36b380b3c \
+    https://raw.githubusercontent.com/tesseract-ocr/tessdata/4.1.0/pol.traineddata /usr/share/tessdata/pol.traineddata
+RUN useradd --system --uid 10001 --no-create-home coi && install -d -o coi /data
+WORKDIR /app
+COPY --from=build /app/.venv /app/.venv
+COPY coi ./coi
+ENV PATH=/app/.venv/bin:$PATH TESSDATA_PREFIX=/usr/share/tessdata PYTHONUNBUFFERED=1
+USER coi
+EXPOSE 8000
+# a scan page can climb the whole VLM ladder: long timeout, threads so one slow request does not block the worker
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--worker-class", "gthread", "--threads", "4", "--timeout", "600", "coi:create_app()"]
