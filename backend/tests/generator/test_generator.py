@@ -626,3 +626,32 @@ def test_g6_rate_goes_to_the_nearest_number_of_its_section():
     assert "38 zł" in f["kwota"]["description"] and "15 zł" in f["kwota"]["description"] and f["liczba"]["description"] == ""
     alone = _techs(generate(_with_section("form3", [_field("stawka_b", "Stawka", "TEXT_BLOCK", default_value="38 zł")]), SHA)[0])
     assert "38 zł" in alone["stawka_b"]["description"]  # no NUMBER in the section: the block stays
+
+
+def _numbered(n, prefix, k):
+    return [{**_field(f"{k}{i}", f"Pole {k}{i}"), "number": f"{prefix}.{i}"} for i in range(n)]
+
+
+def test_g12_long_section_splits_where_the_paper_numbering_changes_group():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].append({"title": "Nieruchomość", "sections": [
+        {"title": "Dane nieruchomości", "number": "D", "src": [], "fields": _numbered(6, "D.1", "a") + _numbered(6, "D.2", "b")}]})
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    tab = next(x for x in form["tabs"] if x["title"] == "Nieruchomość")
+    assert [len(q["field"]["repeatingSectionGrid"]) for q in tab["questions"]] == [6, 6] and rep["validation"] == []
+    flat = json.loads((FIX / "form3.tree.json").read_text())
+    flat["pages"].append({"title": "Bez", "sections": [{"title": "Długa", "src": [], "fields": [_field(f"c{i}", f"Pole {i}") for i in range(12)]}]})
+    tab = next(x for x in generate(FieldTree.model_validate(flat), SHA)[0]["tabs"] if x["title"] == "Bez")
+    assert len(tab["questions"]) == 1  # no numbering: no blind cut
+
+
+def test_g12_long_page_splits_between_numbered_sections():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    secs = [{"title": f"Część {c}", "number": c, "src": [], "fields": _numbered(5, c, c.lower())} for c in "ABC"]
+    t["pages"].append({"title": "Szczegóły", "sections": secs})
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    titles = [x["title"] for x in form["tabs"]]
+    assert "Szczegóły" in titles and "Część C" in titles and rep["validation"] == []
+    unnumbered = json.loads((FIX / "form3.tree.json").read_text())
+    unnumbered["pages"].append({"title": "Szczegóły", "sections": [{**x, "number": None} for x in secs]})
+    assert "Część C" not in [x["title"] for x in generate(FieldTree.model_validate(unnumbered), SHA)[0]["tabs"]]

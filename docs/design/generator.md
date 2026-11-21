@@ -147,13 +147,13 @@ Każda reguła wynika z treści dokumentu albo ze Standardów, nigdy z numeru fo
 | G9 | Wymagany CHECKBOX przedmiotu z jedną opcją zamienia się w RADIO Tak/Nie. Warunki na tej opcji wskazują „Tak” | `build.build` (`rename` w indeksie) |
 | G10 | Warunek obejmujący wszystkie opcje wymaganego, zawsze widocznego pola wyboru jest zawsze prawdziwy, więc znika. Sekcja z warunkiem na polu z późniejszej strony przechodzi zaraz za sekcję tego pola. Pole z takim warunkiem dostaje tylko ostrzeżenie | `build.simplify`, `build.later_controllers` |
 | G11 | „Numer lokalu / mieszkania” w przedmiocie nigdy nie jest wymagany (Standardy: „Brak numeru lokalu”) | `adapter.field` |
-| G12 | Sekcje o identycznych polach (etykieta, typ, opcje, wymagalność) z SHOW na różnych opcjach tego samego pola łączą się w jedną sekcję ze SHOW na sumie opcji. Klucze usuniętych bliźniaków przechodzą na zachowane we wszystkich warunkach, także w zgodach. Podział sekcji i stron według numeracji papieru czeka na `Section.number` / `FormField.number` z ekstrakcji: bez numeracji nie tniemy | `adapter.merge_variant_twins` |
+| G12 | Sekcje o identycznych polach (etykieta, typ, opcje, wymagalność) z SHOW na różnych opcjach tego samego pola łączą się w jedną sekcję ze SHOW na sumie opcji. Klucze usuniętych bliźniaków przechodzą na zachowane we wszystkich warunkach, także w zgodach. Sekcja z ponad 10 polami dzieli się tam, gdzie zmienia się grupa numeracji pól (`FormField.number`: „D.1.x” i „D.2.x”); części mają ten sam tytuł i warunek. Strona z ponad 12 polami dzieli się między sekcjami, a nowa strona bierze tytuł pierwszej sekcji, tylko gdy każda sekcja ma `Section.number`. Bez numeracji nie tniemy (flow-review §5) | `adapter.merge_variant_twins`, `adapter.split_by_numbering`, `adapter.split_page` |
 | G14 | Gałąź „Czy masz numer PESEL?” tylko przy osobach wpisywanych ręcznie („Dane innej osoby”, osoby trzecie), nigdy w „Twoje dane” | `templates/dane.json`, `adapter.pesel_alternative` |
 | G15 | RADIO z ponad 15 opcjami → SELECT z `searchEnabled`. CHECKBOX (wybór wielokrotny) zostaje CHECKBOX-em przy każdej liczbie opcji, bo COI nie ma wielokrotnego SELECT-a (decyzja użytkownika) | `build.build` |
 | G16 | Etykieta pola przedmiotu równa etykiecie szablonu (np. „Nazwa organu”) dostaje pełną etykietę z papieru (`source_label`) | `build.resolve` |
 | Q33 | „Dane innej osoby” zawsze ma „Numer PESEL” z walidatorem PESEL (Standardy s. 15 ponad wzorce, ADR 0023) | `templates/dane.json` |
 
-Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyślną: `case_fee`, `case_fee_src`, `case_fee_proof`, `Consent.required` (zgoda dobrowolna → `required: false`), `proxy_id_card` (pole serii i numeru dowodu w „Pełnomocnictwo”).
+Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyślną: `case_fee`, `case_fee_src`, `case_fee_proof`, `Consent.required` (zgoda dobrowolna → `required: false`), `proxy_id_card` (pole serii i numeru dowodu w „Pełnomocnictwo”); od `d0d3821` także `Section.number` i `FormField.number` (G12).
 
 ## 8. Konfiguracja (`coi/config/`)
 

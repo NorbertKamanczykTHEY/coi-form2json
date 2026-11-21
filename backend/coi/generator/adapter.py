@@ -53,7 +53,7 @@ def label_validators(n: dict, rules: list) -> list[str]:
 def field(f: FormField, presets: dict) -> list[dict]:
     n = {"key": f.key, "label": f.label, "type": f.type, "required": f.optional_evidence is None and not FLAT.search(f"{f.label} {f.source_label}"),
          "meta": {"src": f.src, "source_label": f.source_label, "needs_review": f.doubt is not None, "doubt": f.doubt,
-                  "description_source": f.description_source}}
+                  "description_source": f.description_source, "number": getattr(f, "number", None)}}
     if f.options:
         n["options"] = list(f.options)
     if c := cond(f.show_if):
@@ -175,6 +175,45 @@ def rate_into_result(fields: list[dict]) -> list[dict]:
     return [n for i, n in enumerate(fields) if i not in moved]
 
 
+SECTION_MAX, PAGE_MAX = 10, 12  # flow-review §5: a longer section splits, a page with more fields splits into pages
+
+
+def parent(number: str | None) -> str | None:
+    """The paper's group of an item: "D.1.26" -> "D.1"; a flat "26" has none."""
+    return number.rsplit(".", 1)[0] if number and "." in number else None
+
+
+def split_by_numbering(sec: dict, number: str | None) -> list[dict]:
+    """G12: a section of more than SECTION_MAX fields splits where the paper's numbering changes group (D.1.x | D.2.x);
+    without numbering on every field nothing is cut. Parts keep the title, the condition and the fields' order."""
+    groups = [parent(f["meta"].get("number")) for f in sec["fields"]]
+    if sec.get("repeating") or len(sec["fields"]) <= SECTION_MAX or None in groups or len(set(groups)) < 2:
+        return [sec | {"number": number}]
+    parts = []
+    for f, g in zip(sec["fields"], groups):
+        if not parts or parts[-1]["number"] != g:
+            parts.append({k: v for k, v in sec.items() if k != "fields"} | {"fields": [], "number": g})
+        parts[-1]["fields"].append(f)
+    return parts
+
+
+def split_page(title: str, secs: list[dict], taken: set[str]) -> list[dict]:
+    """G12: a page of more than PAGE_MAX fields splits between sections, each new page titled after its first section;
+    only when every section carries the paper's numbering (no blind cuts)."""
+    if sum(len(x["fields"]) for x in secs) <= PAGE_MAX or len(secs) < 2 or any(not x.get("number") for x in secs):
+        return [{"title": title, "sections": secs}]
+    pages = [{"title": title, "sections": []}]
+    for x in secs:
+        if pages[-1]["sections"] and sum(len(y["fields"]) for y in pages[-1]["sections"]) + len(x["fields"]) > PAGE_MAX:
+            t, i = x["title"], 2
+            while t in taken:
+                t, i = f"{x['title']} ({i})", i + 1
+            taken.add(t)
+            pages.append({"title": t, "sections": []})
+        pages[-1]["sections"].append(x)
+    return pages
+
+
 def sig(sec: dict):
     """What a section asks for, without keys: identical variant blocks have the same signature."""
     return tuple((f["label"], f["type"], tuple(f.get("options") or ()), f.get("required", True)) for f in sec["fields"])
@@ -239,6 +278,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
     no_pesel = bool(NO_PESEL.search(" ".join((blocks or {}).values())))
     correspondence = correspondence_asked(tree, blocks or {})
     pages, party, files = [], [], {}
+    taken = {p.title for p in tree.pages}
     for p in tree.pages:
         secs = []
         for s in p.sections:
@@ -266,9 +306,10 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
             if not fields:
                 continue
             # Standardy s.6: the first page holds the data of every party of the proceedings, not only the applicant's
-            (party if getattr(s, "party", False) else secs).extend(split_multiple(s, fields))
+            parts = [x for part in split_multiple(s, fields) for x in split_by_numbering(part, getattr(s, "number", None))]
+            (party if getattr(s, "party", False) else secs).extend(parts)
         if secs:
-            pages.append({"title": p.title, "sections": secs})
+            pages.extend(split_page(p.title, secs, taken))
     consents = [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if]), "required": getattr(c, "required", True)} for c in tree.consents]
     _, notes = merge_variant_twins(pages, consents, party)
     warnings += notes
