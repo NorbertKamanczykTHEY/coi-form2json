@@ -103,10 +103,12 @@ with store.session() as s:          # store = current_app.config["STORE"] albo S
 #            proposal None (słownik istnieje) | {id, name, description, levels, items: [{id?, name, children?}], source: "catalog"|"document"}
 ```
 
-Reguły komponentu (`component`, `searchEnabled`, `multiLevelTree`) liczy `match`, a generator je przepisuje. Generator wpisuje:
-- `type = component`, `dictionaryName`, `options: []`, `multiLevelTree`, `searchEnabled`. TEXT_FIELD, który dostał słownik istniejący (np. „Kraj” w przedmiocie), staje się SELECT-em;
-- `proposal` trafia do `report.proposed_dictionaries` (deduplikacja po `id`), a generator dopisuje `fields: [techName…]` (nazwa pola jak w P4 flow-review). Ten obiekt przyjmuje bez zmian `POST /api/v1/dictionaries/from-proposal`;
-- `score`, `reason` i `decision` idą do `report.field_map[fieldId]`; jako `needs_review` oznaczamy tylko propozycje nowych słowników (`decision: "new"`);
+Reguły komponentu (`component`, `searchEnabled`, `multiLevelTree`) liczy `match`, a generator je przepisuje. **Pole zmienia tylko słownik istniejący** (`decision: "existing"`, ADR 0025):
+- słownik istniejący: generator wpisuje `type = component`, `dictionaryName`, `options: []`, `multiLevelTree`, `searchEnabled`. TEXT_FIELD, który dostał słownik istniejący (np. „Kraj” w przedmiocie), staje się SELECT-em;
+- propozycja (`decision: "new"`, z katalogu albo z dokumentu): pole zostaje takie jak bez słownika (TEXT_FIELD albo pole z własnymi `options`). `proposal` trafia do `report.proposed_dictionaries` (deduplikacja po `id`) z dopisanym `fields: [techName…]`. Ten obiekt przyjmuje bez zmian `POST /api/v1/dictionaries/from-proposal`;
+- `?editor=true`: `editor.proposals[]` = `{dictionary, fieldIds, changes}`, gdzie `dictionary` to ten sam obiekt co w raporcie, a `changes[fieldId]` to gotowa zmiana pola (`type`, `dictionaryName`, `options: []`, `multiLevelTree`, `searchEnabled`). Akceptacja w edytorze: `POST /api/v1/dictionaries/from-proposal` z `dictionary`, potem `PUT /api/v1/forms/{id}` z polami nadpisanymi przez `changes`. Kolejne formularze dopasują ten słownik jako istniejący;
+- RADIO nie przechodzi przez `match` i zawsze ma opcje w polu (jak 7 pól RADIO we wzorcach). Propozycja z treści dokumentu (`source: "document"`) powstaje tylko dla SELECT;
+- `score`, `reason` i `decision` idą do `editor.field_map[fieldId].dictionary`; jako `needs_review` oznaczamy tylko propozycje (`decision: "new"`);
 - warunki SHOW na polu słownikowym nie są sprawdzane względem opcji, bo ich nie znamy.
 
 **Telefon:** `match("Numer telefonu")` zwraca `NUMERY_KIERUNKOWE`, czyli słownik dla osobnego SELECT-a z prefiksem. Generator ignoruje ten wynik dla TEXT_FIELD i pole zostaje tekstowe, tak jak we wzorcach #1 i #5, które prefiksu nie używają. Dodanie SELECT-a z prefiksem przed polem telefonu to ewentualne rozszerzenie, do decyzji.

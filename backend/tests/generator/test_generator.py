@@ -128,9 +128,9 @@ def test_condition_on_repeating_field_from_outside_is_dropped():
 def test_real_trees_with_dictionaries_pass_validator(app, name):
     form, rep, fmap = generate(tree(name), SHA, store=app.config["STORE"])
     assert validate(form) == [] and rep["validation"] == []
-    for p in rep["proposed_dictionaries"]:
+    for p in rep["proposed_dictionaries"]:  # ADR 0025: proposals go to the report, the field stays as without a dictionary
         assert p["fields"] and p["items"]
-        assert all(f["dictionaryName"] == p["id"] for *_, f in fields(form) if f["techName"] in p["fields"])
+        assert all(f.get("dictionaryName") is None for *_, f in fields(form) if f["techName"] in p["fields"])
     phone = next(f for *_, f in fields(form) if f["techName"] == "numer_telefonu")
     assert phone["type"] == "TEXT_FIELD"
 
@@ -174,3 +174,25 @@ def test_radio_keeps_its_options(app):
     purpose = next(f for *_, f in fields(form) if f["techName"] == "purpose")
     assert purpose["type"] == "RADIO" and len(purpose["options"]) == 8 and "dictionaryName" not in purpose
     assert all(p["source"] != "document" for p in rep["proposed_dictionaries"])
+
+
+def test_proposal_not_applied_but_ready_for_editor(app):
+    store = app.config["STORE"]
+    form, rep, fmap = generate(tree("form7"), SHA, store=store)
+    breed = next(f for *_, f in fields(form) if f["techName"] == "dog_breed")
+    assert breed["type"] == "TEXT_FIELD" and "dictionaryName" not in breed
+    assert [p["id"] for p in rep["proposed_dictionaries"]] == ["RASY_PSOW_AGRESYWNYCH"]
+    (prop,) = rep["editor_proposals"]
+    assert prop["fieldIds"] == [breed["id"]] and prop["dictionary"]["fields"] == ["dog_breed"] and prop["dictionary"]["items"]
+    assert prop["changes"][breed["id"]] == {"type": "SELECT", "dictionaryName": "RASY_PSOW_AGRESYWNYCH", "options": [],
+                                            "multiLevelTree": False, "searchEnabled": prop["changes"][breed["id"]]["searchEnabled"]}
+    # acceptance as the editor does it: dictionary into the catalog, then the form with the field switched to it
+    c = app.test_client()
+    assert c.post("/api/v1/dictionaries/from-proposal", json=prop["dictionary"], headers=H).status_code == 201
+    fid = store.add_form(filename="7.pdf", sha256=SHA, user="t", form=form, report=rep, editor={})
+    for *_, f in fields(form):
+        f.update(prop["changes"].get(f["id"], {}))
+    assert c.put(f"/api/v1/forms/{fid}", json=form, headers=H).status_code == 200
+    again, rep2, _ = generate(tree("form7"), SHA, store=store)  # later forms match it as existing
+    breed2 = next(f for *_, f in fields(again) if f["techName"] == "dog_breed")
+    assert breed2["dictionaryName"] == "RASY_PSOW_AGRESYWNYCH" and rep2["proposed_dictionaries"] == []

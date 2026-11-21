@@ -50,4 +50,4 @@ def convert(data: bytes, filename: str, on_event: OnEvent = lambda *_: None, cfg
         "seconds": round(time.perf_counter() - t0, 2),
         "source": doc.source,
     }
-    return Result(form, report, {"source": doc.to_dict(), "field_map": field_map})
+    return Result(form, report, {"source": doc.to_dict(), "field_map": field_map, "proposals": parts["editor_proposals"]})
