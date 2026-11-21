@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
+from coi import llm
 from coi.config import Config
 from coi.parsing import ParserEnvironmentError, parse
 
@@ -19,7 +20,8 @@ class Stub(BaseHTTPRequestHandler):
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-        Stub.calls.append({"path": self.path, "auth": self.headers.get("Authorization"), "model": body["model"]})
+        Stub.calls.append({"path": self.path, "auth": self.headers.get("Authorization"), "model": body["model"],
+                           "response_format": body.get("response_format")})
         out = json.dumps({"id": "x", "object": "chat.completion", "created": 0, "model": body["model"],
                           "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "# STUB"}}]}).encode()
         self.send_response(200)
@@ -65,3 +67,10 @@ def test_eden_without_key_is_an_environment_error(monkeypatch):
     monkeypatch.delenv("LLM_API_KEY", raising=False)
     with pytest.raises(ParserEnvironmentError):
         parse(PNG.read_bytes(), PNG.name, Config.load())
+
+
+def test_response_format_reaches_the_provider(local_server):
+    fmt = {"type": "json_schema", "json_schema": {"name": "f", "schema": {"type": "object"}, "strict": True}}
+    llm.provider(Config.load()).chat("m", "hi", 10, response_format=fmt)
+    llm.provider(Config.load()).chat("m", "hi", 10)
+    assert [c["response_format"] for c in Stub.calls] == [fmt, None]

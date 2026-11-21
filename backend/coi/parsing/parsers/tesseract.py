@@ -3,6 +3,7 @@
 Not through Kreuzberg: its Linux wheels ship without the Tesseract backend (only paddle-ocr and vlm).
 """
 import csv
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -13,14 +14,14 @@ from ..normalize import normalize
 NAME = "tesseract"
 
 
-def ocr(png: bytes, lang: str = "pol", timeout: int = 120) -> tuple[str, float | None]:
+def ocr(png: bytes, lang: str = "pol", tessdata: str = "", timeout: int = 120) -> tuple[str, float | None]:
     """-> (normalized text, mean word confidence 0..1)."""
     with tempfile.TemporaryDirectory() as d:
         src, out = Path(d) / "page.png", Path(d) / "out"
         src.write_bytes(png)
         try:
             subprocess.run(["tesseract", str(src), str(out), "-l", lang, "-c", "tessedit_create_txt=1", "-c", "tessedit_create_tsv=1"],
-                           check=True, capture_output=True, timeout=timeout)
+                           check=True, capture_output=True, timeout=timeout, env=os.environ | ({"TESSDATA_PREFIX": tessdata} if tessdata else {}))
         except FileNotFoundError as e:
             raise ParserEnvironmentError("tesseract binary not found (apt install tesseract-ocr tesseract-ocr-pol)") from e
         except subprocess.CalledProcessError as e:  # input is our own PNG, so a failure is the install (e.g. no pol data)

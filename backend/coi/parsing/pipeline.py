@@ -36,9 +36,9 @@ def _render(data: bytes, numbers: list[int], dpi: int = 200) -> dict[int, Image.
         return {n: Image.open(BytesIO(render_pdf_page(str(pdf), n - 1, dpi=dpi))).convert("RGB") for n in numbers}
 
 
-def _scan_page(n: int, img: Image.Image, ladder: dict, provider: llm.Provider, emit: OnEvent) -> tuple[list[Block], list[dict], list[str]]:
+def _scan_page(n: int, img: Image.Image, ladder: dict, provider: llm.Provider, emit: OnEvent, tessdata: str) -> tuple[list[Block], list[dict], list[str]]:
     t = time.perf_counter()
-    witness, conf = tesseract.ocr(vision.png(img))
+    witness, conf = tesseract.ocr(vision.png(img), tessdata=tessdata)
     g = gate.text(witness, ladder["gate"], conf)
     trace = [{"page": n, "step": "T0", "parser": "tesseract", "seconds": round(time.perf_counter() - t, 2), "gate": g}]
     if g["ok"]:
@@ -116,7 +116,7 @@ def run(data: bytes, filename: str, cfg: Config, on_event: OnEvent | None = None
         except llm.LLMConfigError as e:
             raise ParserEnvironmentError(str(e)) from e
         with ThreadPoolExecutor(ladder["page_workers"]) as ex:
-            for n, (blocks, tr, w) in zip(scans, ex.map(lambda kv: _scan_page(*kv, ladder, provider, emit), scans.items())):
+            for n, (blocks, tr, w) in zip(scans, ex.map(lambda kv: _scan_page(*kv, ladder, provider, emit, cfg.tessdata), scans.items())):
                 pages[n] = blocks
                 trace += tr
                 warnings += w

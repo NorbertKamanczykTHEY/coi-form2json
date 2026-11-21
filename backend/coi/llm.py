@@ -30,7 +30,9 @@ class Reply:
 class Provider(Protocol):
     name: str
 
-    def chat(self, model: str, content: str | list, max_tokens: int) -> Reply: ...
+    def chat(self, model: str, content: str | list, max_tokens: int, response_format: dict | None = None) -> Reply:
+        """response_format: OpenAI style, e.g. {"type": "json_schema", "json_schema": {"name": ..., "schema": {...}, "strict": True}}"""
+        ...
 
 
 class OpenAICompatible:
@@ -40,13 +42,14 @@ class OpenAICompatible:
         # the SDK wants a non-empty key; local servers ignore it
         self._client = OpenAI(base_url=base_url, api_key=api_key or "none", max_retries=3, timeout=300)
 
-    def chat(self, model: str, content: str | list, max_tokens: int) -> Reply:
+    def chat(self, model: str, content: str | list, max_tokens: int, response_format: dict | None = None) -> Reply:
         t = time.perf_counter()
+        kw = {"response_format": response_format} if response_format else {}
         r = self._client.chat.completions.create(model=model, temperature=0, max_tokens=max_tokens,
-                                                 messages=[{"role": "user", "content": content}])
-        extra = (r.model_extra or {}) | ((r.usage and r.usage.model_extra) or {})  # Eden reports cost outside the OpenAI schema
+                                                 messages=[{"role": "user", "content": content}], **kw)
+        meta = (r.model_extra or {}) | ((r.usage and r.usage.model_extra) or {})  # Eden reports cost outside the OpenAI schema
         ch = r.choices[0]
-        return Reply(ch.message.content or "", ch.finish_reason, float(extra.get("cost") or 0.0), time.perf_counter() - t)
+        return Reply(ch.message.content or "", ch.finish_reason, float(meta.get("cost") or 0.0), time.perf_counter() - t)
 
 
 def provider(cfg: Config) -> Provider:
