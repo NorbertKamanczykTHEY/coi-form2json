@@ -137,7 +137,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         fails.append(f"G12: pole spoza sekcji powtarzalnej zależy od pola wewnątrz niej: {rep_dep[:10]}")
     if empty_pages:
         fails.append(f"strony bez pól: {empty_pages}")
-    review += [{"key": k, "why": "label not found in the document"} for k in ungrounded]
+    review += [{"key": k, "why": "label not found in the document"} for k in hard]  # added control questions are expected
     review += [{"anchor": a, "why": "fill mark not used by any field or drop"} for a in missing]
     return {"ok": not fails, "fails": fails, "coverage": cov, "needs_review": review, "bad_anchors": bad_anchor, "uncovered": uncovered,
             "broken_show_if": broken_show, "no_options": no_opts, "dup_sections": dup_sections, "bad_drops": bad_drops,
