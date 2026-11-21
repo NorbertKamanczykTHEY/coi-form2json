@@ -327,5 +327,6 @@ def test_multiple_files_sit_under_the_last_required_upload():
     t2 = _with_section("form3", [_field("odpis", "Odpis z rejestru", "FILE_UPLOADER"),
                                  _field("inne", "Inne załączniki", "FILE_UPLOADER", multiple=True, optional_evidence="...."),
                                  _field("uwagi", "Uwagi", "TEXTAREA", optional_evidence="opcjonalnie")])
-    titles = [(q["field"]["type"], q["field"]["title"]) for t in generate(t2, SHA)[0]["tabs"] for q in t["questions"]][-7:-4]
+    page2 = next(t for t in generate(t2, SHA)[0]["tabs"] if any(q["field"]["title"] == "Dodatkowe" for q in t["questions"]))
+    titles = [(q["field"]["type"], q["field"]["title"]) for q in page2["questions"]][-3:]
     assert titles == [("SECTION", "Dodatkowe"), ("REPEATING_SECTION", "Inne załączniki"), ("SECTION", "Dodatkowe")]
