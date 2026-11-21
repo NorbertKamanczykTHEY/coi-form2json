@@ -65,6 +65,9 @@
         "applicant": [
          "PERSON",
          "ANY"
+        ],
+        "proxy": [
+         true
         ]
        }
       },
@@ -84,7 +87,14 @@
      "label": "Wybierz, jako kto wnioskujesz",
      "type": "RADIO",
      "options": [
-      "Pełnomocnik",
+      {
+       "name": "Pełnomocnik",
+       "when": {
+        "proxy": [
+         true
+        ]
+       }
+      },
       "Reprezentant"
      ],
      "show_if": {
@@ -975,7 +985,12 @@
       ]
      }
     }
-   ]
+   ],
+   "when": {
+    "proxy": [
+     true
+    ]
+   }
   },
   {
    "key": "oplata_skarbowa_pelnomocnictwo_1",
@@ -1021,7 +1036,12 @@
       ]
      }
     }
-   ]
+   ],
+   "when": {
+    "proxy": [
+     true
+    ]
+   }
   },
   {
    "key": "oplata_skarbowa_pelnomocnictwo_2",
@@ -1055,7 +1075,12 @@
      "label": "Potwierdzenie przelewu",
      "type": "FILE_UPLOADER"
     }
-   ]
+   ],
+   "when": {
+    "proxy": [
+     true
+    ]
+   }
   }
  ]
 }

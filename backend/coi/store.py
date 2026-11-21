@@ -72,6 +72,11 @@ class Store:
             f = s.get(Form, fid)
             return f and f.to_dict()
 
+    def replace_form(self, fid: str, form: dict, report: dict, editor: dict, user: str) -> None:
+        with self.session() as s:
+            f = s.get(Form, fid)
+            f.form, f.report, f.editor, f.title, f.updated_by, f.updated_at = form, report, editor, form.get("title", ""), user, _now()
+
     def update_form(self, fid: str, form: dict, user: str) -> bool:
         with self.session() as s:
             if (f := s.get(Form, fid)) is None:

@@ -36,3 +36,4 @@ Gdy decyzja wynika ze specyfikacji tylko częściowo, są dwa źródła, a Konte
 | 0024 | Reguły, prompty i bramki są uniwersalne, bez poprawek pod konkretny formularz | przyjęta | ZESPÓŁ | [0024-uniwersalne-reguly-bez-poprawek-pod-formularz.md](0024-uniwersalne-reguly-bez-poprawek-pod-formularz.md) |
 | 0025 | Propozycje słowników tylko w raporcie i w edytorze, JSON COI ma wyłącznie słowniki istniejące | przyjęta | UŻYTKOWNIK | [0025-propozycje-slownikow-tylko-w-raporcie.md](0025-propozycje-slownikow-tylko-w-raporcie.md) |
 | 0026 | Wnioskodawca „tylko podmiot”: bez pola „w czyim imieniu”, odpis z rejestru według dokumentu, dowód pełnomocnika | przyjęta | UŻYTKOWNIK | [0026-wnioskodawca-tylko-podmiot.md](0026-wnioskodawca-tylko-podmiot.md) |
+| 0027 | „Tylko osobiście” z dokumentu, przełącznik w edytorze bez ponownego LLM | przyjęta | UŻYTKOWNIK | [0027-tylko-osobiscie-i-regeneracja.md](0027-tylko-osobiscie-i-regeneracja.md) |

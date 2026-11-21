@@ -63,6 +63,20 @@ def leaves(c):
         yield c
 
 
+def prune(c, bad):
+    """Condition without the leaves `bad` rejects; None when nothing is left."""
+    if c is None:
+        return None
+    if "not" in c:
+        r = prune(c["not"], bad)
+        return None if r is None else {"not": r}
+    if "all" in c or "any" in c:
+        op = "all" if "all" in c else "any"
+        parts = [r for p in c[op] if (r := prune(p, bad)) is not None]
+        return None if not parts else parts[0] if len(parts) == 1 else {op: parts}
+    return None if bad(c) else c
+
+
 def simplify(c, idx):
     """Prune leaves pointing at options that no longer exist; return True/False/condition."""
     if c is None:
@@ -113,7 +127,7 @@ def resolve(tree: dict, templates: Path) -> list:
     ctx = {"applicant": tree.get("applicant", "ANY"), "addressee": tree["addressee"]["kind"], "addressee.name": tree["addressee"]["name"],
            "prefill": tree.get("prefill", "MLPZ"), "pesel": tree.get("pesel", tree.get("prefill") == "PESEL"), "entity_option": tree["entity_option"],
            "entity_extract": tree.get("entity_extract", False), "proxy_id_card": tree.get("proxy_id_card", False),
-           "no_pesel": tree.get("no_pesel", False), "correspondence": tree.get("correspondence", False)}
+           "no_pesel": tree.get("no_pesel", False), "proxy": tree.get("proxy", True), "correspondence": tree.get("correspondence", False)}
     load = lambda n: json.loads((templates / f"{n}.json").read_text())
     subject = copy.deepcopy(tree["pages"])
     for p in subject:
@@ -129,6 +143,8 @@ def resolve(tree: dict, templates: Path) -> list:
             groups.setdefault(json.dumps(c.get("show_if"), sort_keys=True), []).append(c)
         for i, (key, cs) in enumerate(groups.items()):
             items = [{"html": html_doc(c["text"]), "required": c.get("required", True)} for c in cs]
+            for c in cs:
+                c["field_key"] = "zgoda" if key == "null" else f"zgoda_warunkowa_{i}"  # lets needs_review name the field
             if key == "null":
                 next(f for f in section["fields"] if f["type"] == "CONSENT_SECTION")["consents"] += items
             else:
@@ -189,10 +205,12 @@ def controllers_first(fields: list) -> list:
     return out
 
 
-def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) -> tuple[dict, list[str], dict]:
-    """-> (form, warnings, field_map). `dictionaries(field) -> dict | None` turns a subject field into a dictionary field
-    in place and returns what goes to field_map."""
+def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) -> tuple[dict, list[str], dict, dict]:
+    """-> (form, warnings, field_map, extra). `dictionaries(field) -> dict | None` turns a subject field into a dictionary field
+    in place and returns what goes to field_map. extra: review (dropped condition parts, per field), keys (tree key ->
+    {id, techName}), consents (field key per tree consent)."""
     warnings: list[str] = []
+    review: list[dict] = []
     pages = resolve(tree, templates)
     field_map: dict = {}
     for p in pages:
@@ -213,16 +231,21 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
                     f["drop"] = True
 
     def cond(node, section, what):
-        """Simplify node's show_if; a condition the COI editor cannot express is dropped with a warning (node stays visible)."""
-        c = node.get("show_if")
-        for leaf in leaves(c):
+        """Simplify node's show_if. A part the COI editor cannot express (unknown field, a repeating field from outside its
+        section) is cut out with a warning and a needs_review entry; the rest of the condition stays."""
+        def bad(leaf):
             ref = idx.get(leaf["field"])
             if ref is None:
-                warnings.append(f"{what}: warunek SHOW wskazuje nieistniejące pole {leaf['field']!r}, pominięty")
-                return True
-            if ref["repeating"] and ref["section"] != section:
-                warnings.append(f"{what}: warunek SHOW na polu z sekcji powtarzalnej {ref['section']!r}, JSONata COI tego nie wyrazi, pominięty")
-                return True
+                why = f"warunek wyświetlania odwołuje się do pola „{leaf['field']}”, którego nie ma w formularzu"
+            elif ref["repeating"] and ref["section"] != section:
+                why = f"warunek wyświetlania odwołuje się do pola z sekcji powtarzalnej „{ref['section']}”, czego COI nie obsługuje"
+            else:
+                return False
+            warnings.append(f"{what}: {why}; tę część warunku pominięto")
+            review.append({"field_id": stable_id(source_sha256, "field", node["tech"]), "key": node["tech"],
+                           "why": f"{why}. Tę część warunku pominięto, sprawdź, kiedy element ma być widoczny."})
+            return True
+        c = prune(node.get("show_if"), bad)
         r = simplify(c, idx)
         if r is False and node.get("meta") is not None:
             warnings.append(f"{what}: warunek SHOW nie pasuje do żadnej opcji pola sterującego, element usunięty")
@@ -256,7 +279,9 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
             y += rows
         tabs.append({"id": stable_id(source_sha256, "tab", p["title"]), "title": p["title"], "type": p["type"], "questions": questions})
     links = [{"id": stable_id(source_sha256, "link", a["id"], b["id"]), "source": a["id"], "target": b["id"]} for a, b in zip(tabs, tabs[1:])]
-    return {"title": tree["title"], "tabs": tabs, "flow": {"links": links}}, warnings, field_map
+    keys = {k: {"id": stable_id(source_sha256, "field", v["tech"]), "techName": v["tech"]} for k, v in idx.items()}
+    extra = {"review": review, "keys": keys, "consents": [c.get("field_key", "zgoda") for c in tree.get("consents", [])]}
+    return {"title": tree["title"], "tabs": tabs, "flow": {"links": links}}, warnings, field_map, extra
 
 
 def merge_conditional_pages(pages: list, idx: dict, warnings: list) -> list:

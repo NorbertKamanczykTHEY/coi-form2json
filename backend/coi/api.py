@@ -23,7 +23,7 @@ from .parsing.detect import ALLOWED
 log = logging.getLogger(__name__)
 bp = APIBlueprint("api", __name__, url_prefix="/api/v1", tag="COI")
 FORBIDDEN = ";:><\\/|'*%$"
-CODES = {400: "bad_request", 401: "unauthorized", 404: "not_found", 405: "method_not_allowed", 413: "file_too_large",
+CODES = {400: "bad_request", 401: "unauthorized", 404: "not_found", 405: "method_not_allowed", 409: "conflict", 413: "file_too_large",
          415: "unsupported_type", 422: "unprocessable", 500: "internal_error", 502: "llm_error", 504: "llm_timeout"}
 
 
@@ -178,6 +178,30 @@ def put_form(form_id, json_data):
         abort(422, "Form JSON is invalid", extra_data={"code": "invalid_form", "errors": errors})
     store.update_form(form_id, json_data, user())
     return json_data
+
+
+class Regenerate(Schema):
+    applicant_self_only = Boolean(required=True, metadata={"description": "true: applicant acts only in person (no proxy, no "
+                                  "„Podmiot wniosku” for a person; Standardy s.9). false: proxy allowed (default)."})
+
+
+@bp.post("/forms/<form_id>/regenerate")
+@bp.auth_required(auth)
+@bp.input(Variant, location="query")
+@bp.input(Regenerate, location="json")
+@bp.doc(summary="Rebuild a stored form with editor overrides (no LLM)",
+        responses={200: "Rebuilt form (or the envelope with ?report / ?editor)", 404: "Not found", 409: "Stored before FieldTree was kept"},
+        description="Rebuilds the COI JSON from the stored FieldTree (`editor.tree`) with the given overrides and saves it, "
+                    "replacing manual edits. `editor.applicant_self_only` = {value, source: dokument|domyślnie|edytor, quote}.")
+def regenerate_form(form_id, query_data, json_data):
+    store = current_app.config["STORE"]
+    row = store.get_form(form_id) or abort(404, "Form not found")
+    try:
+        r = pipeline.regenerate(row, store, json_data["applicant_self_only"])
+    except pipeline.NoStoredTree:
+        abort(409, "This form was stored before its FieldTree was kept; convert the file again", extra_data={"code": "no_stored_tree"})
+    store.replace_form(form_id, r.form, r.report, r.editor, user())
+    return _body(form_id, r.form, r.report, r.editor, query_data)
 
 
 @bp.post("/forms/validate")

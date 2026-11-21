@@ -136,3 +136,24 @@ def test_put_validates(client, docx):
     assert client.get(f"/api/v1/forms/{fid}", headers=H).json == good
     assert client.get("/api/v1/forms", headers=H).json["items"][0]["updated_by"] == "tester"
     assert client.put("/api/v1/forms/missing", json=good, headers=H).status_code == 404
+
+
+def test_regenerate_without_llm(client, docx):
+    body = upload(client, docx, "w.docx", "?editor=true").json
+    fid = body["id"]
+    assert body["editor"]["applicant_self_only"] == {"value": False, "source": "domyślnie", "quote": None} and body["editor"]["tree"]
+    calls = []
+    pipeline.extract = lambda *a, **k: calls.append(1)  # must not be called
+    r = client.post(f"/api/v1/forms/{fid}/regenerate?editor=true", json={"applicant_self_only": True}, headers=H)
+    assert r.status_code == 200 and not calls
+    techs = {c["field"]["techName"] for t in r.json["form"]["tabs"] for q in t["questions"] for c in q["field"]["repeatingSectionGrid"]}
+    assert "dokument_z_potwierdzeniem_podpisany_elektronicznie" not in techs
+    assert r.json["editor"]["applicant_self_only"]["source"] == "edytor"
+    assert client.get(f"/api/v1/forms/{fid}", headers=H).json == r.json["form"]
+    assert client.post("/api/v1/forms/validate", json=r.json["form"], headers=H).json["valid"]
+    assert client.post(f"/api/v1/forms/{fid}/regenerate", json={}, headers=H).status_code == 400
+    assert client.post("/api/v1/forms/missing/regenerate", json={"applicant_self_only": True}, headers=H).status_code == 404
+    old = client.application.config["STORE"].add_form(filename="a", sha256="0" * 64, user="t", form=r.json["form"], report={}, editor={})
+    gone = client.post(f"/api/v1/forms/{old}/regenerate", json={"applicant_self_only": True}, headers=H)
+    assert gone.status_code == 409 and gone.json["code"] == "no_stored_tree"
+    assert "/api/v1/forms/{form_id}/regenerate" in client.get("/openapi.json").json["paths"]

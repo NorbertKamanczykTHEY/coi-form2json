@@ -126,8 +126,8 @@ def test_proxy_id_card_when_the_paper_asks():
 def test_addressee_missing_and_consent_from_document():
     t = tree("form3", addressee=None, consents=[{"text": "Oświadczam, że dane są prawdziwe.", "src": ["p1.b9"]}])
     form, rep, _ = generate(t, SHA)
-    assert {"key": "addressee", "why": "brak adresata, pole nazwy urzędu do uzupełnienia"} in rep["needs_review"]
     urzad = next(f for *_, f in fields(form) if f["techName"] == "nazwa_urzedu")
+    assert {"key": "nazwa_urzedu", "field_id": urzad["id"], "why": "brak adresata, pole nazwy urzędu do uzupełnienia"} in rep["needs_review"]
     assert urzad["defaultValue"] == "" and not urzad["readOnly"] and urzad["validation"] == ["REQUIRED"]  # empty: the applicant types it
     consents = next(f for *_, f in fields(form) if f["type"] == "CONSENT_SECTION")["consentSectionConfig"]["consents"]
     assert consents[-1] == {"description": "<html><head></head><body><p>Oświadczam, że dane są prawdziwe.</p></body></html>", "required": True}
@@ -448,3 +448,49 @@ def test_parties_and_correspondence_on_the_first_page_paper_8():
 def test_no_correspondence_block_without_the_wording():
     techs = {f["techName"] for *_, f in fields(generate(tree("pattern1"), SHA, blocks={"p1.b1": "Adres zamieszkania"})[0])}
     assert "czy_adres_do_korespondencji_jest_inny" not in techs and "czy_inna_osoba_ma_numer_pesel" not in techs
+
+
+def test_consent_condition_keeps_its_valid_part_paper_9():
+    # EVAL-3 N1: the model pointed consents at a missing "pełnoletni" field; only that part goes, the variant part stays
+    t = json.loads((FIX / "form9.tree.json").read_text())
+    stypendium = t["pages"][0]["sections"][0]["fields"][0]["options"][0]
+    t["consents"] = [{"text": "Oświadczam, że zapoznałem się z regulaminem stypendium.", "src": [],
+                      "show_if": [{"field": "application_type", "options": [stypendium]},
+                                  {"field": "czy_kandydat_jest_pelnoletni", "options": ["Tak"]}]}]
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    consent = next(f for *_, f in fields(form) if f["techName"].startswith("zgoda_warunkowa"))
+    (state,) = consent["states"]
+    assert "'application_type' in field.techName" in state["query"] and "pelnoletni" not in state["query"]
+    entry = next(r for r in rep["needs_review"] if r["key"] == consent["techName"])
+    assert entry["field_id"] == consent["id"] and "czy_kandydat_jest_pelnoletni" in entry["why"] and rep["validation"] == []
+
+
+def test_needs_review_names_a_field_in_polish():
+    t = tree("form3", consents=[{"text": "Oświadczam.", "show_if": [{"field": "brak", "options": ["X"]}], "src": []}])
+    src = next(f for p in t.pages for s in p.sections for f in s.fields).src[0]
+    extraction = [{"key": None, "where": "zgoda 1", "why": "warunek wyświetlania wskazuje nieistniejące pole albo opcję"},
+                  {"key": None, "anchor": src, "why": "miejsce do wpisania bez pola"},
+                  {"key": None, "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"}]
+    form, rep, _ = generate(t, SHA, extra_review=extraction)
+    ids = {f["id"]: f["techName"] for *_, f in fields(form)}
+    assert all(r["key"] and r["why"] for r in rep["needs_review"])
+    first, second, third = rep["needs_review"][:3]
+    assert first["key"].startswith("zgoda_warunkowa") and ids[first["field_id"]] == first["key"]
+    assert ids[second["field_id"]] == second["key"] and third["key"] == "formularz"
+
+
+@pytest.mark.parametrize("name", ["form3", "form1"])
+def test_applicant_self_only_drops_proxy_parts(name):
+    form, rep, _ = generate(tree(name), SHA, applicant_self_only=True)
+    techs = {f["techName"] for *_, f in fields(form)} | {s["techName"] for _, s, _ in fields(form)}
+    assert not techs & {"pelnomocnictwo", "oplata_skarbowa_pelnomocnictwo_1", "oplata_skarbowa_pelnomocnictwo_2", "dane_innej_osoby",
+                        "wybierz_jako_kto_wnioskujesz"}
+    if name == "form3":  # person only: Standardy s.9 "pomiń tę sekcję"
+        assert "podmiot_wniosku" not in techs
+    else:  # any: own name or an entity, the entity acting through its representative only
+        radio = next(f for *_, f in fields(form) if f["techName"] == "wybierz_w_czyim_imieniu_wnioskujesz")
+        assert [o["name"] for o in radio["options"]] == ["Swoim", "Osoby prawnej lub jednostki organizacyjnej"]
+        assert "plik_z_odpisem_danych" in techs
+    assert rep["applicant_self_only"] == {"value": True, "source": "edytor", "quote": None} and rep["validation"] == []
+    default = generate(tree(name), SHA)[1]["applicant_self_only"]
+    assert default == {"value": False, "source": "domyślnie", "quote": None}

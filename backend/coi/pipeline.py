@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from .config import Config
 from .extraction.anchors import blocks_of
 from .extraction.extract import extract
+from .extraction.tree import FieldTree
 from .generator import generate
 from .parsing import parse
 
@@ -38,17 +39,40 @@ def convert(data: bytes, filename: str, on_event: OnEvent = lambda *_: None, cfg
     on_event("stage", {"stage": "extract", "status": "done", "cost": ex.cost})
 
     on_event("stage", {"stage": "generate", "status": "start"})
-    form, parts, field_map = generate(ex.tree, hashlib.sha256(data).hexdigest(), on_event, store, blocks=blocks_of(doc))
+    form, parts, field_map = generate(ex.tree, hashlib.sha256(data).hexdigest(), on_event, store, blocks=blocks_of(doc),
+                                      extra_review=ex.needs_review)
     on_event("stage", {"stage": "generate", "status": "done", "fields": len(field_map)})
 
     report = {
         "trace": doc.trace + ex.trace,
         "warnings": doc.warnings + parts["warnings"],
-        "needs_review": ex.needs_review + parts["needs_review"],
+        "needs_review": parts["needs_review"],  # extraction's and generator's, each naming a field (key, field_id)
         "proposed_dictionaries": parts["proposed_dictionaries"],
         "validation": parts["validation"],
         "cost": round(doc.source.get("cost", 0) + ex.cost, 5),
         "seconds": round(time.perf_counter() - t0, 2),
         "source": doc.source,
     }
-    return Result(form, report, {"source": doc.to_dict(), "field_map": field_map, "proposals": parts["editor_proposals"]})
+    # tree + raw extraction review + parse warnings: enough to rebuild the form without the LLM (regenerate)
+    editor = {"source": doc.to_dict(), "field_map": field_map, "proposals": parts["editor_proposals"],
+              "applicant_self_only": parts["applicant_self_only"], "tree": ex.tree.model_dump(mode="json"),
+              "extraction_review": ex.needs_review, "parse_warnings": doc.warnings}
+    return Result(form, report, editor)
+
+
+class NoStoredTree(LookupError):
+    """The form was stored before FieldTree was kept in `editor.tree`: it cannot be rebuilt without a new conversion."""
+
+
+def regenerate(row: dict, store=None, applicant_self_only: bool | None = None) -> Result:
+    """Stored form -> the same form rebuilt from its FieldTree with the editor's overrides; no parsing, no LLM."""
+    ed = row["editor"]
+    if not ed.get("tree"):
+        raise NoStoredTree(row["id"])
+    blocks = {f"p{p['number']}.b{i}": b["text"] for p in ed["source"]["pages"] for i, b in enumerate(p["blocks"])}
+    form, parts, field_map = generate(FieldTree.model_validate(ed["tree"]), row["sha256"], None, store, blocks=blocks,
+                                      extra_review=ed.get("extraction_review"), applicant_self_only=applicant_self_only)
+    report = row["report"] | {"warnings": ed.get("parse_warnings", []) + parts["warnings"], "needs_review": parts["needs_review"],
+                              "proposed_dictionaries": parts["proposed_dictionaries"], "validation": parts["validation"]}
+    editor = ed | {"field_map": field_map, "proposals": parts["editor_proposals"], "applicant_self_only": parts["applicant_self_only"]}
+    return Result(form, report, editor)
