@@ -202,8 +202,7 @@
         "Polska"
        ]
       }
-     },
-     "required": false
+     }
     },
     {
      "key": "wojewodztwo",
@@ -245,8 +244,7 @@
       "in": [
        "Polska"
       ]
-     },
-     "required": false
+     }
     },
     {
      "key": "numer_budynku",
@@ -361,8 +359,7 @@
         "Polska"
        ]
       }
-     },
-     "required": false
+     }
     },
     {
      "key": "wojewodztwo_siedziba",
@@ -400,8 +397,7 @@
       "in": [
        "Polska"
       ]
-     },
-     "required": false
+     }
     },
     {
      "key": "numer_budynku_siedziba",
@@ -525,8 +521,7 @@
         "Polska"
        ]
       }
-     },
-     "required": false
+     }
     },
     {
      "key": "wojewodztwo_inna_osoba",
@@ -564,8 +559,7 @@
       "in": [
        "Polska"
       ]
-     },
-     "required": false
+     }
     },
     {
      "key": "numer_budynku_inna_osoba",

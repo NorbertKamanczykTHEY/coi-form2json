@@ -262,3 +262,63 @@ def test_validator_rejects_empty_required_read_only():
     f = next(x for *_, x in fields(form) if x["techName"] == "miejscowosc")
     f |= {"readOnly": True, "validation": ["REQUIRED"], "defaultValue": ""}
     assert [e["rule"] for e in validate(form)] == ["readOnly"]
+
+
+def test_street_required_unless_the_paper_says_optional():
+    t = _with_section("form3", [_field("adres_robot", "Adres robót", preset="address"),
+                                _field("adres_opc", "Adres dodatkowy", preset="address", optional_evidence="(jeśli dotyczy)")])
+    v = {f["techName"]: f["validation"] for *_, f in fields(generate(t, SHA)[0])}
+    assert all("REQUIRED" in v[k] for k in ("ulica", "ulica_zagranica", "ulica_inna_osoba", "ulica_adres_robot"))
+    assert v["ulica_adres_opc"] == [] and v["numer_lokalu"] == []  # a flat number stays optional: not every address has one
+
+
+def test_pesel_read_from_source_text():
+    has = lambda t, b: any(f["techName"] == "numer_pesel" for *_, f in fields(generate(t, SHA, blocks=b)[0]))
+    assert has(tree("pattern5"), {"p1.b2": "Imię i nazwisko / nazwa", "p1.b3": "PESEL/NIP"})  # nothing dropped as applicant_data
+    rodo = tree("pattern5", dropped=[{"reason": "rodo", "src": ["p1.b9"]}])
+    assert not has(rodo, {"p1.b9": "Przetwarzamy imię, nazwisko i PESEL."})
+    third = _with_section("pattern5", [_field("pesel_dziecka", "PESEL dziecka", preset="pesel", src=["p1.b4"])])
+    assert not has(third, {"p1.b4": "PESEL dziecka"})
+
+
+def test_datepicker_gets_no_text_default():
+    t = _with_section("form3", [_field("data_wniosku", "Data", "DATEPICKER", default_value="Data bieżąca (automatycznie)"),
+                                _field("data_stala", "Data umowy", "DATEPICKER", default_value="2026-01-31")])
+    got = {f["techName"]: f for *_, f in fields(generate(t, SHA)[0])}
+    assert "defaultValue" not in got["data_wniosku"] and not got["data_wniosku"]["readOnly"]
+    assert got["data_stala"]["defaultValue"] == "2026-01-31"
+    form = generate(t, SHA)[0]
+    next(f for *_, f in fields(form) if f["techName"] == "data_stala")["defaultValue"] = "dziś"
+    assert "date" in {e["rule"] for e in validate(form)}
+
+
+def test_consent_section_title():
+    from coi.generator.build import consent_title
+    page = lambda *texts: {"sections": [{"title": "Zgoda", "fields": [{"type": "CONSENT_SECTION", "consents": [{"html": f"<p>{x}</p>"} for x in texts]}]}]}
+    for texts, title in ((["Wyrażam zgodę"], "Zgoda"), (["Oświadczam, że"], "Oświadczenie"), (["Wyrażam zgodę", "Oświadczam"], "Zgody i oświadczenia")):
+        p = page(*texts)
+        consent_title(p)
+        assert p["sections"][0]["title"] == title
+    one_doc = tree("form3", consents=[{"text": "Oświadczam, że dane są prawdziwe.", "src": []}])
+    assert "Zgody i oświadczenia" in {s["title"] for _, s, _ in fields(generate(one_doc, SHA)[0])}
+
+
+def test_show_if_always_emitted():
+    t = _with_section("form3", [_field("czy_inny", "Czy adres do korespondencji jest inny", "RADIO", options=["Tak", "Nie"]),
+                                _field("adres_kor", "Adres do korespondencji", preset="address", show_if={"field": "czy_inny", "options": ["Tak"]}),
+                                _field("tytul", "Tytuł", show_if={"field": "czy_inny", "options": ["Może"], "negate": True})])
+    form, rep, _ = generate(t, SHA)
+    block = [f for *_, f in fields(form) if f["techName"].endswith("adres_kor") or "adres_kor_" in f["techName"]]
+    assert len(block) == 9 and all(any("'czy_inny' in field.techName" in s["query"] for s in f["states"]) for f in block)
+    assert any("zawsze spełniony" in w for w in rep["warnings"])  # a condition that cannot hide anything is reported, not lost silently
+
+
+def test_multiple_files_become_a_repeating_section():
+    t = _with_section("form3", [_field("uwagi", "Uwagi", "TEXTAREA"),
+                                _field("inne", "Inne załączniki", "FILE_UPLOADER", multiple=True, optional_evidence="....")])
+    form, rep, _ = generate(t, SHA)
+    rep_sec = next(s for _, s, _ in fields(form) if s["title"] == "Inne załączniki")
+    (child,) = rep_sec["repeatingSectionGrid"]
+    assert rep_sec["type"] == "REPEATING_SECTION" and child["field"]["type"] == "FILE_UPLOADER" and child["field"]["validation"] == []
+    assert next(s for _, s, _ in fields(form) if s["title"] == "Dodatkowe")["repeatingSectionGrid"][0]["field"]["techName"] == "uwagi"
+    assert rep["validation"] == []

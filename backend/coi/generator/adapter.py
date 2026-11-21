@@ -4,12 +4,14 @@ import json
 import re
 from pathlib import Path
 
-from ..extraction.anchors import src_text
+from ..extraction.anchors import expand
 from ..extraction.tree import FieldTree, FormField, Section, ShowIf
 
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
 PESEL = re.compile(r"\bPESEL\b", re.I)
 SEAT = re.compile(r"siedzib", re.I)  # "adres siedziby": the applicant entity's own address
+ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}$")
+NOT_APPLICANT = {"rodo", "legal_info", "office_use"}  # blocks where "PESEL" is prose, not a field of the applicant
 ENTITY_ID = re.compile(r"^nazwa\b|\b(nip|regon|krs)\b", re.I)  # name and registry numbers the "Dane podmiotu" template asks for
 
 
@@ -45,8 +47,8 @@ def field(f: FormField, presets: dict) -> list[dict]:
         n["options"] = list(f.options)
     if c := cond(f.show_if):
         n["show_if"] = c
-    if f.default_value is not None:  # S15: printed on paper, fixed
-        n |= {"default": f.default_value, "read_only": True}
+    if f.default_value is not None and not (f.type == "DATEPICKER" and not ISO_DATE.match(f.default_value)):
+        n |= {"default": f.default_value, "read_only": True}  # S15: printed on paper, fixed; a date only as YYYY-MM-DD
     if f.type == "TEXT_BLOCK":  # its content is the description, the patterns give it no title
         n |= {"description": f.description or f.label, "label": ""}
     elif f.description:
@@ -76,6 +78,15 @@ def entity_duplicates(s: Section) -> set[str]:
             or (f.type == "TEXT_FIELD" and ENTITY_ID.search(f.label))}
 
 
+def applicant_pesel(tree: FieldTree, blocks: dict[str, str]) -> bool:
+    """The paper asks for a PESEL that is not a subject field (third party) nor prose (RODO, instructions): the applicant's own.
+    Read from the source text itself, so it does not depend on how the model labelled the dropped block."""
+    elsewhere = {a for p in tree.pages for s in p.sections for f in s.fields
+                 if f.preset == "pesel" or PESEL.search(f"{f.label} {f.source_label}") for a in expand(f.src, blocks)}
+    elsewhere |= {a for d in tree.dropped if d.reason in NOT_APPLICANT for a in expand(d.src, blocks)}
+    return any(PESEL.search(t) for a, t in blocks.items() if a not in elsewhere)
+
+
 def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str, str] | None = None) -> tuple[dict, list[str], list[dict]]:
     """-> (internal tree, warnings, needs_review). `blocks` (anchor -> text) lets the paper's own wording decide template fields."""
     warnings = list(tree.issues)
@@ -99,10 +110,15 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
             fields = [n for f in s.fields if f.key not in dup for n in field(f, presets)]
             if not fields:
                 continue
-            sec = {"title": s.title, "repeating": s.repeating, "fields": fields}
+            many = {f.key for f in s.fields if f.multiple}  # several files: COI has no multi-file uploader, a repeating section does it
+            sec = {"title": s.title, "repeating": s.repeating, "fields": [n for n in fields if n["key"] not in many]}
             if c := cond(s.show_if):
                 sec["show_if"] = c
-            secs.append(sec)
+            if sec["fields"]:
+                secs.append(sec)
+            for n in (n for n in fields if n["key"] in many):
+                secs.append({"title": n["label"], "repeating": True, "show_if": both(sec.get("show_if"), n.pop("show_if", None)),
+                             "fields": [n | {"required": False}]})
         if secs:
             pages.append({"title": p.title, "sections": secs})
     internal = {
@@ -110,9 +126,8 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         "addressee": {"kind": "ORGAN" if a and a.kind == "organ" else "URZAD", "name": a.name if a else ""},
         "applicant": applicant,
         "prefill": settings["prefill_identity"],
-        # the applicant's PESEL field: by setting, or because the paper asks for it among the applicant's data (moved to "Dane")
-        "pesel": settings["prefill_identity"] == "PESEL" or any(
-            PESEL.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "applicant_data"),
+        # the applicant's PESEL field: by setting, or because the paper asks for it
+        "pesel": settings["prefill_identity"] == "PESEL" or applicant_pesel(tree, blocks or {}),
         "entity_option": tree.entity_option or settings["entity_option"],
         "entity_required": settings["entity_required"],
         "pages": pages,

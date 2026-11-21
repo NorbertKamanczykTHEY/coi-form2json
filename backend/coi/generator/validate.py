@@ -60,7 +60,9 @@ def _rules(form: dict, err) -> None:
                     err("R3", fp, f"input field '{f.get('techName')}' on the FINISH tab")
                 if f["type"] in INPUT and not isinstance(f.get("validation"), list):
                     err("R4", f"{fp}/validation", f"'{f.get('techName')}' validation is not a list")
-                elif f.get("readOnly") and "REQUIRED" in f["validation"] and f.get("defaultValue") in (None, "", []):
+                if f["type"] == "DATEPICKER" and f.get("defaultValue") not in (None, "") and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(f["defaultValue"])):
+                    err("date", f"{fp}/defaultValue", f"'{f.get('techName')}' DATEPICKER default is not a date (YYYY-MM-DD)")
+                if f["type"] in INPUT and isinstance(f.get("validation"), list) and f.get("readOnly") and "REQUIRED" in f["validation"] and f.get("defaultValue") in (None, "", []):
                     err("readOnly", fp, f"'{f.get('techName')}' is read-only and required but has no value: the form cannot be sent")
                 if f["type"] in ("SELECT", "RADIO", "CHECKBOX") and not (f.get("options") or f.get("dictionaryName")):
                     err("choice", fp, f"choice field '{f.get('techName')}' has neither options nor dictionaryName")

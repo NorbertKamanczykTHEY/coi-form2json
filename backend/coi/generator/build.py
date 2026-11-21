@@ -127,6 +127,7 @@ def resolve(tree: dict, templates: Path) -> list:
             else:
                 section["fields"].append({"key": f"zgoda_warunkowa_{i}", "label": "", "type": "CONSENT_SECTION",
                                           "consents": items, "show_if": cs[0]["show_if"]})
+    consent_title(pages[-2])
     used = set()
 
     def tech(n, fallback, section=""):
@@ -159,6 +160,16 @@ def resolve(tree: dict, templates: Path) -> list:
             s["show_if"] = subst(s.get("show_if"), ctx)
             s["fields"] = controllers_first(s["fields"])
     return pages
+
+
+def consent_title(page: dict) -> None:
+    """Standardy s. 27: one statement -> "Oświadczenie", one consent -> "Zgoda", several -> "Zgody i oświadczenia"."""
+    sec = next(s for s in page["sections"] if any(f["type"] == "CONSENT_SECTION" for f in s["fields"]))
+    texts = [re.sub(r"<[^>]+>", "", c["html"]).strip() for f in sec["fields"] if f["type"] == "CONSENT_SECTION" for c in f["consents"]]
+    if len(texts) > 1:
+        sec["title"] = "Zgody i oświadczenia"
+    elif texts and re.match(r"oświadczam", texts[0], re.I):
+        sec["title"] = "Oświadczenie"
 
 
 def controllers_first(fields: list) -> list:
@@ -206,6 +217,8 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
         r = simplify(c, idx)
         if r is False and node.get("meta") is not None:
             warnings.append(f"{what}: warunek SHOW nie pasuje do żadnej opcji pola sterującego, element usunięty")
+        if r is True and c and node.get("meta") is not None:
+            warnings.append(f"{what}: warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny")
         return r
 
     for p in pages:
