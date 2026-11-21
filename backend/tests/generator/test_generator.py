@@ -107,8 +107,7 @@ def test_single_option_choice_disappears():
 
 @pytest.mark.parametrize("signal", [False, True])
 def test_registry_extract_always_required_with_signal(signal):
-    t = tree("form1", applicant_kinds=["legal_entity"])
-    object.__setattr__(t, "entity_extract_required", signal)  # the field lands in FieldTree with extraction (ADR 0026)
+    t = tree("form1", applicant_kinds=["legal_entity"], entity_extract_required=signal, entity_extract_src=["p1.b31"] if signal else [])
     sec = next(s for _, s, f in fields(generate(t, SHA)[0]) if f["techName"] == "plik_z_odpisem_danych")
     assert (sec["states"] == []) is signal  # with the signal: every entity applicant, proxy included
     anyone = next(s for _, s, f in fields(generate(tree("form1"), SHA)[0]) if f["techName"] == "plik_z_odpisem_danych")
