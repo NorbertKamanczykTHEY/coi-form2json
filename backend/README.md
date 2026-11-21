@@ -69,6 +69,19 @@ Zmienne opisuje `app/.env.example`: `JWT_SECRET`, `JWT_ALG`, `JWT_JWKS_URL`, `JW
 ### Testy
 `uv run pytest tests/api`: 401, 400, 413, 415, konwersja #1 docx, SSE, `?report` i `?editor`, zapis, odczyt i PUT z walidacją.
 
+## Konfiguracja (`coi.config`)
+
+Cała konfiguracja jest w jednym miejscu, jak `config/` w Laravelu. Pakiet `coi/config/` ma po jednym module na obszar (`app`, `llm`, `parsing`; `auth`, `database`, `dictionaries` i `generator` dopisują ich właściciele). Każdy moduł ma `load() -> dict`, który czyta zmienne środowiskowe z domyślnymi wartościami. Źródłem jest środowisko procesu, a lokalnie braki uzupełnia `app/.env` (`coi/config/env.py`). Odczyt:
+
+```python
+from coi.config import config
+config("llm.provider")          # jedna wartość
+config("parsing")               # cały obszar jako dict
+config("x.y", default=None)     # bez KeyError
+```
+
+Wartości są czytane przy każdym wywołaniu, więc zmiana env (np. w testach) działa od razu. `Config.load()` to zrzut ustawień potrzebnych `parse()` i dostawcy LLM. Nowy obszar to nowy plik `coi/config/<obszar>.py` z funkcją `load()`, a każda nowa zmienna trafia też do `app/.env.example`.
+
 ## Parsowanie plików (`coi.parsing`)
 
 Jedno wejście: `parse(data, filename, cfg=None, on_event=None) -> ParsedDocument` (kontrakt: `docs/superpowers/specs/2026-11-21-parser-contract-design.md` w repo głównym). Wyjątki: `TooLarge` (413), `UnsupportedType` (415), `ParserEnvironmentError` (500, wina serwera, np. brak Tesseracta albo klucza LLM). `ParsingError` z Kreuzberga oznacza zepsuty plik (422). `on_event(event, payload)` dostaje na żywo `escalation` po każdej próbie VLM i `warning` na końcu.
@@ -81,7 +94,7 @@ Jedno wejście: `parse(data, filename, cfg=None, on_event=None) -> ParsedDocumen
 
 Każda decyzja trafia do `trace[]` (szczebel, model, sygnały bramki, koszt), a każde obejście do `warnings[]`. Drabina to plik konfiguracyjny: zmiana modeli albo progów nie wymaga zmian w kodzie (`LADDER_PATH` wskazuje inny plik). Prompty leżą w `coi/prompts/*.md`.
 
-Lokalnie potrzebny jest Tesseract z polskim modelem: `brew install tesseract tesseract-lang` albo `apt install tesseract-ocr tesseract-ocr-pol`. Model może też leżeć w dowolnym katalogu wskazanym przez `TESSDATA_PREFIX`. Testy: `uv run pytest tests/parsing -m "not eden"` działa bez sieci. `-m eden` woła Eden i kosztuje około 1 centa.
+Lokalnie potrzebny jest Tesseract z polskim modelem: `brew install tesseract tesseract-lang` albo `apt install tesseract-ocr tesseract-ocr-pol`. Model może też leżeć w dowolnym katalogu wskazanym przez `TESSDATA_PREFIX` (w środowisku albo w `app/.env`). Testy: `uv run pytest tests/parsing -m "not eden"` działa bez sieci. `-m eden` woła Eden i kosztuje około 1 centa.
 
 ## Dostawca LLM i tryb offline (air gap)
 
