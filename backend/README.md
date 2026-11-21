@@ -68,3 +68,41 @@ Zmienne opisuje `app/.env.example`: `JWT_SECRET`, `JWT_ALG`, `JWT_JWKS_URL`, `JW
 
 ### Testy
 `uv run pytest tests/api`: 401, 400, 413, 415, konwersja #1 docx, SSE, `?report` i `?editor`, zapis, odczyt i PUT z walidacją.
+
+## Parsowanie plików (`coi.parsing`)
+
+Jedno wejście: `parse(data, filename, cfg=None, on_event=None) -> ParsedDocument` (kontrakt: `docs/superpowers/specs/2026-11-21-parser-contract-design.md` w repo głównym). Wyjątki: `TooLarge` (413), `UnsupportedType` (415), `ParserEnvironmentError` (500, wina serwera, np. brak Tesseracta albo klucza LLM). `ParsingError` z Kreuzberga oznacza zepsuty plik (422). `on_event(event, payload)` dostaje na żywo `escalation` po każdej próbie VLM i `warning` na końcu.
+
+| Wejście | Ścieżka |
+|---|---|
+| docx, doc, ods, xlsx | Kreuzberg (tekst). Bramka G1/G2, a G3 liczona dla całego dokumentu. Przy porażce tylko ostrzeżenie, bo bez LibreOffice (MPL) nie ma obrazu strony |
+| pdf | każda strona osobno: z warstwą tekstu → Kreuzberg. Bez tekstu albo ze śmieciami (G1/G2) → render strony i ścieżka skanu |
+| jpg, jpeg, png, skany pdf | T0: Tesseract `pol` (CLI). Gdy bramka odrzuci wynik, wchodzą kolejne szczeble VLM z `coi/parsing/ladder.json`. Każdy wynik VLM sprawdzamy względem Tesseracta jako świadka (M1 kompletność, M3 pokrycie słów, M5 nagłówki wersalikami) |
+
+Każda decyzja trafia do `trace[]` (szczebel, model, sygnały bramki, koszt), a każde obejście do `warnings[]`. Drabina to plik konfiguracyjny: zmiana modeli albo progów nie wymaga zmian w kodzie (`LADDER_PATH` wskazuje inny plik). Prompty leżą w `coi/prompts/*.md`.
+
+Lokalnie potrzebny jest Tesseract z polskim modelem: `brew install tesseract tesseract-lang` albo `apt install tesseract-ocr tesseract-ocr-pol`. Model może też leżeć w dowolnym katalogu wskazanym przez `TESSDATA_PREFIX`. Testy: `uv run pytest tests/parsing -m "not eden"` działa bez sieci. `-m eden` woła Eden i kosztuje około 1 centa.
+
+## Dostawca LLM i tryb offline (air gap)
+
+`LLM_PROVIDER` wybiera adapter z `coi/llm.py`. Oba mówią protokołem OpenAI, a reszta kodu widzi tylko `Provider.chat()`.
+
+| `LLM_PROVIDER` | Adres | Klucz | Drabina |
+|---|---|---|---|
+| `eden` (domyślnie) | `https://api.edenai.run/v3` | `EDENAI_API_KEY` (albo `LLM_API_KEY`), bez klucza `ParserEnvironmentError` | `coi/parsing/ladder.json` |
+| `local` | `LLM_BASE_URL`, domyślnie `http://localhost:11434/v1` (Ollama). vLLM: `http://<host>:8000/v1` | niepotrzebny (`LLM_API_KEY`, jeśli serwer go wymaga) | `coi/parsing/ladder.local.json` (`qwen3-vl:8b`) |
+
+Przy `local` aplikacja nie wysyła nic na zewnątrz. Kreuzberg i Tesseract działają w procesie i w kontenerze, model VLM stoi w sieci wewnętrznej. Klucz Eden nie jest czytany ani wysyłany. Sprawdza to `tests/parsing/test_airgap.py`: lokalny serwer-atrapa dostaje wszystkie wywołania VLM, a jedyny rozwiązywany host to `127.0.0.1`. Przykład z Ollamą w tej samej sieci compose: `LLM_PROVIDER=local`, `LLM_BASE_URL=http://ollama:11434/v1`, a w kontenerze Ollamy `ollama pull qwen3-vl:8b`.
+
+## Docker
+
+```bash
+cd app && docker compose up --build        # backend na :8000, sekrety z app/.env (env_file)
+docker build -t coi-backend backend/       # sam obraz
+docker run --rm --env-file .env -v "$PWD/wniosek.pdf:/in/w.pdf:ro" coi-backend \
+  python -c "from coi.parsing import parse; print(parse(open('/in/w.pdf','rb').read(), 'w.pdf').source)"
+```
+
+Obraz: oficjalny `python:3.14.10-slim-trixie`, użytkownik `coi` (uid 10001), port 8000, gunicorn (`gthread`, timeout 600 s, bo strona skanu może przejść całą drabinę VLM, i `--no-control-socket`, bo użytkownik nie ma katalogu domowego). Pakiety systemowe: `tesseract-ocr` i `tesseract-ocr-pol` (Apache-2.0).
+
+**Dlaczego slim, a nie Alpine:** Kreuzberg 4.10.4 ma na PyPI tylko wheele `manylinux_2_28` (glibc). Wersji dla musl nie ma: `pip download --only-binary=:all: kreuzberg==4.10.4` na `python:3.14.10-alpine3.24` kończy się „No matching distribution”. Na Alpine trzeba by budować jego rdzeń w Ruście razem z PDFium ze źródeł. Tesseract z polskim modelem jest w Alpine (`tesseract-ocr-data-pol`), więc ograniczeniem jest tylko Kreuzberg. Wydzielenie Kreuzberga do osobnego kontenera na slim nic by nie dało, bo parsowanie to główna praca backendu i i tak potrzebowałby glibc.
