@@ -38,7 +38,7 @@ Status: zaakceptowane (Q11–Q15) · 2026-11-21
 | `JWT_SECRET` | brak | dla HS256, sekret w runtime |
 | `JWT_JWKS_URL` | brak | dla RS256 (IdP urzędu) |
 | `JWT_ISSUER` / `JWT_AUDIENCE` / `JWT_LEEWAY_S` | brak / brak / 30 | sprawdzane, jeśli są ustawione |
-| `DB_PATH` | `/data/coi.sqlite` | wolumen `data` |
+| `DATABASE_URL` | `sqlite:////data/coi.sqlite` | SQLAlchemy (ADR 0017); na produkcji inna baza. `DB_PATH` działa jako alias |
 | `LLM_BASE_URL` | `https://api.edenai.run/v3` | dowolny endpoint zgodny z OpenAI (vLLM, Ollama). Wymóg regulaminu |
 | `LLM_API_KEY` (alias `EDENAI_API_KEY`) | brak | sekret |
 | `LADDER_PATH` | wbudowany `ladder.json` | szczeble modeli, podmiana bez kodu |
