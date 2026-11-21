@@ -7,7 +7,15 @@ services:
     volumes:
       - data:/data  # SQLite (DATABASE_URL=sqlite:////data/coi.sqlite): stored forms and dictionaries
     restart: unless-stopped
-  # frontend: to be added
+  frontend:
+    build: ./frontend  # VITE_API_TOKEN from frontend/.env is baked in at build time (demo only)
+    environment:
+      API_UPSTREAM: http://backend:8000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   data:

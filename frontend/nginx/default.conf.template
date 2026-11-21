@@ -1,0 +1,15 @@
+# Rendered at container start by the image's envsubst step (only $API_UPSTREAM is defined, nginx vars stay).
+server {
+    listen 8080;
+    root /usr/share/nginx/html;
+    client_max_body_size 50m;
+
+    location /api/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_buffering off;          # SSE progress events must not be buffered
+        proxy_read_timeout 600s;      # long scans walk the whole VLM ladder
+    }
+    location = /healthz { proxy_pass ${API_UPSTREAM}; }
+    location / { try_files $uri /index.html; }
+}

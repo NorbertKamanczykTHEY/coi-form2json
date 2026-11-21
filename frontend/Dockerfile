@@ -1,0 +1,13 @@
+FROM node:24.11.1-alpine3.22 AS build
+WORKDIR /src
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+# .env (VITE_API_TOKEN) is read here and baked into the bundle: demo only, see README.
+RUN npm run build
+
+FROM nginxinc/nginx-unprivileged:1.29.3-alpine3.22
+ENV API_UPSTREAM=http://backend:8000
+COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /src/dist /usr/share/nginx/html
+EXPOSE 8080
