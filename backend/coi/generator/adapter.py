@@ -160,16 +160,19 @@ def pesel_alternative(fields: list[dict]) -> list[dict]:
 
 
 def rate_into_result(fields: list[dict]) -> list[dict]:
-    """G6 (ADR 0019): a rate printed next to a computed amount ("Stawka 38 zł") goes into the description of the NUMBER right after it."""
-    out = []
+    """G6 (ADR 0019): a short rate block ("Stawka 38 zł") goes into the description of the nearest NUMBER of its section
+    shown under the same condition (the following one on a tie); with none, it stays a text block."""
+    moved = set()
     for i, n in enumerate(fields):
-        nxt = fields[i + 1] if i + 1 < len(fields) else None
-        if n["type"] == "TEXT_BLOCK" and nxt and nxt["type"] == "NUMBER" and len(n["description"]) <= 120 \
-                and n.get("show_if") == nxt.get("show_if"):
-            nxt["description"] = f"{nxt['description']} {n['description']}" if nxt.get("description") else n["description"]
+        if n["type"] != "TEXT_BLOCK" or len(n["description"]) > 120:
             continue
-        out.append(n)
-    return out
+        near = sorted((abs(j - i) - (j > i) * 0.5, j) for j, m in enumerate(fields)
+                      if m["type"] == "NUMBER" and m.get("show_if") == n.get("show_if"))
+        if near:
+            m = fields[near[0][1]]
+            m["description"] = f"{m['description']} {n['description']}" if m.get("description") else n["description"]
+            moved.add(i)
+    return [n for i, n in enumerate(fields) if i not in moved]
 
 
 def sig(sec: dict):

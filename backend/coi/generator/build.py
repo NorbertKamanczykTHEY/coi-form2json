@@ -245,9 +245,7 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
                     # G9: a required one-box checkbox forces one answer; Tak/Nie lets the applicant say no
                     f |= {"type": "RADIO", "options": ["Tak", "Nie"], "rename": {opts[0]: "Tak"}, "label": f.get("label") or opts[0]}
                     warnings.append(f"pole {f['tech']!r}: wymagane pole wyboru z jedną opcją zamienione na Tak/Nie")
-                elif f["type"] in ("RADIO", "CHECKBOX") and len(opts) > SEARCH_OVER:
-                    if f["type"] == "CHECKBOX":
-                        warnings.append(f"pole {f['tech']!r}: {len(opts)} opcji wielokrotnego wyboru jako lista z wyszukiwarką")
+                elif f["type"] == "RADIO" and len(opts) > SEARCH_OVER:  # single choice only: a CHECKBOX keeps multiple choice
                     f |= {"type": "SELECT", "search": True}
     idx = {}
     for p in pages:

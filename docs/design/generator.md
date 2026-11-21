@@ -133,6 +133,28 @@ Ten sam walidator obsługuje `POST /forms/validate` (A8).
 
 Jeden formularz, flow liniowy (linki nie mają warunków, strony nie mają `states`). Na pierwszej stronie przedmiotu jest radio „Rodzaj wniosku”, a sekcje mają SHOW. Warunek między stronami działa, bo JSONata adresuje stronę po tytule (sprawdzone w spike'u). Ograniczenie: strona, której wszystkie sekcje są ukryte, wyświetli się pusta. Ekstrakcja powinna więc dzielić #9 na strony tematyczne wspólne dla wariantów, a nie na strony per wariant. Generator ostrzega, gdy wszystkie sekcje strony mają SHOW.
 
+## 7a. Reguły po EVAL-3 (brief 10, `app/results/eval-3/README.md`)
+
+Każda reguła wynika z treści dokumentu albo ze Standardów, nigdy z numeru formularza (ADR 0024). Każda ma test `test_g<n>_*` w `tests/generator/test_generator.py`.
+
+| Reguła | Co robi generator | Gdzie |
+|---|---|---|
+| G1 | Gdy część warunku SHOW trzeba wyciąć (nieistniejące pole, pole z innej sekcji powtarzalnej), element przestaje być wymagany (pole albo każda zgoda w CONSENT_SECTION). Inaczej byłby wymagany na każdej gałęzi. Pozycja `needs_review` to opisuje | `build.cond` |
+| G3 | Uploader przedmiotu na pełnomocnictwo, „dokumenty upoważniające”, umocowanie albo opłatę skarbową znika, bo daje go szablon. Uploadery o tej samej etykiecie łączą się w jeden (wymagany, gdy którykolwiek był wymagany) | `adapter.to_internal` |
+| G5 | Opcja podmiotu w „Wybierz, w czyim imieniu…” zawsze ma tekst ze Standardów (`config.generator.entity_option`). `FieldTree.entity_option` z papieru trafia tylko do ostrzeżenia | `adapter.to_internal` |
+| G6 | TEXT_BLOCK nie dostaje `defaultValue` (blok go nie wyświetla), a wartość dopisuje się do treści. Krótki blok (≤ 120 znaków, np. stawka) trafia do opisu najbliższego pola NUMBER w tej samej sekcji z tym samym warunkiem (przy remisie do następnego), zgodnie z ADR 0019; bez takiego NUMBER zostaje blokiem. Z opisu DATEPICKER znika maska daty („DD-MM-RRRR”), a maska „XXXX…” przy rachunku zamienia się w „Wpisz 26 cyfr numeru rachunku.” | `adapter.field`, `adapter.rate_into_result` |
+| G8 | `FieldTree.case_fee` → sekcja „Opłata” z TEXT_BLOCK na stronie „Kontakt i zgody” przed zgodami; `case_fee_proof` → wymagany „Potwierdzenie zapłaty” | `build.resolve` |
+| G9 | Wymagany CHECKBOX przedmiotu z jedną opcją zamienia się w RADIO Tak/Nie. Warunki na tej opcji wskazują „Tak” | `build.build` (`rename` w indeksie) |
+| G10 | Warunek obejmujący wszystkie opcje wymaganego, zawsze widocznego pola wyboru jest zawsze prawdziwy, więc znika. Sekcja z warunkiem na polu z późniejszej strony przechodzi zaraz za sekcję tego pola. Pole z takim warunkiem dostaje tylko ostrzeżenie | `build.simplify`, `build.later_controllers` |
+| G11 | „Numer lokalu / mieszkania” w przedmiocie nigdy nie jest wymagany (Standardy: „Brak numeru lokalu”) | `adapter.field` |
+| G12 | Sekcje o identycznych polach (etykieta, typ, opcje, wymagalność) z SHOW na różnych opcjach tego samego pola łączą się w jedną sekcję ze SHOW na sumie opcji. Klucze usuniętych bliźniaków przechodzą na zachowane we wszystkich warunkach, także w zgodach. Podział sekcji i stron według numeracji papieru czeka na `Section.number` / `FormField.number` z ekstrakcji: bez numeracji nie tniemy | `adapter.merge_variant_twins` |
+| G14 | Gałąź „Czy masz numer PESEL?” tylko przy osobach wpisywanych ręcznie („Dane innej osoby”, osoby trzecie), nigdy w „Twoje dane” | `templates/dane.json`, `adapter.pesel_alternative` |
+| G15 | RADIO z ponad 15 opcjami → SELECT z `searchEnabled`. CHECKBOX (wybór wielokrotny) zostaje CHECKBOX-em przy każdej liczbie opcji, bo COI nie ma wielokrotnego SELECT-a (decyzja użytkownika) | `build.build` |
+| G16 | Etykieta pola przedmiotu równa etykiecie szablonu (np. „Nazwa organu”) dostaje pełną etykietę z papieru (`source_label`) | `build.resolve` |
+| Q33 | „Dane innej osoby” zawsze ma „Numer PESEL” z walidatorem PESEL (Standardy s. 15 ponad wzorce, ADR 0023) | `templates/dane.json` |
+
+Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyślną: `case_fee`, `case_fee_src`, `case_fee_proof`, `Consent.required` (zgoda dobrowolna → `required: false`), `proxy_id_card` (pole serii i numeru dowodu w „Pełnomocnictwo”).
+
 ## 8. Konfiguracja (`coi/config/`)
 
 Całą konfigurację generatora trzymamy w jednym miejscu, na wzór `config/` z Laravela. Generator czyta z niej:

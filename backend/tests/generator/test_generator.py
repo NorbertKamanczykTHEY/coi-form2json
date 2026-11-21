@@ -50,7 +50,8 @@ def app(tmp_path_factory):
 # "Kontakt i zgody", TERYT_4G_DOWODOWY; #5 also differs from #1 (from which the templates come) in its own "Dane" page.
 ALLOWED = [r"/validation:", r"/pos:", r"/questionOrder:", r"^[-+] /Kontakt (i zgody|z urzędem)$", r"TERYT_DOWODOWY' -> 'TERYT_4G_DOWODOWY'",
            r"/wojewodztwo\w*/title: 'TERYT_(4G_)?DOWODOWY' -> 'Miejscowość'$",  # human title instead of the dictionary name
-           r"^\+ /Dane/q/dane_innej_osoby/children/numer_pesel_inna_osoba$"]  # Q33: Standardy s.15 over the patterns
+           r"^\+ /Dane/q/dane_innej_osoby/children/numer_pesel_inna_osoba$",  # Q33: Standardy s.15 over the patterns
+           r"/title: 'Opłata skarbowa za pełnomonictwo' -> 'Opłata skarbowa za pełnomocnictwo'$"]  # the patterns' typo, fixed
 ALLOWED_5 = ALLOWED + [r"^[-+] /Dane/q/(dane_podmiotu|oplata_skarbowa_pelnomocnictwo_\d|pelnomocnictwo)/children/\w+$",
                        r"/(searchEnabled|multiLevelTree)$", r"/oplata_info(_1)?/description:", r"/podglad_1/description:",
                        r"/wybierz_jako_kto_wnioskujesz/options:",
@@ -592,11 +593,14 @@ def test_g12_identical_variant_blocks_merge():
         q["field"] for tab in form["tabs"] for q in tab["questions"] if q["field"]["title"] == "Dane I")["states"][0]["query"]
 
 
-def test_g15_long_lists_become_searchable_selects():
+def test_g15_long_single_choice_becomes_a_searchable_select_multiple_choice_stays():
     opts = [f"Opcja {i}" for i in range(16)]
-    t = _with_section("form3", [_field("lista", "Dyscypliny", "CHECKBOX", options=opts), _field("krotka", "Krótka", "CHECKBOX", options=opts[:3])])
-    f = _techs(generate(t, SHA)[0])
-    assert f["lista"]["type"] == "SELECT" and f["lista"]["searchEnabled"] is True and f["krotka"]["type"] == "CHECKBOX"
+    t = _with_section("form3", [_field("jedna", "Gmina", "RADIO", options=opts), _field("wiele", "Dyscypliny", "CHECKBOX", options=opts)])
+    form, rep, _ = generate(t, SHA)
+    f = _techs(form)
+    assert f["jedna"]["type"] == "SELECT" and f["jedna"]["searchEnabled"] is True
+    assert f["wiele"]["type"] == "CHECKBOX" and len(f["wiele"]["options"]) == 16
+    assert not any("wyszukiwark" in w for w in rep["warnings"]) and rep["validation"] == []
 
 
 def test_g16_subject_label_equal_to_a_template_label_takes_the_paper_wording():
@@ -610,3 +614,15 @@ def test_consent_required_and_proxy_id_card_from_the_tree():
     cs = [c for *_, f in fields(form) if f["type"] == "CONSENT_SECTION" for c in f["consentSectionConfig"]["consents"]]
     assert [c["required"] for c in cs] == [True, False]
     assert any("SERIAL_NUMBER_ID_CARD" in f["validation"] for *_, f in fields(form))
+
+
+def test_g6_rate_goes_to_the_nearest_number_of_its_section():
+    t = _with_section("form3", [_field("liczba", "Liczba gospodarstw", "NUMBER"), _field("uwagi_x", "Uwagi"),
+                                _field("stawka_a", "Stawka", "TEXT_BLOCK", default_value="38 zł"), _field("opis_x", "Opis"),
+                                _field("kwota", "Wysokość opłaty", "NUMBER"),
+                                _field("zwolnienie", "Stawka zwolnienia", "TEXT_BLOCK", default_value="- 15 zł")])
+    f = _techs(generate(t, SHA)[0])
+    assert "stawka_a" not in f and "zwolnienie" not in f
+    assert "38 zł" in f["kwota"]["description"] and "15 zł" in f["kwota"]["description"] and f["liczba"]["description"] == ""
+    alone = _techs(generate(_with_section("form3", [_field("stawka_b", "Stawka", "TEXT_BLOCK", default_value="38 zł")]), SHA)[0])
+    assert "38 zł" in alone["stawka_b"]["description"]  # no NUMBER in the section: the block stays
