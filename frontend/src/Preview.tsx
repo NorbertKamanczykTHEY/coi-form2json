@@ -23,6 +23,14 @@ function walk(qs: Q[] = [], out: F[] = []): F[] {
   return out
 }
 
+// Visible after SHOW; a SECTION/REPEATING_SECTION with nothing visible inside is hidden too (with its title).
+function shown(f: F, suffix: string, hidden: Set<string>): boolean {
+  if (hidden.has(f.id + suffix)) return false
+  if (f.type === 'SECTION') return (f.repeatingSectionGrid ?? []).some((q) => shown(q.field, suffix, hidden))
+  if (f.type === 'REPEATING_SECTION') return (f.repeatingSectionGrid ?? []).some((q) => shown(q.field, '', hidden)) // judged by its first copy
+  return true
+}
+
 // Every rendered field instance: copy i of a REPEATING_SECTION gets suffix `#i` (none for the first) and $repeatingSectionIndex = i.
 type Inst = { f: F; suffix: string; index: number }
 function instances(qs: Q[] = [], copies: Record<string, number>, suffix = '', index = 0, out: Inst[] = []): Inst[] {
@@ -47,7 +55,7 @@ function dictionary(name: string) {
 
 export default function Preview({ form, review }: { form: { tabs?: unknown }; review: Review }) {
   const tabs = (form.tabs ?? []) as Tab[]
-  const [step, setStep] = useState(0)
+  const [tabId, setTabId] = useState('')
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [copies, setCopies] = useState<Record<string, number>>({})
   const [hidden, setHidden] = useState<Set<string>>(new Set())
@@ -72,15 +80,21 @@ export default function Preview({ form, review }: { form: { tabs?: unknown }; re
     return () => { live = false }
   }, [form, answers, copies])
 
-  const tab = tabs[step]
-  if (!tab) return <p className="text-sm">Formularz nie ma zakładek.</p>
+  // Pages with nothing visible drop out of the steps; if the current one drops out, stay on the nearest earlier page.
+  const visible = tabs.filter((t) => t.questions.some((q) => shown(q.field, '', hidden)))
+  const at = tabs.findIndex((t) => t.id === tabId)
+  const step = Math.max(0, visible.findIndex((t) => t.id === tabId) >= 0 ? visible.findIndex((t) => t.id === tabId)
+    : visible.filter((t) => tabs.indexOf(t) < at).length - 1)
+  const setStep = (i: number) => setTabId(visible[i].id)
+  const tab = visible[step]
+  if (!tab) return <p className="text-sm">Formularz nie ma widocznych stron.</p>
   const set = (id: string, v: Answer) => setAnswers((a) => ({ ...a, [id]: v }))
   const ctx: Ctx = { answers, set, hidden, review, copies, setCopies: (id, n) => setCopies((c) => ({ ...c, [id]: n })) }
 
   return (
     <div className="space-y-4 rounded border border-slate-200 p-4">
       <ol className="flex flex-wrap gap-2 text-sm">
-        {tabs.map((t, i) => (
+        {visible.map((t, i) => (
           <li key={t.id}>
             <button type="button" onClick={() => setStep(i)} aria-current={i === step ? 'step' : undefined}
               className={`rounded-full border px-3 py-1 ${i === step ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}>
@@ -93,7 +107,7 @@ export default function Preview({ form, review }: { form: { tabs?: unknown }; re
       <Grid qs={tab.questions} ctx={ctx} suffix="" />
       <div className="flex justify-between">
         <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded border px-3 py-1 disabled:opacity-40">Wstecz</button>
-        <button type="button" disabled={step === tabs.length - 1} onClick={() => setStep(step + 1)} className="rounded border px-3 py-1 disabled:opacity-40">Dalej</button>
+        <button type="button" disabled={step === visible.length - 1} onClick={() => setStep(step + 1)} className="rounded border px-3 py-1 disabled:opacity-40">Dalej</button>
       </div>
     </div>
   )
@@ -109,7 +123,7 @@ function Grid({ qs, ctx, suffix }: { qs: Q[]; ctx: Ctx; suffix: string }) {
   const width = Math.max(1, ...qs.map((q) => q.x + q.cols))
   return (
     <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}>
-      {qs.filter((q) => !ctx.hidden.has(q.field.id + suffix)).map((q) => (
+      {qs.filter((q) => shown(q.field, suffix, ctx.hidden)).map((q) => (
         <div key={q.field.id} style={{ gridColumn: `${q.x + 1} / span ${q.cols}`, gridRow: `${q.y + 1} / span ${q.rows}` }}>
           <Field f={q.field} ctx={ctx} suffix={suffix} />
         </div>
