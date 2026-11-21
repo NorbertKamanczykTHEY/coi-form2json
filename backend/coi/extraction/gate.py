@@ -7,6 +7,7 @@ import unicodedata
 from difflib import SequenceMatcher
 
 from .anchors import expand
+from .postprocess import attachment_items
 from .tree import FieldTree
 
 FILL = re.compile(r"___|☐")
@@ -123,6 +124,11 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     hard = [k for k in ungrounded if not (k in controls and fields[k].type in ("RADIO", "CHECKBOX", "SELECT"))]  # an added control question has no verbatim label
     if hard:
         fails.append(f"G7: pola bez oparcia w dokumencie (source_label nie występuje w tekście); usuń je albo przepisz source_label dosłownie: {hard[:10]}")
+    uploads = {a for _, _, f in all_fields(tree) if f.type == "FILE_UPLOADER" for a in ex(f.src)}
+    templ = {a for d in tree.dropped if d.reason == "template_attachment" for a in ex(d.src)}
+    lost_att = [a for a in attachment_items(blocks) if a not in uploads and a not in templ]
+    if lost_att:
+        fails.append(f"G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): {lost_att[:10]}")
     if no_addressee:
         fails.append("G13: brak `addressee`, choć dokument wskazuje adresata (organ albo urząd); wpisz go do `addressee`")
     if broken_show:
@@ -141,4 +147,4 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     review += [{"anchor": a, "why": "fill mark not used by any field or drop"} for a in missing]
     return {"ok": not fails, "fails": fails, "coverage": cov, "needs_review": review, "bad_anchors": bad_anchor, "uncovered": uncovered,
             "broken_show_if": broken_show, "no_options": no_opts, "dup_sections": dup_sections, "bad_drops": bad_drops,
-            "repeating_deps": rep_dep, "no_addressee": no_addressee, "empty_pages": empty_pages, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}
+            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "empty_pages": empty_pages, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}

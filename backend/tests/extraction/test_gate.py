@@ -80,3 +80,12 @@ def test_person_preset_is_not_flagged_as_template_leak():
     t = tree()
     t.pages[0].sections[0].fields.append(FormField(key="imie", label="Imię", source_label="Imię", type="TEXT_FIELD", preset="first_name", src=["p1.b3"]))
     assert not gate(t, BLOCKS)["template_leaks"]
+
+
+def test_named_attachment_list_item_needs_an_upload():
+    blocks = BLOCKS | {"p1.b5": "W załączeniu:", "p1.b6": "1) zaświadczenie o dochodach", "p1.b7": "2) ___"}
+    t = tree()
+    t.dropped.append(Drop(reason="empty_slot", src=["p1.b5-p1.b7"]))
+    assert any(f.startswith("G14") and "p1.b6" in f for f in gate(t, blocks)["fails"])
+    t.pages[0].sections[0].fields.append(FormField(key="z", label="Zaświadczenie", source_label="zaświadczenie o dochodach", type="FILE_UPLOADER", src=["p1.b6"]))
+    assert gate(t, blocks)["ok"]

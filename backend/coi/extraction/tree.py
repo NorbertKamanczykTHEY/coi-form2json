@@ -50,6 +50,7 @@ class FormField(BaseModel):
     preset: Preset | None = Field(default=None, description="typowe pole osobowe/adresowe osoby trzeciej")
     show_if: ShowIf | None = None
     optional_evidence: str | None = Field(default=None, description="dosłowny cytat ze źródła mówiący, że pole jest nieobowiązkowe (np. 'opcjonalnie', 'można dołączyć'); null gdy brak")
+    multiple: bool = Field(default=False, description="FILE_UPLOADER: wnioskodawca może dodać kilka plików")
     default_value: str | None = Field(default=None, description="wartość stała wydrukowana na papierze (S15)")
     description: str | None = Field(default=None, description="krótka podpowiedź dla wypełniającego")
     description_source: Literal["document", "ai"] | None = Field(default=None, description="'document' gdy podpowiedź pochodzi z tekstu źródła, 'ai' gdy to Twoja sugestia; kod to weryfikuje")

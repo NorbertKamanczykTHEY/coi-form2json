@@ -65,3 +65,21 @@ def test_show_if_negate_and_single_option_form():
     out, _ = normalize(t, BLOCKS)
     assert out.pages[0].sections[0].show_if.field == "x" and out.pages[0].sections[0].show_if.negate
     assert out.entity_option == "Klub sportowy"
+
+
+def test_empty_attachment_list_lines_become_one_optional_multi_upload():
+    blocks = {"p1.b0": "Uzasadnienie ___", "p1.b1": "w załączeniu:", "p1.b2": "1) korekta deklaracji", "p1.b3": "2) ........",
+              "p1.b4": "3) ___", "p1.b5": "Lista uczestników:", "p1.b6": "1) ___"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"],
+                                  "dropped": [{"reason": "empty_slot", "src": ["p1.b3"]}, {"reason": "empty_slot", "src": ["p1.b6"]}],
+                                  "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+                                      f("u", "Uzasadnienie", "TEXTAREA", "p1.b0"),
+                                      f("k", "Korekta deklaracji", "FILE_UPLOADER", "p1.b2", source_label="korekta deklaracji"),
+                                      f("x", "Załącznik 3", "FILE_UPLOADER", "p1.b4", source_label="3) ___")]}]}]})
+    out, _ = normalize(t, blocks)
+    fs = {x.key: x for x in out.pages[0].sections[0].fields}
+    assert fs["korekta_deklaracji"].optional_evidence is None  # the named item stays a required upload
+    other = [x for x in fs.values() if x.label == "Inne załączniki"]
+    assert len(other) == 1 and other[0].multiple and other[0].type == "FILE_UPLOADER" and other[0].optional_evidence
+    assert set(other[0].src) == {"p1.b3", "p1.b4"} and "zalacznik_3" not in fs
+    assert [d.src for d in out.dropped] == [["p1.b6"]]  # an empty line of another list stays empty_slot

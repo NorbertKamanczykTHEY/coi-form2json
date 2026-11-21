@@ -8,7 +8,7 @@ import unicodedata
 from difflib import SequenceMatcher
 
 from .anchors import src_text
-from .tree import Drop, FieldTree
+from .tree import Drop, FieldTree, FormField, Section
 
 # R2: markers that make a field optional (ADR 0018: required by default)
 OPTIONAL = re.compile(r"opcjonaln|nieobowiązkow|nie jest (obowiązkow|wymagan)|fakultatywn|można (dołączyć|załączyć|podać|wpisać)|"
@@ -16,7 +16,15 @@ OPTIONAL = re.compile(r"opcjonaln|nieobowiązkow|nie jest (obowiązkow|wymagan)|
 MUST_ATTACH = re.compile(r"należy (dołączyć|załączyć)|wymagan[ey] (jest )?(dołączenie|załączenie)", re.I)
 # "1) ) Dane nieobowiązkowe." as the parser emits it, or "* Dane …"; "*text*" is Markdown emphasis, not a footnote
 FOOTNOTE = re.compile(r"^\s*(\d{1,2}(?=\s*\))|\*{1,3}(?=[\s)]))\s*\)?\s*\)?\s*([^*]{3,200})$", re.S)
-EMPTY_ITEM = re.compile(r"^\s*\d{1,2}[.)]\s*(_{3,}\s*)+$")  # "2) ___"
+EMPTY_ITEM = re.compile(r"^\s*\d{1,2}[.)]\s*([_.…]{3,}\s*)+$")  # "2) ___", "3) ........"
+LIST_ITEM = re.compile(r"^\s*\d{1,2}[.)]")
+ATTACH_LIST = re.compile(r"załącz|dołącz", re.I)
+
+
+def list_heading(t: str) -> bool:
+    """The short intro of an attachment list ("w załączeniu:", "Załączniki"), not a paragraph that mentions attaching."""
+    t = t.strip(" *_")
+    return bool(ATTACH_LIST.search(t)) and not LIST_ITEM.match(t) and (t.endswith(":") or len(t) <= 40)
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -80,6 +88,66 @@ def footnote_evidence(source_label: str, text: str, notes: dict[str, str]) -> st
     return None
 
 
+def attachment_slots(blocks: dict[str, str]) -> list[list[str]]:
+    """Empty numbered lines of an attachment list ("w załączeniu: 1) X 2) ___ 3) ___"), grouped per list.
+    They mean "the applicant may add more attachments", unlike empty lines elsewhere."""
+    order, groups = list(blocks), []
+    for i, a in enumerate(order):
+        if not EMPTY_ITEM.match(blocks[a]) or (groups and a in groups[-1]):
+            continue
+        j = i
+        while j > 0 and LIST_ITEM.match(blocks[order[j - 1]]):
+            j -= 1
+        k = i
+        while k + 1 < len(order) and EMPTY_ITEM.match(blocks[order[k + 1]]):
+            k += 1
+        if j > 0 and list_heading(blocks[order[j - 1]]):
+            groups.append(order[i:k + 1])
+    return groups
+
+
+def attachment_items(blocks: dict[str, str]) -> list[str]:
+    """Named numbered items of attachment lists: each one is a document the applicant uploads (or a template attachment)."""
+    order, out = list(blocks), []
+    for i, a in enumerate(order):
+        if not list_heading(blocks[a]):
+            continue
+        for b in order[i + 1:]:
+            if not LIST_ITEM.match(blocks[b]):
+                break
+            if not EMPTY_ITEM.match(blocks[b]):
+                out.append(b)
+    return out
+
+
+def _other_attachments(tree: FieldTree, blocks: dict[str, str], seen: set[str]) -> None:
+    """Fields the model made from empty attachment-list lines -> one optional multi-file "Inne załączniki" per list."""
+    order = list(blocks)
+    for slots in attachment_slots(blocks):
+        slot_set = set(slots)
+        home = None  # the section holding an upload from the same list, else the last one
+        before = set(order[max(0, order.index(slots[0]) - 10):order.index(slots[0])])
+        for p in tree.pages:
+            for s in p.sections:
+                s.fields = [f for f in s.fields if not (f.src and set(f.src) <= slot_set)]
+                if any(f.type == "FILE_UPLOADER" and set(f.src) & before for f in s.fields):
+                    home = s
+        if home is None:
+            if not tree.pages:
+                continue
+            if not tree.pages[-1].sections:
+                tree.pages[-1].sections.append(Section(title="Załączniki"))
+            home = tree.pages[-1].sections[-1]
+        head = next((order[i] for i in range(order.index(slots[0]) - 1, -1, -1) if list_heading(blocks[order[i]])), slots[0])
+        key = "inne_zalaczniki"
+        while key in seen:
+            key += "_2"
+        seen.add(key)
+        home.fields.append(FormField(key=key, label="Inne załączniki", source_label=blocks[head], type="FILE_UPLOADER",
+                                     multiple=True, optional_evidence=blocks[slots[0]], src=slots))
+        tree.dropped = [d for d in tree.dropped if not (d.src and set(d.src) <= slot_set)]
+
+
 def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[dict]]:
     tree = tree.model_copy(deep=True)
     review: list[dict] = []
@@ -138,6 +206,14 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                     review.append({"key": f.key, "why": f.doubt})  # R7: stays required, flagged
                 keep.append(f)
             s.fields = keep
+    for p in tree.pages:
+        for s in p.sections:
+            named = {tuple(f.src) for f in s.fields if f.type == "FILE_UPLOADER" and not f.multiple}
+            # a model-made "more files" upload over a listed document duplicates it; multiple is set by code only
+            s.fields = [f for f in s.fields if not (f.multiple and tuple(f.src) in named)]
+            for f in s.fields:
+                f.multiple = False
+    _other_attachments(tree, blocks, seen)  # after the per-field rules: its optionality comes from the list, not a marker
     for p in tree.pages:
         for s in p.sections:
             for si in [s.show_if] + [f.show_if for f in s.fields] + [c for x in tree.consents for c in x.show_if]:
