@@ -71,7 +71,7 @@ Zmienne opisuje `app/.env.example`: `JWT_SECRET`, `JWT_ALG`, `JWT_JWKS_URL`, `JW
 
 ## Konfiguracja (`coi.config`)
 
-Cała konfiguracja jest w jednym miejscu, jak `config/` w Laravelu. Pakiet `coi/config/` ma po jednym module na obszar (`app`, `llm`, `parsing`; `auth`, `database`, `dictionaries` i `generator` dopisują ich właściciele). Każdy moduł ma `load() -> dict`, który czyta zmienne środowiskowe z domyślnymi wartościami. Źródłem jest środowisko procesu, a lokalnie braki uzupełnia `app/.env` (`coi/config/env.py`). Odczyt:
+Cała konfiguracja jest w jednym miejscu, jak `config/` w Laravelu. Pakiet `coi/config/` ma po jednym module na obszar (`app`, `llm`, `parsing`, `dictionaries`; `auth`, `database` i `generator` dopisują ich właściciele). Każdy moduł ma `load() -> dict`, który czyta zmienne środowiskowe z domyślnymi wartościami. Źródłem jest środowisko procesu, a lokalnie braki uzupełnia `app/.env` (`coi/config/env.py`). Odczyt:
 
 ```python
 from coi.config import config

@@ -1,0 +1,181 @@
+{
+  "_doc": "Dictionary catalog seed: metadata and label aliases (hand-written). Items come from seed/<id>.json.gz, built by scripts/fetch_dictionaries.py. origin: materials = named in the task materials (platform dictionaries, protected); catalog = our proposal prepared offline from an official list (matching one yields a new-dictionary proposal). Sources and licenses: app/docs/dictionaries.md.",
+  "dictionaries": [
+    {
+      "id": "Kraje",
+      "name": "Kraje",
+      "origin": "materials",
+      "description": "Ustandaryzowany zbiór państw (ISO 3166-1, polskie nazwy).",
+      "levels": [
+        "kraj"
+      ],
+      "aliases": [
+        "kraj",
+        "państwo",
+        "obywatelstwo",
+        "kraj urodzenia",
+        "kraj zamieszkania",
+        "kraj siedziby",
+        "kraj pochodzenia",
+        "narodowość"
+      ]
+    },
+    {
+      "id": "TERYT_4G_DOWODOWY",
+      "name": "TERYT (4 poziomy)",
+      "origin": "materials",
+      "description": "Adres w Polsce wg TERYT jako drzewo: województwo, powiat, gmina, miejscowość (bez części miejscowości).",
+      "levels": [
+        "województwo",
+        "powiat",
+        "gmina",
+        "miejscowość"
+      ],
+      "aliases": [
+        "adres zamieszkania",
+        "adres siedziby",
+        "adres do korespondencji",
+        "adres zameldowania",
+        "województwo powiat gmina miejscowość"
+      ]
+    },
+    {
+      "id": "WOJEWODZTWO",
+      "name": "Województwo",
+      "origin": "materials",
+      "description": "Ustandaryzowany zbiór województw (TERC).",
+      "levels": [
+        "województwo"
+      ],
+      "aliases": [
+        "województwo",
+        "woj."
+      ]
+    },
+    {
+      "id": "POWIAT",
+      "name": "Powiat",
+      "origin": "materials",
+      "description": "Ustandaryzowany zbiór powiatów (TERC); pozycja wskazuje województwo jako rodzica.",
+      "levels": [
+        "powiat"
+      ],
+      "aliases": [
+        "powiat"
+      ]
+    },
+    {
+      "id": "GMINA",
+      "name": "Gmina",
+      "origin": "materials",
+      "description": "Ustandaryzowany zbiór gmin (TERC); pozycja wskazuje powiat jako rodzica.",
+      "levels": [
+        "gmina"
+      ],
+      "aliases": [
+        "gmina",
+        "gmina / dzielnica"
+      ]
+    },
+    {
+      "id": "MIEJSCOWOSC",
+      "name": "Miejscowość",
+      "origin": "materials",
+      "description": "Ustandaryzowany zbiór miejscowości (SIMC); pozycja wskazuje gminę jako rodzica.",
+      "levels": [
+        "miejscowość"
+      ],
+      "aliases": [
+        "miejscowość",
+        "w miejscowości",
+        "miasto",
+        "miejscowość zamieszkania"
+      ]
+    },
+    {
+      "id": "NUMERY_KIERUNKOWE",
+      "name": "Numery kierunkowe",
+      "origin": "materials",
+      "description": "Międzynarodowe prefiksy telefoniczne krajów, np. +48 dla Polski.",
+      "levels": [
+        "prefiks"
+      ],
+      "aliases": [
+        "telefon",
+        "numer telefonu",
+        "nr telefonu",
+        "telefon kontaktowy",
+        "tel.",
+        "numer kierunkowy",
+        "prefiks telefonu",
+        "telefon komórkowy"
+      ]
+    },
+    {
+      "id": "DYSCYPLINY_SPORTOWE",
+      "name": "Dyscypliny sportowe",
+      "origin": "catalog",
+      "description": "Rodzaje dyscyplin (zespołowa, indywidualna – inna, indywidualna – lekkoatletyka) i dyscypliny z wniosku #9 (Zgierz).",
+      "levels": [
+        "rodzaj",
+        "dyscyplina"
+      ],
+      "aliases": [
+        "dyscyplina sportowa",
+        "dyscypliny sportowe",
+        "dyscyplina",
+        "rodzaj dyscypliny sportowej",
+        "uprawiana dyscyplina"
+      ]
+    },
+    {
+      "id": "RASY_PSOW_AGRESYWNYCH",
+      "name": "Rasy psów uznawanych za agresywne",
+      "origin": "catalog",
+      "description": "Zamknięty wykaz 11 ras z rozporządzenia MSWiA z 28.04.2003 (Dz.U. 2003 nr 77 poz. 687).",
+      "levels": [
+        "rasa"
+      ],
+      "aliases": [
+        "rasa psa",
+        "rasa",
+        "rasa psa agresywnego"
+      ]
+    },
+    {
+      "id": "SPOSOBY_DORECZENIA",
+      "name": "Sposoby doręczenia korespondencji",
+      "origin": "catalog",
+      "description": "Kanały korespondencji z urzędem: poczta tradycyjna, skrzynka ePUAP, e-Doręczenia (wniosek #9).",
+      "levels": [
+        "sposób"
+      ],
+      "aliases": [
+        "sposób doręczenia",
+        "korespondencja z urzędem",
+        "sposób korespondencji",
+        "preferowany sposób korespondencji",
+        "forma doręczenia",
+        "sposób odbioru"
+      ]
+    },
+    {
+      "id": "RODZAJE_PODATKOW_LOKALNYCH",
+      "name": "Rodzaje podatków i opłat lokalnych",
+      "origin": "catalog",
+      "description": "Podatki i opłaty pobierane przez gminę (ustawy o podatkach i opłatach lokalnych, o podatku rolnym, o podatku leśnym).",
+      "levels": [
+        "podatek"
+      ],
+      "aliases": [
+        "rodzaj podatku",
+        "podatek",
+        "rodzaj podatku lub opłaty",
+        "tytuł zobowiązania",
+        "rodzaj zobowiązania podatkowego",
+        "rodzaj przyszłego zobowiązania podatkowego",
+        "nazwa podatku"
+      ]
+    }
+  ]
+}

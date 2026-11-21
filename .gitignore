@@ -10,3 +10,5 @@ dist/
 .DS_Store
 .omc/
 spikes/*/out/
+backend/scripts/.cache/
+spikes/e2e-out/

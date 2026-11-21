@@ -5,6 +5,7 @@ from apiflask import APIFlask
 from flask import Request
 
 from .config import Config, _env
+from .dictionaries import init_app as init_dictionaries
 from .store import Store
 
 __version__ = "0.1.0"
@@ -42,6 +43,7 @@ def create_app() -> APIFlask:
     app.config["STORE"].init()
     app.error_processor(api.problem)
     app.register_blueprint(api.bp)
+    init_dictionaries(app)
 
     @app.get("/healthz")
     @app.get("/health")

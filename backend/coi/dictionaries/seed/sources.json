@@ -1,0 +1,33 @@
+{
+ "TERYT": {
+  "files": [
+   "TERC_Urzedowy_2026-11-21.zip",
+   "SIMC_Urzedowy_2026-11-21.zip"
+  ],
+  "counts": {
+   "województwa": 16,
+   "powiaty": 380,
+   "gminy": 2479,
+   "miejscowości": 54477,
+   "części miejscowości": 47388
+  }
+ },
+ "built": "2026-11-21",
+ "counts": {
+  "TERYT_4G_DOWODOWY": 57352,
+  "WOJEWODZTWO": 16,
+  "POWIAT": 380,
+  "GMINA": 2479,
+  "MIEJSCOWOSC": 54477,
+  "Kraje": 250,
+  "NUMERY_KIERUNKOWE": 243,
+  "RASY_PSOW_AGRESYWNYCH": 11,
+  "DYSCYPLINY_SPORTOWE": 23,
+  "SPOSOBY_DORECZENIA": 3,
+  "RODZAJE_PODATKOW_LOKALNYCH": 10
+ },
+ "libraries": {
+  "babel (CLDR)": "2.18.0",
+  "phonenumbers (libphonenumber)": "9.0.44"
+ }
+}
