@@ -1,0 +1,175 @@
+{
+ "cost": 0.00503,
+ "needs_review": [
+  {
+   "key": "data_szczepienia_psa_przeciwko_wsciekliznie",
+   "why": "optional marker not confirmed in source: 'w przypadku jego braku'"
+  },
+  {
+   "key": "rasa_psa",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "data_urodzenia_psa",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "data_szczepienia_psa_przeciwko_wsciekliznie",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "kopia_zaswiadczenia_o_szczepieniu_przeciwko_wsciekliznie",
+   "why": "attachment 'for each' element is outside the repeating section"
+  },
+  {
+   "key": "addressee",
+   "why": "brak adresata, wstawiono pustą nazwę urzędu"
+  },
+  {
+   "field_id": "695fc170-4b43-43ba-9c15-d8c72599784f",
+   "key": "rasa_psa",
+   "why": "propozycja słownika RASY_PSOW_AGRESYWNYCH"
+  }
+ ],
+ "proposed_dictionaries": [
+  {
+   "description": "Zamknięty wykaz 11 ras z rozporządzenia MSWiA z 28.04.2003 (Dz.U. 2003 nr 77 poz. 687).",
+   "fields": [
+    "rasa_psa"
+   ],
+   "id": "RASY_PSOW_AGRESYWNYCH",
+   "items": [
+    {
+     "id": "1",
+     "name": "amerykański pit bull terrier"
+    },
+    {
+     "id": "2",
+     "name": "pies z Majorki (Perro de Presa Mallorquin)"
+    },
+    {
+     "id": "3",
+     "name": "buldog amerykański"
+    },
+    {
+     "id": "4",
+     "name": "dog argentyński"
+    },
+    {
+     "id": "5",
+     "name": "pies kanaryjski (Perro de Presa Canario)"
+    },
+    {
+     "id": "6",
+     "name": "tosa inu"
+    },
+    {
+     "id": "7",
+     "name": "rottweiler"
+    },
+    {
+     "id": "8",
+     "name": "akbash dog"
+    },
+    {
+     "id": "9",
+     "name": "anatolian karabash"
+    },
+    {
+     "id": "10",
+     "name": "moskiewski stróżujący"
+    },
+    {
+     "id": "11",
+     "name": "owczarek kaukaski"
+    }
+   ],
+   "levels": [
+    "rasa"
+   ],
+   "name": "Rasy psów uznawanych za agresywne",
+   "source": "catalog"
+  }
+ ],
+ "seconds": 31.37,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.DOC",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.01
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 2,
+     "garbage": 0.0,
+     "marks": 29,
+     "nonsense": 0.0014,
+     "polish": 0.0473,
+     "stars": 11
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 2,
+     "garbage": 0.0,
+     "marks": 29,
+     "nonsense": 0.0014,
+     "polish": 0.0473,
+     "stars": 11
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.0029,
+   "coverage": 0.5,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b2', 'p1.b16', 'p1.b22']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 20.2,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00213,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 11.1,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": [
+  "Blok 'p1.b16' zawiera tekst '/* niepotrzebne skreślić/' – uznano za pole do usunięcia (empty_slot)."
+ ]
+}

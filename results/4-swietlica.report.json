@@ -1,0 +1,135 @@
+{
+ "cost": 0.00947,
+ "needs_review": [
+  {
+   "key": "miejsce_swietlicy_wiejskiej",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "data_rozpoczecia",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "data_zakonczenia",
+   "why": "inside a choice block but has no show_if"
+  }
+ ],
+ "proposed_dictionaries": [],
+ "seconds": 48.41,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o wynajęcie świetlicy.docx",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.0
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [
+     "G5 * without footnote"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": null,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 11,
+     "nonsense": 0.0068,
+     "polish": 0.0639,
+     "stars": 3
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 11,
+     "nonsense": 0.0068,
+     "polish": 0.0639,
+     "stars": 3
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00099,
+   "coverage": 1.0,
+   "fails": [
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zapoznanie_sie_z_warunkami_wynajmu', 'odpowiedzialnosc_za_lad_i_porzadek', 'przestrzeganie_przepisow_sanitarnych_bhp_i_p_poz', 'odpowiedzialnosc_za_powierzone_mienie']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b1', 'p1.b3', 'p1.b5', 'p1.b7', 'p1.b22']",
+    "strony bez pól: ['Dane osoby odpowiedzialnej', 'Załączniki']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 8.5,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00184,
+   "coverage": 0.78,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b5', 'p1.b7']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zapoznanie_sie_z_warunkami_wynajmu', 'odpowiedzialnosc_za_lad_i_porzadek', 'przestrzeganie_przepisow_sanitarnych_bhp_i_p_poz', 'odpowiedzialnosc_za_powierzone_mienie']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b1', 'p1.b3']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 7.5,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00297,
+   "coverage": 0.89,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b5']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 14.8,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00367,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "repair",
+   "rung": 1,
+   "seconds": 17.5,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": [
+  "G5: text has * marks but no footnote explaining them; check the source (footnote lost?)"
+ ]
+}

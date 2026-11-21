@@ -1,0 +1,338 @@
+{
+ "cost": 0.04781,
+ "needs_review": [
+  {
+   "key": "adres_zameldowania_2",
+   "why": "source label has no words"
+  },
+  {
+   "key": "adres_do_korespondencji_2",
+   "why": "source label has no words"
+  },
+  {
+   "key": "osiagniecia_sportowe",
+   "why": "source label has no words"
+  },
+  {
+   "key": "dodatkowe_informacje",
+   "why": "source label has no words"
+  },
+  {
+   "key": "opinia_klubu",
+   "why": "source label has no words"
+  },
+  {
+   "key": "adres_zameldowania_2_2_2",
+   "why": "source label has no words"
+  },
+  {
+   "key": "adres_do_korespondencji_2_2",
+   "why": "source label has no words"
+  },
+  {
+   "key": "opinia_klubu_2",
+   "why": "source label has no words"
+  },
+  {
+   "key": "dodatkowe_informacje_2",
+   "why": "source label has no words"
+  },
+  {
+   "key": "telefon_kontaktowy",
+   "why": "looks like applicant/proxy data (template), not subject"
+  },
+  {
+   "key": "adres_zameldowania_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "adres_do_korespondencji_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "osiagniecia_sportowe",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "dodatkowe_informacje",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "opinia_klubu",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "adres_zameldowania_2_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "adres_do_korespondencji_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "opinia_klubu_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "dodatkowe_informacje_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "why": "quality gate: G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['adres_siedziby_klubu']"
+  },
+  {
+   "field_id": "4d8a66bb-e80c-4a5c-9244-f6b3cdc249e2",
+   "key": "wybierz_rodzaj_dyscypliny_sportowej",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+  },
+  {
+   "field_id": "ed5aa164-74cf-4a93-8b08-58050fe5bda9",
+   "key": "wybierz_dyscypliny_sportowe",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+  },
+  {
+   "field_id": "e65e22c9-9b46-42fd-b148-c009a0b6450b",
+   "key": "podaj_inna_dyscypline_sportowa",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+  }
+ ],
+ "proposed_dictionaries": [
+  {
+   "description": "Rodzaje dyscyplin (zespołowa, indywidualna – inna, indywidualna – lekkoatletyka) i dyscypliny z wniosku #9 (Zgierz).",
+   "fields": [
+    "wybierz_rodzaj_dyscypliny_sportowej",
+    "wybierz_dyscypliny_sportowe",
+    "podaj_inna_dyscypline_sportowa"
+   ],
+   "id": "DYSCYPLINY_SPORTOWE",
+   "items": [
+    {
+     "children": [
+      {
+       "id": "1.1",
+       "name": "hokej"
+      },
+      {
+       "id": "1.2",
+       "name": "koszykówka"
+      },
+      {
+       "id": "1.3",
+       "name": "piłka nożna"
+      },
+      {
+       "id": "1.4",
+       "name": "piłka ręczna"
+      },
+      {
+       "id": "1.5",
+       "name": "piłka siatkowa"
+      },
+      {
+       "id": "1.6",
+       "name": "piłka wodna"
+      },
+      {
+       "id": "1.7",
+       "name": "unihokej"
+      }
+     ],
+     "id": "1",
+     "name": "zespołowa"
+    },
+    {
+     "children": [
+      {
+       "id": "2.1",
+       "name": "gimnastyka artystyczna"
+      },
+      {
+       "id": "2.2",
+       "name": "karate"
+      },
+      {
+       "id": "2.3",
+       "name": "kolarstwo"
+      },
+      {
+       "id": "2.4",
+       "name": "łucznictwo"
+      },
+      {
+       "id": "2.5",
+       "name": "łyżwiarstwo"
+      },
+      {
+       "id": "2.6",
+       "name": "narciarstwo klasyczne"
+      },
+      {
+       "id": "2.7",
+       "name": "sport motocyklowy"
+      },
+      {
+       "id": "2.8",
+       "name": "sporty walki"
+      },
+      {
+       "id": "2.9",
+       "name": "sporty wodne"
+      },
+      {
+       "id": "2.10",
+       "name": "tenis stołowy"
+      },
+      {
+       "id": "2.11",
+       "name": "tenis ziemny"
+      },
+      {
+       "id": "2.12",
+       "name": "zapasy"
+      }
+     ],
+     "id": "2",
+     "name": "indywidualna – inna"
+    },
+    {
+     "children": [
+      {
+       "id": "3.1",
+       "name": "lekkoatletyka"
+      }
+     ],
+     "id": "3",
+     "name": "indywidualna – lekkoatletyka"
+    }
+   ],
+   "levels": [
+    "rodzaj",
+    "dyscyplina"
+   ],
+   "name": "Dyscypliny sportowe",
+   "source": "catalog"
+  }
+ ],
+ "seconds": 147.81,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o przyznanie stypendium.docx",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.05
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 20,
+     "garbage": 0.0,
+     "marks": 105,
+     "nonsense": 0.0098,
+     "polish": 0.04,
+     "stars": 9
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 20,
+     "garbage": 0.0,
+     "marks": 105,
+     "nonsense": 0.0098,
+     "polish": 0.04,
+     "stars": 9
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": false,
+   "calls": 4,
+   "cost": 0.00944,
+   "coverage": 0.67,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b104', 'p1.b105', 'p1.b106', 'p1.b107', 'p1.b108', 'p1.b109', 'p1.b110', 'p1.b111', 'p1.b112', 'p1.b115', 'p1.b116', 'p1.b117', 'p1.b125', 'p1.b126', 'p1.b127', 'p1.b129', 'p1.b131', 'p1.b134', 'p1.b168', 'p1.b169']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina_sportowa_osoby_trzeciej']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczono_dane_reprezentanta_klubu_sportowego', 'czy_dolaczono_dane_pelnomocnika_klubu_sportowego', 'zgoda_na_przetwarzanie_danych_osobowych_kandydata', 'zgoda_na_akceptacje_regulaminu', 'zgoda_rodzica_opiekuna_prawnego_na_przetwarzanie_danych_osob', 'zgoda_rodzica_opiekuna_prawnego_na_akceptacje_regulaminu', 'zgoda_na_przetwarzanie_danych_osobowych_kandydata_2', 'zgoda_na_akceptacje_regulaminu_2', 'zgoda_rodzica_opiekuna_prawnego_na_przetwarzanie_danych_osob_2', 'zgoda_rodzica_opiekuna_prawnego_na_akceptacje_regulaminu_2']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b121', 'p1.b122', 'p1.b185', 'p1.b186', 'p1.b75', 'p1.b136', 'p1.b137', 'p1.b138', 'p1.b139', 'p1.b199']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 51.4,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00622,
+   "coverage": 0.62,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b87', 'p1.b90', 'p1.b93', 'p1.b94', 'p1.b96', 'p1.b115', 'p1.b116', 'p1.b117', 'p1.b119', 'p1.b120', 'p1.b125', 'p1.b126', 'p1.b127', 'p1.b129', 'p1.b131', 'p1.b134', 'p1.b144', 'p1.b151', 'p1.b154', 'p1.b157']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inna_dyscyplina_sportowa_osoby_trzeciej']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['czy_dolaczono_dane_reprezentanta_klubu_sportowego', 'czy_dolaczono_dane_pelnomocnika_klubu_sportowego']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b75', 'p1.b121', 'p1.b122', 'p1.b136', 'p1.b137', 'p1.b138', 'p1.b139', 'p1.b185', 'p1.b186', 'p1.b199']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 28.2,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.01519,
+   "coverage": 0.89,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b24', 'p1.b25', 'p1.b26', 'p1.b115', 'p1.b116', 'p1.b117', 'p1.b179', 'p1.b180', 'p1.b181', 'p1.b240']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b30', 'p1.b31', 'p1.b121', 'p1.b122', 'p1.b185', 'p1.b186']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 44.4,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.01696,
+   "coverage": 1.0,
+   "fails": [
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['adres_siedziby_klubu']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "repair",
+   "rung": 1,
+   "seconds": 49.9,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": [
+  "strona 'Dane klubu sportowego': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta",
+  "strona 'Dane sportowca (stypendium/nagroda)': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta",
+  "strona 'Dane trenera (wyróżnienie)': wszystkie sekcje mają SHOW, strona może wyświetlić się pusta"
+ ]
+}

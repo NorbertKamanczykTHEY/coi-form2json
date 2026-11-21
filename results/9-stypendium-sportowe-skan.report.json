@@ -1,0 +1,1490 @@
+{
+ "cost": 0.05403,
+ "needs_review": [
+  {
+   "key": "dodatkowe_osiagniecia_opcjonalnie",
+   "why": "optional marker not confirmed in source: 'opcjonalnie'"
+  },
+  {
+   "key": "dodatkowe_osiagniecia_opcjonalnie_2",
+   "why": "optional marker not confirmed in source: 'opcjonalnie'"
+  },
+  {
+   "key": "uzasadnienie_wniosku",
+   "why": "optional marker not confirmed in source: 'opcjonalnie'"
+  },
+  {
+   "key": "odpis_danych_z_krajowego_rejestru_sadowego",
+   "why": "optional marker not confirmed in source: 'jeżeli tak, należy dołączyć'"
+  },
+  {
+   "key": "wybierz_rodzaj_wniosku",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "pesel",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "numer_telefonu",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "adres_e_mail",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "numer_rachunku_bankowego",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "pesel_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "numer_telefonu_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "adres_e_mail_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "wybierz_dyscypliny_sportowe",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "podaj_inne_dyscypliny_sportowe",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "nazwa_klubu_sportowego",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "numer_licencji",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "wybierz_poziom_sportowy",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "liczba_lat_uprawiania_sportu",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "opisz_osiagniecia_sportowe",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "uzasadnienie_wniosku_o_przyznanie_stypendium",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "wypelnij_tabele_osiagniec_sportowych",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "rok",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "nazwa_zawodow",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "miejsce",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zajete_miejsce_osiagniecie",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "rok_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "nazwa_zawodow_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "miejsce_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zajete_miejsce_osiagniecie_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "dodatkowe_osiagniecia_opcjonalnie",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "podpis_i_pieczec_klubu",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zalacznik_z_opinia_klubu",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "imie_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "pesel_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "data_urodzenia_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "dyscyplina_sportowa",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "osiagniecia_sportowe",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "rok_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "nazwa_zawodow_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "miejsce_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zajete_miejsce_osiagniecie_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "rok_2_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "nazwa_zawodow_2_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "miejsce_2_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zajete_miejsce_osiagniecie_2_2_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "dodatkowe_osiagniecia_opcjonalnie_2",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "opisz_osiagniecia_podopiecznych",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zalacznik_z_osiagnieciami_podopiecznych",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "oswiadczenie_macierzystego_klubu_sportowego_o_osiagnieciach_",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "licencja_sportowa_wazna_w_roku_kalendarzowym_w_ktorym_sklada",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "zaswiadczenie_organizatora_zawodow_o_zajeciu_miejsca_na_podi",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "potwierdzenie_osiagniec_sportowych_podopiecznych",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "uzasadnienie_wniosku",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "czy_klub_sportowy_posiada_aktualny_odpis_danych_z_krajowego_",
+   "why": "label not found in cited source"
+  },
+  {
+   "key": "odpis_danych_z_krajowego_rejestru_sadowego",
+   "why": "label not found in cited source"
+  },
+  {
+   "anchor": "p2.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b3",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b5",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b6",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b7",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b8",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b9",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b10",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b11",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b12",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b13",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b16",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b17",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b18",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b20",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b21",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b22",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b23",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p2.b24",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b16",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b17",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b18",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b19",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b20",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b21",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b22",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b23",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b24",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b25",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b26",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b27",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b28",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b29",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b30",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b31",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b32",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b33",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b34",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p3.b35",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p4.b10",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p4.b11",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p6.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p6.b5",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p6.b7",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p6.b10",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b3",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b5",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b6",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b7",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b8",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b9",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b10",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b11",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b12",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b13",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b16",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b17",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b18",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b20",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b21",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b22",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b23",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p7.b24",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p9.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p10.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p10.b5",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p10.b7",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p10.b10",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b3",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b5",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b6",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b7",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b8",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b9",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b10",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b11",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b12",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b13",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b16",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b17",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b18",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b20",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b21",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b22",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b23",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p11.b24",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p14.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p14.b8",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p15.b2",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p15.b5",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p16.b3",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p16.b6",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p16.b8",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "anchor": "p16.b11",
+   "why": "fill mark not used by any field or drop"
+  },
+  {
+   "why": "quality gate: G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b6', 'p2.b7', 'p2.b8', 'p2.b9', 'p2.b10', 'p2.b11', 'p2.b12', 'p2.b13', 'p2.b16', 'p2.b17', 'p2.b18', 'p2.b20', 'p2.b21', 'p2.b22', 'p2.b23', 'p2.b24', 'p3.b16']"
+  },
+  {
+   "field_id": "87aefc4d-82e5-4d0a-b9fe-8a100169d45e",
+   "key": "wybierz_dyscypliny_sportowe",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+  },
+  {
+   "field_id": "6f681197-996a-4545-840a-019b4879b6a1",
+   "key": "podaj_inne_dyscypliny_sportowe",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+  },
+  {
+   "field_id": "04586756-39f0-4cb5-b39d-df332463454e",
+   "key": "dyscyplina_sportowa",
+   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+  }
+ ],
+ "proposed_dictionaries": [
+  {
+   "description": "Rodzaje dyscyplin (zespołowa, indywidualna – inna, indywidualna – lekkoatletyka) i dyscypliny z wniosku #9 (Zgierz).",
+   "fields": [
+    "wybierz_dyscypliny_sportowe",
+    "podaj_inne_dyscypliny_sportowe",
+    "dyscyplina_sportowa"
+   ],
+   "id": "DYSCYPLINY_SPORTOWE",
+   "items": [
+    {
+     "children": [
+      {
+       "id": "1.1",
+       "name": "hokej"
+      },
+      {
+       "id": "1.2",
+       "name": "koszykówka"
+      },
+      {
+       "id": "1.3",
+       "name": "piłka nożna"
+      },
+      {
+       "id": "1.4",
+       "name": "piłka ręczna"
+      },
+      {
+       "id": "1.5",
+       "name": "piłka siatkowa"
+      },
+      {
+       "id": "1.6",
+       "name": "piłka wodna"
+      },
+      {
+       "id": "1.7",
+       "name": "unihokej"
+      }
+     ],
+     "id": "1",
+     "name": "zespołowa"
+    },
+    {
+     "children": [
+      {
+       "id": "2.1",
+       "name": "gimnastyka artystyczna"
+      },
+      {
+       "id": "2.2",
+       "name": "karate"
+      },
+      {
+       "id": "2.3",
+       "name": "kolarstwo"
+      },
+      {
+       "id": "2.4",
+       "name": "łucznictwo"
+      },
+      {
+       "id": "2.5",
+       "name": "łyżwiarstwo"
+      },
+      {
+       "id": "2.6",
+       "name": "narciarstwo klasyczne"
+      },
+      {
+       "id": "2.7",
+       "name": "sport motocyklowy"
+      },
+      {
+       "id": "2.8",
+       "name": "sporty walki"
+      },
+      {
+       "id": "2.9",
+       "name": "sporty wodne"
+      },
+      {
+       "id": "2.10",
+       "name": "tenis stołowy"
+      },
+      {
+       "id": "2.11",
+       "name": "tenis ziemny"
+      },
+      {
+       "id": "2.12",
+       "name": "zapasy"
+      }
+     ],
+     "id": "2",
+     "name": "indywidualna – inna"
+    },
+    {
+     "children": [
+      {
+       "id": "3.1",
+       "name": "lekkoatletyka"
+      }
+     ],
+     "id": "3",
+     "name": "indywidualna – lekkoatletyka"
+    }
+   ],
+   "levels": [
+    "rodzaj",
+    "dyscyplina"
+   ],
+   "name": "Dyscypliny sportowe",
+   "source": "catalog"
+  }
+ ],
+ "seconds": 167.33,
+ "source": {
+  "cost": 0.00648,
+  "filename": "Wniosek o przyznanie stypendium.png",
+  "kind": "image",
+  "mime": "image/png",
+  "parser": "mistral/ministral-8b-2512",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 20.54
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.872,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0,
+     "polish": 0.0243,
+     "stars": 0
+    }
+   },
+   "page": 1,
+   "parser": "tesseract",
+   "seconds": 0.38,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00037454999999999997,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 1.0,
+     "witness_words": 17
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 1,
+   "parser": "vlm",
+   "seconds": 1.61,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "OCR confidence"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.559,
+     "footnotes": 0,
+     "garbage": 0.0007,
+     "marks": 6,
+     "nonsense": 0.2803,
+     "polish": 0.027,
+     "stars": 0
+    }
+   },
+   "page": 2,
+   "parser": "tesseract",
+   "seconds": 0.93,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00043335,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.899,
+     "witness_words": 89
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 2,
+   "parser": "vlm",
+   "seconds": 5.56,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.93,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0,
+     "polish": 0.0353,
+     "stars": 0
+    }
+   },
+   "page": 3,
+   "parser": "tesseract",
+   "seconds": 0.51,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00040589999999999995,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 1.0,
+     "witness_words": 50
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 3,
+   "parser": "vlm",
+   "seconds": 5.34,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.962,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0,
+     "polish": 0.0572,
+     "stars": 0
+    }
+   },
+   "page": 4,
+   "parser": "tesseract",
+   "seconds": 0.65,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00041474999999999997,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.951,
+     "witness_words": 61
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 4,
+   "parser": "vlm",
+   "seconds": 5.99,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.962,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0455,
+     "polish": 0.0242,
+     "stars": 0
+    }
+   },
+   "page": 5,
+   "parser": "tesseract",
+   "seconds": 0.3,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00037904999999999997,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 1.0,
+     "witness_words": 31
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 5,
+   "parser": "vlm",
+   "seconds": 1.93,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "OCR confidence"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.711,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 3,
+     "nonsense": 0.1742,
+     "polish": 0.0277,
+     "stars": 0
+    }
+   },
+   "page": 6,
+   "parser": "tesseract",
+   "seconds": 0.58,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00041099999999999996,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.885,
+     "witness_words": 61
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 6,
+   "parser": "vlm",
+   "seconds": 3.63,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "OCR confidence"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.518,
+     "footnotes": 0,
+     "garbage": 0.0007,
+     "marks": 9,
+     "nonsense": 0.3007,
+     "polish": 0.0257,
+     "stars": 0
+    }
+   },
+   "page": 7,
+   "parser": "tesseract",
+   "seconds": 0.84,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00042284999999999995,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.92,
+     "witness_words": 88
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 7,
+   "parser": "vlm",
+   "seconds": 3.64,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.963,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0,
+     "polish": 0.0627,
+     "stars": 0
+    }
+   },
+   "page": 8,
+   "parser": "tesseract",
+   "seconds": 0.44,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.0004272,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.961,
+     "witness_words": 51
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 8,
+   "parser": "vlm",
+   "seconds": 4.24,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.961,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0349,
+     "polish": 0.0229,
+     "stars": 0
+    }
+   },
+   "page": 9,
+   "parser": "tesseract",
+   "seconds": 0.38,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.0003966,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.977,
+     "witness_words": 44
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 9,
+   "parser": "vlm",
+   "seconds": 2.62,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.823,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 2,
+     "nonsense": 0.0902,
+     "polish": 0.0283,
+     "stars": 0
+    }
+   },
+   "page": 10,
+   "parser": "tesseract",
+   "seconds": 0.46,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.0004029,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.911,
+     "witness_words": 56
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 10,
+   "parser": "vlm",
+   "seconds": 2.64,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "OCR confidence"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.53,
+     "footnotes": 0,
+     "garbage": 0.0007,
+     "marks": 8,
+     "nonsense": 0.3143,
+     "polish": 0.0272,
+     "stars": 0
+    }
+   },
+   "page": 11,
+   "parser": "tesseract",
+   "seconds": 0.89,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.0004227,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.86,
+     "witness_words": 93
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 11,
+   "parser": "vlm",
+   "seconds": 4.18,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "G3 no form fields",
+     "OCR confidence"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.702,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 2,
+     "nonsense": 0.1875,
+     "polish": 0.0394,
+     "stars": 0
+    }
+   },
+   "page": 12,
+   "parser": "tesseract",
+   "seconds": 0.41,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00039315,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.946,
+     "witness_words": 37
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 12,
+   "parser": "vlm",
+   "seconds": 2.02,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.961,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0,
+     "polish": 0.0491,
+     "stars": 0
+    }
+   },
+   "page": 13,
+   "parser": "tesseract",
+   "seconds": 0.37,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00039989999999999996,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 1.0,
+     "witness_words": 37
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 13,
+   "parser": "vlm",
+   "seconds": 3.33,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.961,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0226,
+     "polish": 0.0383,
+     "stars": 0
+    }
+   },
+   "page": 14,
+   "parser": "tesseract",
+   "seconds": 0.46,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00041144999999999995,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.986,
+     "witness_words": 74
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 14,
+   "parser": "vlm",
+   "seconds": 3.64,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.942,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 0,
+     "nonsense": 0.0,
+     "polish": 0.0436,
+     "stars": 0
+    }
+   },
+   "page": 15,
+   "parser": "tesseract",
+   "seconds": 0.28,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00037559999999999997,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 1.0,
+     "witness_words": 32
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 15,
+   "parser": "vlm",
+   "seconds": 1.81,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "OCR confidence"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": 0.693,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 3,
+     "nonsense": 0.1379,
+     "polish": 0.034,
+     "stars": 0
+    }
+   },
+   "page": 16,
+   "parser": "tesseract",
+   "seconds": 0.62,
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "cost": 0.00040919999999999997,
+   "error": null,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "caps_coverage": 1.0,
+     "witness_coverage": 0.922,
+     "witness_words": 64
+    }
+   },
+   "model": "mistral/ministral-8b-2512",
+   "page": 16,
+   "parser": "vlm",
+   "seconds": 4.57,
+   "step": "VLM1",
+   "tiles": 1
+  },
+  {
+   "accepted": false,
+   "calls": 4,
+   "cost": 0.00875,
+   "coverage": 0.74,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b9', 'p4.b11', 'p7.b2', 'p7.b3', 'p7.b5', 'p7.b6', 'p7.b7', 'p7.b9', 'p7.b10', 'p7.b11', 'p7.b12', 'p7.b16', 'p7.b18', 'p8.b2', 'p8.b3', 'p8.b4', 'p8.b6', 'p8.b8', 'p8.b11', 'p8.b14']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['imie_i_nazwisko_podopiecznego_trenera', 'opis_osiagniec_sportowych_podopiecznego_trenera']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata', 'akceptacja_regulaminu_przyznawania_stypendiow_sportowych', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_', 'akceptacja_regulaminu_przyznawania_stypendiow_sportowych_2', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_2', 'akceptacja_regulaminu_przyznawania_nagrod_sportowych', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata__2', 'akceptacja_regulaminu_przyznawania_nagrod_sportowych_2', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_kandydata_2_2', 'akceptacja_regulaminu_przyznawania_wyroznien_sportowych']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p7.b25', 'p7.b26', 'p11.b25', 'p11.b26']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 49.0,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.0047,
+   "coverage": 0.87,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p4.b5', 'p4.b10', 'p4.b11', 'p6.b2', 'p6.b7', 'p8.b14', 'p9.b3', 'p10.b2', 'p10.b7', 'p12.b8', 'p12.b10', 'p12.b13', 'p14.b8', 'p14.b9', 'p15.b2', 'p16.b3', 'p16.b8']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p2.b25', 'p2.b26', 'p7.b25', 'p7.b26', 'p11.b25', 'p11.b26']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 17.3,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 3,
+   "cost": 0.01841,
+   "coverage": 0.28,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b6', 'p2.b7', 'p2.b8', 'p2.b9', 'p2.b10', 'p2.b11', 'p2.b12', 'p2.b13', 'p2.b16', 'p2.b17', 'p2.b18', 'p2.b20', 'p2.b21', 'p2.b22', 'p2.b23', 'p2.b24', 'p3.b16']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 66.3,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.01568,
+   "coverage": 0.16,
+   "fails": [
+    "G2: nieistniejące kotwice ['p3.b5-p3.6', 'p8.b5-p8.6', 'p3.b7-p3.8', 'p8.b7-p8.8', 'p3.b10-p3.13', 'p3.b14-p3.35', 'p4.b4-p4.5', 'p8.b13-p8.14', 'p4.b9-p4.10', 'p9.b1-p9.2']",
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p2.b2', 'p2.b3', 'p2.b5', 'p2.b6', 'p2.b7', 'p2.b8', 'p2.b9', 'p2.b10', 'p2.b11', 'p2.b12', 'p2.b13', 'p2.b16', 'p2.b17', 'p2.b18', 'p2.b20', 'p2.b21', 'p2.b22', 'p2.b23', 'p2.b24', 'p3.b6']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p2.b26', 'p7.b26', 'p11.b26']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "repair",
+   "rung": 1,
+   "seconds": 46.0,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": []
+}

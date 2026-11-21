@@ -1,0 +1,133 @@
+{
+ "cost": 0.02069,
+ "needs_review": [
+  {
+   "key": "uzasadnienie_wniosku",
+   "why": "optional marker not confirmed in source: '*opisz w polu poniżej dlaczego opłata skarbowa, której dotyczy wniosek została błędnie uiszczona*'"
+  },
+  {
+   "key": "addressee",
+   "why": "brak adresata, wstawiono pustą nazwę urzędu"
+  }
+ ],
+ "proposed_dictionaries": [],
+ "seconds": 241.71,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o zwrot opłaty skarbowej.docx",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.01
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [
+     "G1 nonsense words",
+     "G3 no form fields"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": null,
+     "footnotes": 4,
+     "garbage": 0.0007,
+     "marks": 0,
+     "nonsense": 0.035,
+     "polish": 0.0427,
+     "stars": 8
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [
+     "G1 nonsense words"
+    ],
+    "ok": false,
+    "signals": {
+     "confidence": null,
+     "footnotes": 4,
+     "garbage": 0.0007,
+     "marks": 0,
+     "nonsense": 0.035,
+     "polish": 0.0427,
+     "stars": 8
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00092,
+   "coverage": 1.0,
+   "fails": [
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['adres_osoby_uprawnionej_do_rachunku', 'imie_osoby_uprawnionej_do_rachunku', 'nazwisko_osoby_uprawnionej_do_rachunku', 'numer_rachunku_bankowego']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 5.9,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00174,
+   "coverage": 1.0,
+   "fails": [
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 188.1,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.01163,
+   "coverage": 1.0,
+   "fails": [
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 31.1,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00641,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "repair",
+   "rung": 1,
+   "seconds": 16.5,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": [
+  "page 1: gate ['G1 nonsense words'], no VLM path for docx",
+  "G3: only 0 form marks found; fields may sit in shapes/text boxes Kreuzberg does not read",
+  "Pole 'Dane właściciela rachunku' (p1.b67) zostało zduplikowane jako pole tekstowe i sekcja z danymi osoby trzeciej. Właściwe jest użycie sekcji z `person_role: 'third_party'`."
+ ]
+}

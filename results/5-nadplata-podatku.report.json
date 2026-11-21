@@ -1,0 +1,159 @@
+{
+ "cost": 0.00158,
+ "needs_review": [
+  {
+   "key": "kwota_nadplaty",
+   "why": "label not found in cited source"
+  },
+  {
+   "field_id": "4bd8b70e-2ff3-405f-97d8-6dfbec78b619",
+   "key": "rodzaj_podatku",
+   "why": "propozycja słownika RODZAJE_PODATKOW_LOKALNYCH"
+  },
+  {
+   "field_id": "e48f2522-ef6f-44ed-9311-37ef1b2c0df4",
+   "key": "tytul_przyszlego_zobowiazania_podatkowego",
+   "why": "propozycja słownika RODZAJE_PODATKOW_LOKALNYCH"
+  }
+ ],
+ "proposed_dictionaries": [
+  {
+   "description": "Podatki i opłaty pobierane przez gminę (ustawy o podatkach i opłatach lokalnych, o podatku rolnym, o podatku leśnym).",
+   "fields": [
+    "rodzaj_podatku",
+    "tytul_przyszlego_zobowiazania_podatkowego"
+   ],
+   "id": "RODZAJE_PODATKOW_LOKALNYCH",
+   "items": [
+    {
+     "id": "1",
+     "name": "podatek od nieruchomości"
+    },
+    {
+     "id": "2",
+     "name": "podatek rolny"
+    },
+    {
+     "id": "3",
+     "name": "podatek leśny"
+    },
+    {
+     "id": "4",
+     "name": "podatek od środków transportowych"
+    },
+    {
+     "id": "5",
+     "name": "opłata targowa"
+    },
+    {
+     "id": "6",
+     "name": "opłata miejscowa"
+    },
+    {
+     "id": "7",
+     "name": "opłata uzdrowiskowa"
+    },
+    {
+     "id": "8",
+     "name": "opłata reklamowa"
+    },
+    {
+     "id": "9",
+     "name": "opłata od posiadania psów"
+    },
+    {
+     "id": "10",
+     "name": "łączne zobowiązanie pieniężne"
+    }
+   ],
+   "levels": [
+    "podatek"
+   ],
+   "name": "Rodzaje podatków i opłat lokalnych",
+   "source": "catalog"
+  }
+ ],
+ "seconds": 10.39,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o stwierdzenie nadpłaty podatku.docx",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.02
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 1,
+     "garbage": 0.0,
+     "marks": 16,
+     "nonsense": 0.0,
+     "polish": 0.0413,
+     "stars": 2
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 1,
+     "garbage": 0.0,
+     "marks": 16,
+     "nonsense": 0.0,
+     "polish": 0.0413,
+     "stars": 2
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00074,
+   "coverage": 1.0,
+   "fails": [
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['numer_rachunku_bankowego', 'sposob_rozliczenia_nadplaty', 'tytul_przyszlego_zobowiazania_podatkowego']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b20', 'p1.b21']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 5.7,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00084,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 4.6,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": [
+  "Brak jednoznacznego określenia, kto jest adresatem wniosku (organ czy konkretny wydział urzędu).",
+  "Tekst formularza sugeruje, że PESEL i NIP są wzajemnie wykluczające się, ale nie precyzuje, które pole jest obowiązkowe w zależności od statusu wnioskodawcy."
+ ]
+}

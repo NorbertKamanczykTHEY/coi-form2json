@@ -1,0 +1,100 @@
+{
+ "cost": 0.00105,
+ "needs_review": [
+  {
+   "key": "ilosc_posiadanych_uzytkow_rolnych_w_hektarach_fizycznych",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "ilosc_posiadanych_uzytkow_rolnych_w_hektarach_przeliczeniowy",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "ilosc_dzierzawionych_uzytkow_rolnych_w_hektarach_fizycznych",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "ilosc_dzierzawionych_uzytkow_rolnych_w_hektarach_przeliczeni",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "okres_posiadania_gospodarstwa_rolnego",
+   "why": "inside a choice block but has no show_if"
+  },
+  {
+   "key": "numer_telefonu",
+   "why": "looks like applicant/proxy data (template), not subject"
+  },
+  {
+   "key": "addressee",
+   "why": "brak adresata, wstawiono pustą nazwę urzędu"
+  }
+ ],
+ "proposed_dictionaries": [],
+ "seconds": 8.74,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o wydanie zaświadczenia.docx",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.09
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 6,
+     "nonsense": 0.0,
+     "polish": 0.0587,
+     "stars": 0
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 6,
+     "nonsense": 0.0,
+     "polish": 0.0587,
+     "stars": 0
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00105,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 8.6,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": [
+  "Tytuł formularza sugeruje, że jest to wniosek o wydanie zaświadczenia, ale treść dotyczy głównie informacji o użytkach rolnych i opłacie skarbowej. Brak jednoznacznego określenia, czy wniosek dotyczy osoby fizycznej, czy prawnej, co zostało uwzględnione w applicant_kinds."
+ ]
+}

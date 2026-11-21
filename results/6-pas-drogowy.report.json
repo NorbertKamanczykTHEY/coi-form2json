@@ -1,0 +1,98 @@
+{
+ "cost": 0.00414,
+ "needs_review": [
+  {
+   "key": "zatwierdzony_projekt_organizacji_ruchu",
+   "why": "optional marker not confirmed in source: 'jeżeli zajęcie pasa drogowego wpływa na ruch drogowy lub ogranicza widoczność na drodze albo powoduje wprowadzenie zmian w istniejącej organizacji ruchu pojazdów lub pieszych'"
+  },
+  {
+   "key": "informacja_o_sposobie_zabezpieczenia_robot",
+   "why": "optional marker not confirmed in source: 'jeżeli nie jest wymagany projekt organizacji ruchu'"
+  },
+  {
+   "key": "addressee",
+   "why": "brak adresata, wstawiono pustą nazwę urzędu"
+  }
+ ],
+ "proposed_dictionaries": [],
+ "seconds": 25.17,
+ "source": {
+  "cost": 0,
+  "filename": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.docx",
+  "kind": "docx",
+  "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "parser": "kreuzberg",
+  "parser_version": "kreuzberg 4.10.4",
+  "seconds": 0.02
+ },
+ "trace": [
+  {
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 15,
+     "nonsense": 0.0,
+     "polish": 0.0513,
+     "stars": 0
+    }
+   },
+   "page": 0,
+   "parser": "kreuzberg",
+   "step": "T0 document"
+  },
+  {
+   "accepted": true,
+   "gate": {
+    "fails": [],
+    "ok": true,
+    "signals": {
+     "confidence": null,
+     "footnotes": 0,
+     "garbage": 0.0,
+     "marks": 15,
+     "nonsense": 0.0,
+     "polish": 0.0513,
+     "stars": 0
+    }
+   },
+   "page": 1,
+   "parser": "kreuzberg",
+   "step": "T0"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00161,
+   "coverage": 0.64,
+   "fails": [
+    "G3: bloki z ___ lub ☐ nieprzypisane do żadnego pola ani dropped: ['p1.b7', 'p1.b8', 'p1.b12', 'p1.b45']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['wyrazam_zgode_na_przetwarzanie_moich_danych_osobowych']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "first",
+   "rung": 0,
+   "seconds": 11.8,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00253,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 13.3,
+   "stage": "extract"
+  }
+ ],
+ "validation": [],
+ "warnings": []
+}
