@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { components } from './api'
+import Preview, { type Review } from './Preview'
 
 // /api/v1/info has no response schema in OpenAPI yet, so its shape is declared here.
 type Info = {
@@ -9,11 +10,22 @@ type Info = {
 type Form = components['schemas']['Form']
 // editor.proposals is not described in OpenAPI yet (ADR 0025): {dictionary, fieldIds, changes}.
 type Proposal = { dictionary: components['schemas']['Proposal']; fieldIds: string[]; changes: Record<string, Record<string, unknown>> }
-type Envelope = { id: string; form: Form; report: unknown; editor?: { proposals?: Proposal[] } }
+type Envelope = {
+  id: string; form: Form; report: { needs_review?: { key?: string; field_id?: string; why?: string }[] } | null
+  editor?: { proposals?: Proposal[]; field_map?: Record<string, { needs_review?: boolean; doubt?: string | null }> }
+}
 type Accept = { busy?: boolean; done?: boolean; error?: string }
 type Job = {
   key: string; name: string; status: 'pending' | 'running' | 'done' | 'error'; log: string[]
-  result?: Envelope; error?: string; accepted?: Record<string, Accept>
+  result?: Envelope; error?: string; accepted?: Record<string, Accept>; preview?: boolean
+}
+
+// Fields to flag in the preview: report.needs_review (by field id or techName) and editor.field_map[id].needs_review.
+function review(r: Envelope): Review {
+  const m: Review = new Map()
+  for (const n of r.report?.needs_review ?? []) for (const k of [n.field_id, n.key]) if (k) m.set(k, n.why ?? 'do przejrzenia')
+  for (const [id, f] of Object.entries(r.editor?.field_map ?? {})) if (f.needs_review && !m.has(id)) m.set(id, f.doubt ?? 'do przejrzenia')
+  return m
 }
 
 // shortcut: the token is baked into the bundle (VITE_API_TOKEN), demo only; replace with a real login/IdP before deployment.
@@ -164,6 +176,20 @@ export default function App() {
     }
   }
 
+  // A COI JSON file (e.g. the reference forms #1/#5) or a saved {id, form, report} envelope, opened for preview only.
+  async function open(files: FileList | null) {
+    for (const file of Array.from(files ?? [])) {
+      const key = crypto.randomUUID()
+      try {
+        const d = JSON.parse(await file.text())
+        const result: Envelope = d.form ? d : { id: '', form: d, report: null }
+        setJobs((js) => [{ key, name: file.name, status: 'done', log: [], result, preview: true }, ...js])
+      } catch (e) {
+        setJobs((js) => [{ key, name: file.name, status: 'error', log: [], error: `To nie jest JSON: ${e}` }, ...js])
+      }
+    }
+  }
+
   async function accept(job: Job, p: Proposal) {
     const did = p.dictionary.id
     const mark = (a: Accept, form?: Form) => setJobs((js) => js.map((j) => (j.key !== job.key || !j.result ? j : {
@@ -187,6 +213,9 @@ export default function App() {
         <input id="files" type="file" multiple accept={info?.limits.extensions.map((e) => `.${e}`).join(',')}
           onChange={(e) => { start(e.target.files); e.target.value = '' }}
           className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-white" />
+        <label className="block pt-2 text-sm font-medium" htmlFor="json">Albo otwórz gotowy JSON COI do podglądu</label>
+        <input id="json" type="file" multiple accept=".json,application/json" onChange={(e) => { open(e.target.files); e.target.value = '' }}
+          className="block w-full text-sm file:mr-3 file:rounded file:border file:border-slate-300 file:bg-white file:px-3 file:py-1" />
         <p className="text-sm text-slate-600">
           {info
             ? `Limity: ${info.limits.extensions.join(', ')} · do ${info.limits.max_file_mb} MB · nazwa do ${info.limits.max_filename_len} znaków · API ${info.version}`
@@ -206,9 +235,17 @@ export default function App() {
           {j.log.length > 0 && <ol className="list-decimal pl-6 font-mono text-xs text-slate-700">{j.log.map((l, i) => <li key={i}>{l}</li>)}</ol>}
           {j.result && (
             <>
-              <p className="text-sm">Id formularza: <code>{j.result.id}</code></p>
-              <Block title="JSON COI" value={j.result.form} />
-              <Block title="Raport" value={j.result.report} />
+              {j.result.id && <p className="text-sm">Id formularza: <code>{j.result.id}</code></p>}
+              <div className="flex gap-1 text-sm" role="group" aria-label="Widok wyniku">
+                {([[false, 'JSON i raport'], [true, 'Podgląd']] as const).map(([v, label]) => (
+                  <button key={label} type="button" aria-pressed={!!j.preview === v}
+                    onClick={() => setJobs((js) => js.map((x) => (x.key === j.key ? { ...x, preview: v } : x)))}
+                    className={`rounded border px-3 py-1 ${!!j.preview === v ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}>{label}</button>
+                ))}
+              </div>
+              {j.preview
+                ? <Preview form={j.result.form} review={review(j.result)} />
+                : <><Block title="JSON COI" value={j.result.form} />{j.result.report && <Block title="Raport" value={j.result.report} />}</>}
               {(j.result.editor?.proposals ?? []).map((p) => {
                 const a = j.accepted?.[p.dictionary.id] ?? {}
                 const byId = new Map(fields(j.result!.form).map((f) => [f.id, f]))
