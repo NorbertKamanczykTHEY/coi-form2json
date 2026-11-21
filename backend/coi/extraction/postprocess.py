@@ -39,6 +39,9 @@ GENERIC = {"wpis", "poda", "wybi", "nale", "pros", "pole", "tuta", "któr", "dan
 LEAD_NUMBER = re.compile(r"^\s*(?:((?:[A-Z]\.)?\d{1,3}(?:\.\d{1,3})*)[.)]|([A-Z](?:\.\d{1,3})+)\.?)\s+(?=\S)")  # "26. Miejscowość", "B.2 Dane"
 PAST_READ = re.compile(r"\b([Zz])apoznał(?:em|am)(?:\s*/\s*(?:am|em|[Zz]apoznał(?:em|am)))?\s+się")
 SECTION_NUMBER = re.compile(r"^\W*([A-Z](?:\.\d{1,2})*|[IVX]{1,4})[.)]?\s+[^\W\d_]{3,}")  # "D.1 ADRES …", "B DANE …", "II. Dane …"
+# Q34: who signs a statement on paper; the applicant's own captions are excluded ("Podpis i pieczątka wnioskodawcy", "(czytelny podpis wnioskodawcy)")
+SIGNER = re.compile(r"podpis\w*\s+(?!i\b|wnioskodaw|składając|pełnomocnik|osoby (?:upoważnion|reprezentując)|czytel)([^\W\d_][^\W\d_/ ]+(?:\s*/\s*[^\W\d_]+)*(?:\s+[^\W\d_]{4,})?)", re.I)
+STATEMENT_OF = re.compile(r"(?:zgod\w*|oświadczeni\w*)\s+(osoby\s+[^\W\d_]{4,}|tej osoby)", re.I)  # "zgoda osoby odpowiedzialnej"
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -248,6 +251,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
         si.field = rename.get(si.field, si.field)
         si.options = [clean_option(o) for o in si.options]
     review += rebuild_lost_controls(tree, blocks)
+    review += _third_party_statements(tree, blocks, seen)
     review += _consents(tree)
     if tree.case_fee and re.search(r"pełnomocn", tree.case_fee, re.I) and all(re.search(r"pełnomocn", blocks.get(a, ""), re.I) for a in expand(tree.case_fee_src, blocks) or ["-"]):
         tree.case_fee, tree.case_fee_src, tree.case_fee_proof = None, [], False  # the proxy's 17 zł is in the template, not a case fee
@@ -289,6 +293,60 @@ def _useful_description(f: FormField) -> str | None:
     if f.description_source == "ai" and stems(d) <= stems(f.label + " " + f.source_label) | GENERIC:
         return None
     return d or None
+
+
+def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[str]) -> list[dict]:
+    """Q34 (user decision): the logged-in applicant never accepts consents for another person. A statement signed on paper
+    by someone else ("Podpis kandydata", "Podpis rodzica/opiekuna prawnego") becomes a FILE_UPLOADER "Oświadczenie <kogo>"
+    in that person's section, keeping its condition; a statement of another person the paper asks to attach gets one too."""
+    order, review = list(blocks), []
+    sections = [s for p in tree.pages for s in p.sections]
+    if not sections:
+        return review
+    def home(heading: str, who: str) -> Section:  # the person's section: the paper's heading names them best, then the signer
+        h, w = _stems(heading), _stems(who)
+        return max(sections, key=lambda s: (len(_stems(s.title) & h), len(_stems(s.title) & w), s.person_role == "third_party"))
+    def upload(who: str, src: list[str], conds: list[ShowIf], heading: str) -> None:
+        sec = home(heading, who)
+        label = "Oświadczenie " + re.sub(r"\s*/\s*", " lub ", who.strip()).lower()
+        rest = [c for c in conds if not (sec.show_if and c.field == sec.show_if.field)]  # the section already scopes that question
+        cond = rest[-1] if rest else None
+        if len(rest) > 1:
+            review.append({"key": None, "why": f"„{label}”: kilka warunków zgody, zostaje ostatni ({cond.field})"})
+        twin = next((f for f in sec.fields if f.type == "FILE_UPLOADER" and f.label == label and f.show_if == cond), None)
+        if twin:  # the paper's 1), 2) statements of one signer are one file
+            twin.src = list(dict.fromkeys(twin.src + src))
+            return
+        key = slug(label)
+        while key in seen:
+            key += "_2"
+        seen.add(key)
+        sec.fields.append(FormField(key=key, label=label, source_label=label, type="FILE_UPLOADER", show_if=cond, src=src))
+    keep = []
+    for c in tree.consents:
+        anchors = [a for a in expand(c.src, blocks) if a in blocks]
+        start = order.index(anchors[0]) if anchors else None
+        end = order.index(anchors[-1]) if anchors else None
+        after = [blocks[a] for a in anchors] + ([blocks[a] for a in order[end + 1:end + 4]] if end is not None else [])  # src may span the caption
+        cap = next((m for t in after if (m := SIGNER.search(t))), None)
+        if not cap:  # a caption naming the applicant (or none) keeps the consent
+            keep.append(c)
+            continue
+        if start is None:
+            heading = ""
+        else:  # the consent's own heading; when src starts at its "1) …" text, the block above it
+            heading = blocks[order[start]] if not re.match(r"^\s*\d{1,2}\)", blocks[order[start]]) or not start else blocks[order[start - 1]]  # "1) …" is text, "5.1. Zgoda …" a heading
+        upload(cap[1], c.src, list(c.show_if), heading)
+    if len(keep) < len(tree.consents):
+        review.append({"key": None, "why": f"{len(tree.consents) - len(keep)} zgód innej osoby niż wnioskodawca zamieniono na pliki „Oświadczenie …” (Q34)"})
+    tree.consents = keep
+    cited_uploads = {a for s in sections for f in s.fields if f.type == "FILE_UPLOADER" for a in expand(f.src, blocks)}
+    asked = [(a, m) for a, t in blocks.items() if (m := STATEMENT_OF.search(t)) and re.search(r"załącz|dołącz", t, re.I)]
+    if asked and not any(a in cited_uploads for a, _ in asked):
+        named = next((m[1] for _, m in asked if not m[1].lower().startswith("tej")), None) or \
+            next((m[1] for t in blocks.values() if (m := STATEMENT_OF.search(t)) and not m[1].lower().startswith("tej")), "innej osoby")
+        upload(named, [a for a, _ in asked], [], " ".join(blocks[a] for a, _ in asked))
+    return review
 
 
 def _consents(tree: FieldTree) -> list[dict]:

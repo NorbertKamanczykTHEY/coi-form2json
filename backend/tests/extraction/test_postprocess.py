@@ -233,3 +233,31 @@ def test_case_fee_amount_must_be_in_its_source():
         t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "case_fee": fee, "case_fee_src": src, "pages": []})
         return normalize(t, blocks)[0].case_fee
     assert run("Opłata skarbowa 82 zł, konto 12 3456", ["p1.b0"]) and not run("Opłata 50 zł, konto …", ["p1.b0"]) and not run("82 zł", [])
+
+
+def test_q34_statement_signed_by_another_person_becomes_upload_in_their_section():
+    blocks = {"p1.b0": "Dane uczestnika: Imię ___", "p1.b1": "Zgoda w imieniu uczestnika niepełnoletniego",
+              "p1.b2": "1) Wyrażam zgodę na udział mojego dziecka.", "p1.b3": "2) Znam regulamin.", "p1.b4": "Data Podpis rodzica/opiekuna prawnego",
+              "p1.b5": "Oświadczam, że dane są prawdziwe.", "p1.b6": "(czytelny podpis wnioskodawcy)"}
+    cond = {"field": "pelnoletni", "options": ["Nie"]}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Dane", "fields": [f("pelnoletni", "Czy uczestnik jest pełnoletni", "RADIO", "p1.b0", options=["Tak", "Nie"])]},
+        {"title": "Dane uczestnika", "person_role": "third_party", "fields": [f("imie", "Imię", src="p1.b0")]}]}],
+        "consents": [{"text": "Wyrażam zgodę na udział mojego dziecka.", "src": ["p1.b2"], "show_if": [cond]},
+                     {"text": "Znam regulamin.", "src": ["p1.b3"], "show_if": [cond]},
+                     {"text": "Dane są prawdziwe.", "src": ["p1.b5"]}]})
+    out, review = normalize(t, blocks)
+    assert [c.text for c in out.consents] == ["Dane są prawdziwe."]  # the applicant's own statement stays a consent
+    ups = [x for x in out.pages[0].sections[1].fields if x.type == "FILE_UPLOADER"]
+    assert [(u.label, u.show_if.field, u.show_if.options, set(u.src)) for u in ups] == [
+        ("Oświadczenie rodzica lub opiekuna prawnego", "czy_uczestnik_jest_pelnoletni", ["Nie"], {"p1.b2", "p1.b3"})]
+    assert any("Q34" in r["why"] for r in review)
+
+
+def test_q34_statement_the_paper_asks_to_attach_gets_an_upload():
+    blocks = {"p1.b0": "Osoba odpowiedzialna ___ (w przypadku innej osoby - zgoda osoby odpowiedzialnej)",
+              "p1.b1": "Oświadczam, że* (w przypadku innej osoby, zbiorcze oświadczenie tej osoby załączyć do wniosku)"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Osoba odpowiedzialna", "person_role": "third_party", "fields": [f("o", "Imię i nazwisko", src="p1.b0")]}]}]})
+    ups = [x for x in normalize(t, blocks)[0].pages[0].sections[0].fields if x.type == "FILE_UPLOADER"]
+    assert [u.label for u in ups] == ["Oświadczenie osoby odpowiedzialnej"]
