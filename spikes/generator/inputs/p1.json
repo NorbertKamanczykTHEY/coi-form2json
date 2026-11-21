@@ -1,0 +1,43 @@
+{
+ "title": "Wniosek o ustalenie numeru porządkowego nieruchomości",
+ "addressee": {
+  "kind": "ORGAN",
+  "name": "Wójt Gminy Elbląg"
+ },
+ "applicant": "ANY",
+ "prefill": "MLPZ",
+ "pages": [
+  {
+   "title": "Informacje o budynku",
+   "sections": [
+    {
+     "key": "lokalizacja_budynku",
+     "repeating": false,
+     "title": "Lokalizacja budynku",
+     "fields": [
+      {
+       "key": "miejscowosc",
+       "label": "Miejscowość",
+       "type": "TEXT_FIELD"
+      },
+      {
+       "key": "ulica_budynku",
+       "label": "Ulica",
+       "type": "TEXT_FIELD"
+      },
+      {
+       "key": "numer_ewidencyjny_dzialki",
+       "label": "Numer ewidencyjny działki",
+       "type": "TEXT_FIELD"
+      },
+      {
+       "key": "obreb_numer",
+       "label": "Obręb",
+       "type": "TEXT_FIELD"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

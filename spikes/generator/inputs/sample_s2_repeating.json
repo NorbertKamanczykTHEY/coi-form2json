@@ -1,0 +1,26 @@
+{
+ "title": "Wniosek o wydanie zezwolenia na utrzymywanie psa rasy uznawanej za agresywną",
+ "addressee": {"kind": "URZAD", "name": "Urząd Miejski Wrocławia, Wydział Środowiska i Rolnictwa"},
+ "applicant": "PERSON",
+ "pages": [
+  {"title": "Informacje o psie", "sections": [
+   {"title": "Rodzaj zezwolenia", "fields": [
+    {"key": "rodzaj", "label": "Wnioskuję o zezwolenie na", "type": "RADIO", "options": ["hodowanie", "utrzymywanie"]},
+    {"label": "Rodzaj zaświadczenia", "type": "CHECKBOX", "key": "rodzaj_zaswiadczenia", "options": ["o zameldowaniu", "inne"]},
+    {"label": "Jakie zaświadczenie?", "type": "TEXT_FIELD", "show_if": {"field": "rodzaj_zaswiadczenia", "in": ["inne"]}}
+   ]},
+   {"title": "Dane psa", "repeating": true, "fields": [
+    {"label": "Rasa psa", "type": "TEXT_FIELD"},
+    {"key": "plec_psa", "label": "Płeć", "type": "RADIO", "options": ["pies", "suka"]},
+    {"label": "Numer rodowodu", "type": "TEXT_FIELD", "required": false, "description": "Opcjonalnie."},
+    {"label": "Data szczepienia przeciw wściekliźnie", "type": "DATEPICKER", "show_if": {"field": "plec_psa", "in": ["suka"]}}
+   ]}
+  ]},
+  {"title": "Miejsce utrzymania", "sections": [
+   {"title": "Adres utrzymania psa", "show_if": {"not": {"field": "rodzaj", "in": ["hodowanie"]}}, "fields": [
+    {"label": "Miejscowość", "type": "TEXT_FIELD"}, {"label": "Ulica", "type": "TEXT_FIELD"}
+   ]}
+  ]}
+ ],
+ "consents": [{"text": "Oświadczam, że pies będzie utrzymywany w warunkach niezagrażających otoczeniu."}]
+}
