@@ -6,8 +6,15 @@ type Info = {
   version: string
   limits: { extensions: string[]; forbidden_filename_chars: string; max_file_mb: number; max_filename_len: number }
 }
-type Envelope = { id: string; form: components['schemas']['Form']; report: unknown }
-type Job = { key: string; name: string; status: 'pending' | 'running' | 'done' | 'error'; log: string[]; result?: Envelope; error?: string }
+type Form = components['schemas']['Form']
+// editor.proposals is not described in OpenAPI yet (ADR 0025): {dictionary, fieldIds, changes}.
+type Proposal = { dictionary: components['schemas']['Proposal']; fieldIds: string[]; changes: Record<string, Record<string, unknown>> }
+type Envelope = { id: string; form: Form; report: unknown; editor?: { proposals?: Proposal[] } }
+type Accept = { busy?: boolean; done?: boolean; error?: string }
+type Job = {
+  key: string; name: string; status: 'pending' | 'running' | 'done' | 'error'; log: string[]
+  result?: Envelope; error?: string; accepted?: Record<string, Accept>
+}
 
 // shortcut: the token is baked into the bundle (VITE_API_TOKEN), demo only; replace with a real login/IdP before deployment.
 const auth = { Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN ?? ''}` }
@@ -51,17 +58,55 @@ function describe(event: string, data: string): string {
   }
 }
 
-// POST /api/v1/forms?report=true with Accept: text/event-stream; parses the SSE frames from the fetch body.
+// Readable message from an RFC 9457 problem+json (or any) error response.
+async function problem(res: Response): Promise<string> {
+  const t = await res.text()
+  try {
+    const p = JSON.parse(t)
+    const errors = Array.isArray(p.errors) ? p.errors.map((e: { path?: string; message?: string }) => `${e.path ?? ''}: ${e.message ?? ''}`) : []
+    return [`HTTP ${res.status} ${p.title ?? ''}${p.detail ? `: ${typeof p.detail === 'string' ? p.detail : JSON.stringify(p.detail)}` : ''}`, ...errors].join('\n')
+  } catch {
+    return `HTTP ${res.status}: ${t}`
+  }
+}
+
+// Copy of the form with every field whose id is in `changes` overwritten by its change.
+function applyChanges(form: Form, changes: Proposal['changes']): Form {
+  const copy = structuredClone(form)
+  for (const f of fields(copy)) if (changes[f.id]) Object.assign(f, changes[f.id])
+  return copy
+}
+
+// All fields of a form, nested ones (repeatingSectionGrid) included; same objects, not copies.
+type Field = { id: string; techName?: string; title?: string; type?: string; repeatingSectionGrid?: { field: Field }[] }
+function fields(form: Form): Field[] {
+  const out: Field[] = []
+  const walk = (qs: { field: Field }[] = []) => qs.forEach((q) => { out.push(q.field); walk(q.field.repeatingSectionGrid) })
+  ;(form.tabs as { questions: { field: Field }[] }[] | undefined)?.forEach((t) => walk(t.questions))
+  return out
+}
+
+// Accept a dictionary proposal: create it, then PUT the form with the proposal's field changes. Returns the saved form.
+async function acceptProposal(id: string, form: Form, p: Proposal): Promise<Form> {
+  const json = { ...auth, 'Content-Type': 'application/json' }
+  const created = await fetch('/api/v1/dictionaries/from-proposal', { method: 'POST', headers: json, body: JSON.stringify(p.dictionary) })
+  // 409 also means "id taken": fine if that dictionary already exists (accepted earlier, e.g. from another file in the batch).
+  if (!created.ok) {
+    const exists = created.status === 409 && (await fetch(`/api/v1/dictionaries/${encodeURIComponent(p.dictionary.id)}`, { headers: auth })).ok
+    if (!exists) throw new Error(`Słownik: ${await problem(created)}`)
+  }
+  const changes = Object.fromEntries(p.fieldIds.map((f) => [f, p.changes[f]]).filter(([, c]) => c))
+  const saved = await fetch(`/api/v1/forms/${id}`, { method: 'PUT', headers: json, body: JSON.stringify(applyChanges(form, changes)) })
+  if (!saved.ok) throw new Error(`Zapis formularza: ${await problem(saved)}`)
+  return saved.json()
+}
+
+// POST /api/v1/forms?report=true&editor=true with Accept: text/event-stream; parses the SSE frames from the fetch body.
 async function upload(file: File, update: (p: Partial<Job>, line?: string) => void) {
   const body = new FormData()
   body.append('file', file)
-  const res = await fetch('/api/v1/forms?report=true', { method: 'POST', headers: { ...auth, Accept: 'text/event-stream' }, body })
-  if (!res.ok || !res.body) {
-    const t = await res.text()
-    let msg = t
-    try { const p = JSON.parse(t); msg = p.detail ?? p.title ?? t } catch { /* not problem+json */ }
-    return update({ status: 'error', error: `HTTP ${res.status}: ${msg}` })
-  }
+  const res = await fetch('/api/v1/forms?report=true&editor=true', { method: 'POST', headers: { ...auth, Accept: 'text/event-stream' }, body })
+  if (!res.ok || !res.body) return update({ status: 'error', error: await problem(res) })
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
   let buf = ''
   let finished = false
@@ -119,6 +164,20 @@ export default function App() {
     }
   }
 
+  async function accept(job: Job, p: Proposal) {
+    const did = p.dictionary.id
+    const mark = (a: Accept, form?: Form) => setJobs((js) => js.map((j) => (j.key !== job.key || !j.result ? j : {
+      ...j, accepted: { ...j.accepted, [did]: a }, result: form ? { ...j.result, form } : j.result,
+    })))
+    mark({ busy: true })
+    try {
+      // shortcut: uses the form from the render that was clicked; accepting two proposals of one file at the same time would race
+      mark({ done: true }, await acceptProposal(job.result!.id, job.result!.form, p))
+    } catch (e) {
+      mark({ error: e instanceof Error ? e.message : String(e) })
+    }
+  }
+
   return (
     <main className="mx-auto max-w-5xl space-y-6 p-4 font-sans text-slate-900">
       <h1 className="text-2xl font-semibold">COI: import formularza</h1>
@@ -150,6 +209,22 @@ export default function App() {
               <p className="text-sm">Id formularza: <code>{j.result.id}</code></p>
               <Block title="JSON COI" value={j.result.form} />
               <Block title="Raport" value={j.result.report} />
+              {(j.result.editor?.proposals ?? []).map((p) => {
+                const a = j.accepted?.[p.dictionary.id] ?? {}
+                const byId = new Map(fields(j.result!.form).map((f) => [f.id, f]))
+                return (
+                  <div key={p.dictionary.id} className="space-y-1 rounded border border-slate-200 p-3 text-sm">
+                    <p className="font-medium">Proponowany słownik: {p.dictionary.name} <code className="text-slate-600">({p.dictionary.id})</code></p>
+                    <p>Pozycje ({p.dictionary.items.length}): {p.dictionary.items.slice(0, 5).map((i) => (i as { name?: string }).name ?? JSON.stringify(i)).join(', ')}{p.dictionary.items.length > 5 ? ', …' : ''}</p>
+                    <p>Pola: {p.fieldIds.map((id) => { const f = byId.get(id); return f ? `${f.title ?? f.techName} (${f.type})` : id }).join(', ')}</p>
+                    {a.done
+                      ? <p className="text-green-700">Słownik przyjęty, formularz zapisany.</p>
+                      : <button type="button" disabled={a.busy} onClick={() => accept(j, p)}
+                          className="rounded bg-slate-900 px-3 py-1.5 text-white disabled:opacity-50">{a.busy ? 'Zapisuję…' : 'Akceptuj słownik'}</button>}
+                    {a.error && <pre className="whitespace-pre-wrap text-red-700">{a.error}</pre>}
+                  </div>
+                )
+              })}
             </>
           )}
         </section>
