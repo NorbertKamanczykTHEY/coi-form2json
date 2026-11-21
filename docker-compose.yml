@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - data:/data  # SQLite (DB_PATH=/data/coi.sqlite): stored forms and dictionaries
+      - data:/data  # SQLite (DATABASE_URL=sqlite:////data/coi.sqlite): stored forms and dictionaries
     restart: unless-stopped
   # frontend: to be added
 

@@ -64,7 +64,7 @@ data: {"title": "wniosek1", "tabs": [...], "flow": {...}}
 ```
 
 ### Konfiguracja API
-Zmienne opisuje `app/.env.example`: `JWT_SECRET`, `JWT_ALG`, `JWT_JWKS_URL`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_LEEWAY_S`, `MAX_FILE_MB`, `MAX_FILENAME_LEN`, `DB_PATH` i `LOG_LEVEL`. Poza Dockerem ustaw `DB_PATH=./data/coi.sqlite`, bo domyślne `/data` istnieje tylko w kontenerze.
+Zmienne opisuje `app/.env.example`: `JWT_SECRET`, `JWT_ALG`, `JWT_JWKS_URL`, `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_LEEWAY_S`, `MAX_FILE_MB`, `MAX_FILENAME_LEN`, `DATABASE_URL` i `LOG_LEVEL`. Bazę wybiera `DATABASE_URL` (URL SQLAlchemy). Domyślnie to `sqlite:////data/coi.sqlite` na wolumenie, a na produkcji np. `postgresql+psycopg://…`, wtedy sterownik trzeba dodać do obrazu. Poza Dockerem ustaw `DATABASE_URL=sqlite:///./data/coi.sqlite`, bo `/data` istnieje tylko w kontenerze. `DB_PATH=<plik>` nadal działa jako alias dla SQLite.
 
 ### Testy
 `uv run pytest tests/api`: 401, 400, 413, 415, konwersja #1 docx, SSE, `?report` i `?editor`, zapis, odczyt i PUT z walidacją.
