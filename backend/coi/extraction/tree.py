@@ -94,6 +94,8 @@ class FieldTree(BaseModel):  # defaults everywhere: the prompt tells models to o
     title: str = Field(description="tytuł e-formularza zaczynający się od Wniosek/Zgłoszenie/Deklaracja/Oświadczenie")
     addressee: Addressee | None = None
     applicant_kinds: list[Literal["person", "legal_entity"]] = Field(description="kim może być wnioskodawca: person = osoba fizyczna, legal_entity = firma/instytucja (NIP, REGON, nazwa)")
+    entity_extract_required: bool = Field(default=False, description="true, gdy dokument wymaga odpisu lub wyciągu z rejestru (KRS, CEIDG lub innego) o podmiocie, niezależnie od tego, kto składa wniosek (nie tylko od reprezentanta)")
+    entity_extract_src: StrList = Field(default_factory=list, description="kotwice bloków, które tego odpisu wymagają")
     entity_option: str | None = Field(default=None, description="tekst opcji wyboru podmiotu z papieru, gdy formularz każe zaznaczyć rodzaj wnioskodawcy (dosłowna nazwa rodzaju podmiotu z dokumentu); null gdy brak (P2a)")
     pages: list[SubjectPage] = Field(description="tylko strony przedmiotu wniosku, bez danych wnioskodawcy, kontaktu i zgód")
     consents: Annotated[list[Consent], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)

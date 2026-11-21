@@ -26,6 +26,7 @@ def list_heading(t: str) -> bool:
     """The short intro of an attachment list ("w załączeniu:", "Załączniki"), not a paragraph that mentions attaching."""
     t = t.strip(" *_")
     return bool(ATTACH_LIST.search(t)) and not LIST_ITEM.match(t) and (t.endswith(":") or len(t) <= 40)
+REGISTER = re.compile(r"(odpis|wyciąg|wypis)\w*\b.{0,40}\b(rejestr\w*|krs|ceidg)\b|\b(krs|ceidg)\b", re.I)
 SIGNATURE = re.compile(r"podpis|pieczęć|pieczątk|^\W*data\W*$|data (sporządzenia|wypełnienia|złożenia)|miejscowość,? (i )?data", re.I)
 CONDITIONAL = re.compile(r"\bje[śs]li\b|\bje[żz]eli\b|\bw przypadku\b", re.I)
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
@@ -201,6 +202,11 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                 if SIGNATURE.search(f.source_label) or SIGNATURE.search(f.label):  # the e-form is signed electronically (standard p. 29)
                     tree.dropped.append(Drop(reason="signature_date", src=f.src))
                     continue
+                if f.type == "FILE_UPLOADER" and REGISTER.search(f"{f.label} {f.source_label}"):  # the entity's register extract is in the template
+                    tree.dropped.append(Drop(reason="template_attachment", src=f.src))
+                    if MUST_ATTACH.search(src_text(f.src, blocks) + " " + f.source_label) and not tree.entity_extract_required:
+                        tree.entity_extract_required, tree.entity_extract_src = True, list(f.src)
+                    continue
                 f.options = [clean_option(o) for o in f.options]
                 if not f.preset and (hit := next((ps for rx, ps in LABEL_PRESETS if rx.search(f.label + " " + f.source_label)), None)):
                     f.preset = hit
@@ -250,8 +256,42 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     for si in [c for x in tree.consents for c in x.show_if]:
         si.field = rename.get(si.field, si.field)
         si.options = [clean_option(o) for o in si.options]
+    review += rebuild_lost_controls(tree, blocks)
     scope_controls(tree)
+    if tree.entity_extract_required and not REGISTER.search(src_text(tree.entity_extract_src, blocks)):
+        tree.entity_extract_required, tree.entity_extract_src = False, []  # the model's claim has no register extract in its source
+        review.append({"key": None, "why": "model zgłosił wymóg odpisu z rejestru, ale wskazany fragment go nie zawiera; pominięto"})
     return tree, review
+
+
+def _label_from_key(key: str, blocks: dict[str, str]) -> str:
+    """'czy_osoba_jest_pelnoletnia' -> 'Czy osoba jest pełnoletnia': each word takes its Polish spelling from the document."""
+    words = {slug(w): w.lower() for t in blocks.values() for w in re.findall(r"[^\W\d_]{2,}", t)}
+    out = []
+    for w in key.split("_"):
+        if w in words:
+            out.append(words[w])
+            continue
+        common = lambda k: next((i for i, (a, b) in enumerate(zip(k, w)) if a != b), min(len(k), len(w)))  # noqa: E731
+        k = max(words, key=common, default="")
+        n = common(k) if k else 0
+        out.append(words[k][:n] + w[n:] if n >= 5 else w)  # slug keeps one letter per letter, so the prefix lines up
+    return " ".join(out).capitalize()
+
+
+def rebuild_lost_controls(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
+    """Conditions that name a control question no field asks (a repair dropped it) get that question back as a RADIO
+    at the start of the first page, with the options the conditions use; a lone option cannot be rebuilt and is reported."""
+    have = {f.key for p in tree.pages for s in p.sections for f in s.fields}
+    refs: dict[str, list[str]] = {}
+    for si in [c for x in tree.consents for c in x.show_if] + [x for p in tree.pages for s in p.sections for x in [s.show_if, *(f.show_if for f in s.fields)] if x]:
+        if si.field not in have:
+            refs.setdefault(si.field, []).extend(o for o in si.options if o not in refs.get(si.field, []))
+    lost = [FormField(key=k, label=_label_from_key(k, blocks), source_label=_label_from_key(k, blocks), type="RADIO", options=o)
+            for k, o in refs.items() if len(o) >= 2]
+    if lost and tree.pages:
+        tree.pages[0].sections.insert(0, Section(title="Informacje wstępne", fields=lost))
+    return [{"key": f.key, "why": "pytanie sterujące odtworzone z warunków zgód lub sekcji; sprawdź etykietę"} for f in lost]
 
 
 def scope_controls(tree: FieldTree) -> None:

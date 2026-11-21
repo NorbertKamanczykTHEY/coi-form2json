@@ -115,3 +115,10 @@ def test_label_only_in_title_or_running_text_is_not_grounded():
                     ("o", "w obrębie", "p1.b3"), ("n", "numer porządkowy", "p1.b1")])
     g = gate(t, ADDR)
     assert any(f.startswith("G7") and "'n'" in f for f in g["fails"]), g["fails"]
+
+
+def test_register_extract_dropped_as_template_attachment_passes_g11():
+    blocks = BLOCKS | {"p1.b5": "Do wniosku należy dołączyć odpis z KRS lub innego właściwego rejestru."}
+    t = tree()
+    t.dropped.append(Drop(reason="template_attachment", src=["p1.b5"]))
+    assert not gate(t, blocks)["bad_drops"]

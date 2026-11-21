@@ -75,6 +75,8 @@ class Skeleton(BaseModel):
     addressee: Addressee | None = None
     applicant_kinds: list[Literal["person", "legal_entity"]]
     entity_option: str | None = None
+    entity_extract_required: bool = Field(default=False, description="true, gdy dokument wymaga odpisu lub wyciągu z rejestru (KRS, CEIDG lub innego) o podmiocie, niezależnie od tego, kto składa wniosek (nie tylko od reprezentanta)")
+    entity_extract_src: StrList = Field(default_factory=list, description="kotwice bloków, które tego odpisu wymagają")
     variants: StrList = Field(default_factory=list, description="krótkie nazwy rodzajów wniosków, gdy dokument łączy kilka; inaczej pusto")
     conditions: list[Condition] = Field(default_factory=list, description="pytania RADIO rozstrzygające sytuacje, od których zależą zgody lub sekcje")
     pages: list[SkeletonPage]
@@ -145,8 +147,12 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
     if conds:
         rule += f" Pytania z `conditions` ({list(conds)}) dodaje kod: nie twórz ich jako pól, ale możesz wskazać je w `show_if`."
 
-    def cond_of(c: ShowIf | None) -> ShowIf | None:
-        return c if c and c.field in conds and c.options else None
+    def cond_of(c: ShowIf | None) -> ShowIf | None:  # only options the control question really has (else G4)
+        if not c or c.field not in conds:
+            return None
+        have = {norm(o): o for o in conds[c.field].options}
+        opts = [have[norm(o)] for o in c.options if norm(o) in have]
+        return ShowIf(field=c.field, options=opts, negate=c.negate) if opts else None
     schema = json.dumps(SubjectPage.model_json_schema(), ensure_ascii=False)
 
     def fields_of(sp: SkeletonPage) -> SubjectPage:
@@ -193,7 +199,12 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
         show = [ShowIf(field=VARIANT_KEY, options=o)] if (o := [v for v in c.variants if v in variants]) and set(o) != set(variants) else []
         consents.append(Consent(text=c.text, src=c.src, show_if=show + [x for x in [cond_of(c.condition)] if x]))
     return FieldTree(title=skel.title, addressee=skel.addressee, applicant_kinds=skel.applicant_kinds, entity_option=skel.entity_option,
+                     entity_extract_required=skel.entity_extract_required, entity_extract_src=skel.entity_extract_src,
                      pages=pages, consents=consents, dropped=skel.dropped, issues=skel.issues)
+
+
+def _n_fields(tree: FieldTree) -> int:
+    return sum(len(s.fields) for p in tree.pages for s in p.sections)
 
 
 def _restore_controls(tree: FieldTree, prev: FieldTree) -> FieldTree:
@@ -217,7 +228,7 @@ def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.
     mode = "two_stage" if two_stage else "single"
     calls = _Calls(provider, cfg["max_tokens"])
     trace: list[dict] = []
-    best = None  # (number of gate objections, tree, review, gate)
+    best = None  # (rank, tree, review, gate); rank = (objections, -coverage): fewer objections, then more of the paper covered
     for rung, model in enumerate(cfg["ladder"]):
         step = {"stage": "extract", "mode": mode, "rung": rung, "model": model}
         cost0, secs0, n0 = calls.cost, calls.seconds, calls.n
@@ -233,15 +244,21 @@ def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.
             trace.append(step | {"round": rnd, "accepted": g["ok"], "fails": g["fails"], "coverage": g["coverage"],
                                  "calls": calls.n - n0, "cost": round(calls.cost - cost0, 5), "seconds": round(calls.seconds - secs0, 1)})
             emit("escalation", {"step": f"extract.{rung}.{rnd}", "model": model, "accepted": g["ok"], "error": "; ".join(g["fails"]) or None})
-            if best is None or len(g["fails"]) <= best[0]:  # ties: the later (stronger) attempt
-                best = (len(g["fails"]), tree, review + g["needs_review"], g)
+            rank = (len(g["fails"]), -g["coverage"])
+            if best is None or rank <= best[0]:  # ties: the later (stronger) attempt
+                best = (rank, tree, review + g["needs_review"], g)
             if g["ok"] or rnd == "repair":
                 break
             cost0, secs0, n0 = calls.cost, calls.seconds, calls.n
             base = _base_prompt(doc)  # repair is one full call even for two-stage trees (#9 fits: ~9k tokens in)
             try:
-                tree = _restore_controls(calls.ask(model, prompt("field_extraction_repair", base=base, errors="\n".join(g["fails"]),
-                                                                 previous=tree.model_dump_json(exclude_none=True)), FieldTree), tree)
+                fixed = _restore_controls(calls.ask(model, prompt("field_extraction_repair", base=base, errors="\n".join(g["fails"]),
+                                                                  previous=tree.model_dump_json(exclude_none=True)), FieldTree), tree)
+                if _n_fields(fixed) < 0.6 * _n_fields(tree):  # a repair that throws most of the tree away is no repair
+                    trace.append(step | {"round": "repair", "accepted": False, "error": f"repair collapsed the tree ({_n_fields(tree)} -> {_n_fields(fixed)} fields)",
+                                         "cost": round(calls.cost - cost0, 5)})
+                    break
+                tree = fixed
             except ExtractionError as e:
                 trace.append(step | {"round": "repair", "accepted": False, "error": str(e), "cost": round(calls.cost - cost0, 5)})
                 break

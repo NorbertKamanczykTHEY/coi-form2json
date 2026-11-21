@@ -128,3 +128,34 @@ def test_field_without_src_gets_its_block_and_footnote():
     m, u = out.pages[0].sections[0].fields
     assert m.src == ["p1.b0"] and m.optional_evidence is None
     assert u.src == ["p1.b0"] and u.optional_evidence == "Dane nieobowiązkowe."
+
+
+def test_register_extract_goes_to_template_and_sets_the_signal():
+    blocks = {"p1.b0": "Odpis danych z rejestru", "p1.b1": "Do wniosku należy dołączyć aktualny odpis z Krajowego Rejestru Sądowego lub innego właściwego rejestru.",
+              "p1.b2": "Do wniosku należy dołączyć opinię."}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["legal_entity"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+        f("k", "Odpis z KRS lub innego rejestru", "FILE_UPLOADER", "p1.b1", source_label="odpis z Krajowego Rejestru Sądowego"),
+        f("o", "Opinia", "FILE_UPLOADER", "p1.b2", source_label="opinię")]}]}]})
+    out, _ = normalize(t, blocks)
+    assert [x.key for x in out.pages[0].sections[0].fields] == ["opinia"]
+    assert out.entity_extract_required and out.entity_extract_src == ["p1.b1"]
+    assert any(d.reason == "template_attachment" and d.src == ["p1.b1"] for d in out.dropped)
+
+
+def test_register_signal_without_a_register_in_its_source_is_reset():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["legal_entity"], "entity_extract_required": True, "entity_extract_src": ["p1.b2"], "pages": []})
+    out, review = normalize(t, {"p1.b2": "Do wniosku należy dołączyć opinię."})
+    assert not out.entity_extract_required and any("rejestru" in r["why"] for r in review)
+
+
+def test_lost_control_question_is_rebuilt_from_consent_conditions():
+    blocks = {"p1.b0": "Zgoda osoby pełnoletniej", "p1.b1": "Zgoda w imieniu osoby niepełnoletniej"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+        f("r", "Rodzaj", "RADIO", "p1.b0", options=["A", "B"])]}]}],
+        "consents": [{"text": "x", "show_if": [{"field": "rodzaj", "options": ["A"]}, {"field": "czy_osoba_jest_pelnoletnia", "options": ["Tak"]}]},
+                     {"text": "y", "show_if": [{"field": "rodzaj", "options": ["A"]}, {"field": "czy_osoba_jest_pelnoletnia", "options": ["Nie"]}]}]})
+    out, review = normalize(t, blocks)
+    ctl = out.pages[0].sections[0].fields[0]
+    assert (ctl.key, ctl.type, ctl.options, ctl.label) == ("czy_osoba_jest_pelnoletnia", "RADIO", ["Tak", "Nie"], "Czy osoba jest pełnoletnia")
+    assert ctl.show_if.field == "rodzaj" and ctl.show_if.options == ["A"]  # scoped like its consents
+    assert any(r["key"] == ctl.key for r in review)

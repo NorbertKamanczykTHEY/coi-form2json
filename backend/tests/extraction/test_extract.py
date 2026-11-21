@@ -136,3 +136,14 @@ def test_repair_keeps_control_fields_that_show_if_still_names():
     r = extract(DOC, provider=Fake([first, repaired]))
     keys = [f.key for p in r.tree.pages for s in p.sections for f in s.fields]
     assert "czy_osoba_jest_pelnoletnia" in keys and r.trace[-1]["accepted"], r.trace
+
+
+def test_repair_that_collapses_the_tree_is_rejected_and_best_keeps_coverage():
+    first = bad()  # G5 only
+    collapsed = good()
+    collapsed["pages"][0]["sections"][0]["fields"] = collapsed["pages"][0]["sections"][0]["fields"][:0] + [
+        {"key": "x", "label": "Wybierz sposób", "source_label": "Sposób", "type": "RADIO", "options": ["A"], "src": ["p1.b1"]}]
+    r = extract(DOC, provider=Fake([first, collapsed, first, collapsed]))
+    assert [t["round"] for t in r.trace] == ["first", "repair", "first", "repair"]
+    assert "collapsed" in r.trace[1]["error"]
+    assert len([f for p in r.tree.pages for s in p.sections for f in s.fields]) == 2  # the full first tree, not the collapsed one

@@ -14,6 +14,7 @@ FILL = re.compile(r"___|☐")
 TEMPLATE_LABEL = re.compile(r"^\W*((imi[eę]|nazwisko|pesel|nip|regon|telefon|nr telefonu|numer telefonu|e-?mail|seria i numer dowodu)\b"
                             r"|adres( (zamieszkania|siedziby|wnioskodawcy))?\W*$)", re.I)
 SIGN_SLOT = re.compile(r"^\W*(___\W*)+$|imi[eę] i nazwisko|podpis|\bdata\b", re.I)  # name/signature/date lines
+TEMPLATE_ATTACHMENT = re.compile(r"pełnomocn|opłat|odpis|wyciąg|rejestr|\bkrs\b|ceidg", re.I)  # S12 + the entity's register extract
 ORGAN = re.compile(r"\badresat\b|\b(wójt|burmistrz|prezydent miasta|starost[ay]|marszałek|urząd (gminy|miasta|miejski|skarbowy|marszałkowski)|starostwo)\b", re.I)
 SIGN_LABEL = re.compile(r"podpis|\bdata\b|miejscowość|imi[eę]|nazwisko|\bnazwa\b|\badres|telefon|e-?mail|pesel|\bnip\b|regon", re.I)  # captions of template data
 PERSON_PRESETS = {"first_name", "last_name", "pesel", "birth_date", "id_card", "address", "phone", "email"}
@@ -115,7 +116,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     bad_drops = [a for d in tree.dropped for a in ex(d.src) if a in blocks and a not in field_src and (
         (d.reason in ("legal_info", "rodo", "title", "template_attachment", "consent") and FILL.search(blocks[a])
          and not (d.reason in ("rodo", "consent") and SIGN_SLOT.search(blocks[a])))
-        or (d.reason == "template_attachment" and not re.search(r"pełnomocn|opłat", blocks[a], re.I)))]
+        or (d.reason == "template_attachment" and not TEMPLATE_ATTACHMENT.search(blocks[a])))]
     marks = [a for a, t in blocks.items() if FILL.search(t)]
     uncovered = [a for a in marks if a not in cited]  # G3
     def sign_slot(a):  # signature/date/template-data slots: the label is in the block or, for a bare line, the caption below it
