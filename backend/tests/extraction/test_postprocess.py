@@ -22,7 +22,7 @@ def tree():
             f("tel2", "Telefon zapasowy", description="Telefon (opcjonalnie)", description_source="ai"),
             f("tel", "Telefon", optional_evidence="opcjonalnie"),
             f("notes", "Uwagi"),
-            f("acc2", "Numer konta", src="p1.b6", optional_evidence="nieobowiązkowe"),
+            f("acc2", "Numer konta", src="p1.b6", optional_evidence="fakultatywnie"),
             f("city", "Miejscowość", src="p1.b5", source_label="w miejscowości"),
             f("street", "Ulica", src="p1.b5", source_label="przy ulicy"),
             f("dipl", "Dyplomy", "FILE_UPLOADER", "p1.b4", source_label="dyplomy"),
@@ -107,3 +107,24 @@ def test_control_question_is_scoped_to_its_dependents_variants_and_conditional_l
     assert fs["czy_pelnoletni"].show_if.field == "rodzaj" and fs["czy_pelnoletni"].show_if.options == ["A", "B"]
     assert fs["rodzaj"].show_if is None
     assert any(r["key"] == "adres_do_korespondencji" and "warunk" in r["why"] for r in review)
+
+
+def test_repaired_tree_with_previous_other_attachments_gets_one_field_and_no_review():
+    blocks = {"p1.b0": "w załączeniu:", "p1.b1": "1) zaświadczenie", "p1.b2": "2) ___", "p1.b3": "3) ___"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+        f("z", "Zaświadczenie", "FILE_UPLOADER", "p1.b1", source_label="zaświadczenie"),
+        {**f("inne_zalaczniki", "Inne załączniki", "FILE_UPLOADER", "p1.b2", source_label="w załączeniu:", multiple=True,
+             optional_evidence="2) ___ 3) ___"), "src": ["p1.b2", "p1.b3"]}]}]}]})
+    out, review = normalize(t, blocks)
+    assert [x.key for x in out.pages[0].sections[0].fields] == ["zaswiadczenie", "inne_zalaczniki"] and not review
+
+
+def test_field_without_src_gets_its_block_and_footnote():
+    blocks = {"p1.b0": "w miejscowości___ przy ulicy1)___", "p1.b1": "1) ) Dane nieobowiązkowe."}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [
+        {"key": "m", "label": "Miejscowość", "source_label": "w miejscowości___", "type": "TEXT_FIELD"},
+        {"key": "u", "label": "Ulica", "source_label": "przy ulicy 1)___", "type": "TEXT_FIELD"}]}]}]})
+    out, _ = normalize(t, blocks)
+    m, u = out.pages[0].sections[0].fields
+    assert m.src == ["p1.b0"] and m.optional_evidence is None
+    assert u.src == ["p1.b0"] and u.optional_evidence == "Dane nieobowiązkowe."

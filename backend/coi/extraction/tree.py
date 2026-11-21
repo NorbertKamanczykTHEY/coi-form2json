@@ -60,7 +60,7 @@ class FormField(BaseModel):
 
 class Section(BaseModel):
     title: str
-    repeating: bool = Field(default=False, description="true gdy źródło każe powtarzać blok (np. 'dla każdego psa', numerowane identyczne bloki)")
+    repeating: bool = Field(default=False, description="true gdy źródło każe powtarzać blok (np. 'dla każdego …', numerowane identyczne bloki)")
     person_role: Literal["third_party"] | None = Field(default=None, description="'third_party' gdy sekcja to dane osoby trzeciej (nie wnioskodawcy, nie pełnomocnika)")
     show_if: ShowIf | None = None
     fields: Annotated[list[FormField], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
@@ -94,7 +94,7 @@ class FieldTree(BaseModel):  # defaults everywhere: the prompt tells models to o
     title: str = Field(description="tytuł e-formularza zaczynający się od Wniosek/Zgłoszenie/Deklaracja/Oświadczenie")
     addressee: Addressee | None = None
     applicant_kinds: list[Literal["person", "legal_entity"]] = Field(description="kim może być wnioskodawca: person = osoba fizyczna, legal_entity = firma/instytucja (NIP, REGON, nazwa)")
-    entity_option: str | None = Field(default=None, description="tekst opcji wyboru podmiotu z papieru, gdy formularz każe zaznaczyć rodzaj wnioskodawcy (np. 'Klub sportowy'); null gdy brak (P2a)")
+    entity_option: str | None = Field(default=None, description="tekst opcji wyboru podmiotu z papieru, gdy formularz każe zaznaczyć rodzaj wnioskodawcy (dosłowna nazwa rodzaju podmiotu z dokumentu); null gdy brak (P2a)")
     pages: list[SubjectPage] = Field(description="tylko strony przedmiotu wniosku, bez danych wnioskodawcy, kontaktu i zgód")
     consents: Annotated[list[Consent], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
     dropped: Annotated[list[Drop], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)

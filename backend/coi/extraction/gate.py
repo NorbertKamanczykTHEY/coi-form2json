@@ -21,7 +21,7 @@ SLOT = re.compile(r"_{3,}")
 LEADING_FILL = re.compile(r"^\W*(___|☐)")
 TRAILING_FILL = re.compile(r"(___|☐)\W*$")
 SIGN_ONLY = re.compile(r"podpis|pieczęć|pieczątk|\bdata\b", re.I)
-EACH = re.compile(r"dla każdego|każdego (psa|zwierzęcia|dziecka|podopiecznego)", re.I)
+EACH = re.compile(r"\bdla każd\w+|\bkażd(ego|ej) [^\W\d_]{3,}", re.I)  # "dla każdego …", "każdego <elementu>"
 
 
 def norm(s: str) -> str:

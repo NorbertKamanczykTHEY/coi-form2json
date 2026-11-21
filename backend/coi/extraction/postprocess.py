@@ -151,10 +151,22 @@ def _other_attachments(tree: FieldTree, blocks: dict[str, str], seen: set[str]) 
         tree.dropped = [d for d in tree.dropped if not (d.src and set(expand(d.src, blocks)) <= slot_set)]
 
 
+def locate(source_label: str, blocks: dict[str, str]) -> str | None:
+    """The first block that contains the label (whitespace and fill marks ignored)."""
+    flat = lambda x: re.sub(r"[\W_]+", "", x.lower())  # noqa: E731  "przy ulicy 1)" ~ "przy ulicy1)"
+    lab = flat(source_label)
+    return next((a for a, t in blocks.items() if lab in flat(t)), None) if len(lab) >= 3 else None
+
+
 def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[dict]]:
     tree = tree.model_copy(deep=True)
     review: list[dict] = []
+    slot_set = {a for g in attachment_slots(blocks) for a in g}  # fields over these are rebuilt by _other_attachments
+    for p in tree.pages:
+        for s in p.sections:
+            s.fields = [f for f in s.fields if not (slot_set and f.src and set(expand(f.src, blocks)) <= slot_set)]
     notes = optional_footnotes(blocks)
+    doc_ws = norm_ws(" ".join(blocks.values()))
     cites: dict[str, int] = {}
     for p in tree.pages:
         for s in p.sections:
@@ -194,15 +206,18 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                     f.preset = hit
                 if f.preset == "birth_date" or re.match(r"data\b", f.label, re.I):
                     f.type = "DATEPICKER"
+                if not f.src and (home := locate(f.source_label, blocks)):  # the model left src empty: the block holding the label
+                    f.src = [home]
                 # R2/R4 (ADR 0018): required unless the field's own source says otherwise
                 own = src_text(f.src, blocks)
-                seg = own_segment(f.source_label, own, shared=any(cites[a] > 1 for a in f.src))
-                note = footnote_evidence(f.source_label, own, notes)
+                seg = own_segment(f.source_label, own, shared=any(cites.get(a, 0) > 1 for a in f.src))
+                note = footnote_evidence(f.source_label, f.source_label + " " + own, notes)
                 found = OPTIONAL.search(f.source_label) or OPTIONAL.search(seg)
                 ev = f.optional_evidence
                 bare = FOOTNOTE.sub(r"\2", ev or "")  # "1) Dane nieobowiązkowe" -> the footnote text
                 if ev and not (OPTIONAL.search(ev) and norm_ws(bare) in norm_ws(seg + " " + (note or "") + " " + s.title)):
-                    if not (f.show_if or s.show_if):  # a conditional field is required only while shown: not worth a review
+                    # worth a review only for an invented marker; a real one meant for another field changes nothing
+                    if not (f.show_if or s.show_if) and norm_ws(bare) not in doc_ws:
                         review.append({"key": f.key, "why": f"model oznaczył pole jako opcjonalne, ale w źródle nie ma znacznika ({ev!r}); zostaje wymagane"})
                     ev = None
                 ev = ev or note or (found and found[0])
