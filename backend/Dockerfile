@@ -19,5 +19,6 @@ COPY coi ./coi
 ENV PATH=/app/.venv/bin:$PATH PYTHONUNBUFFERED=1
 USER coi
 EXPOSE 8000
-# a scan page can climb the whole VLM ladder: long timeout, threads so one slow request does not block the worker
-CMD ["gunicorn", "--no-control-socket", "--bind", "0.0.0.0:8000", "--workers", "2", "--worker-class", "gthread", "--threads", "4", "--timeout", "600", "coi:create_app()"]
+# a scan page can climb the whole VLM ladder: long timeout, threads so one slow request does not block the worker;
+# --preload: create_app() (create_all + dictionary seed) runs once in the master, not racing in every worker
+CMD ["gunicorn", "--preload", "--no-control-socket", "--bind", "0.0.0.0:8000", "--workers", "2", "--worker-class", "gthread", "--threads", "4", "--timeout", "600", "coi:create_app()"]
