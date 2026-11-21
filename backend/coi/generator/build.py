@@ -113,12 +113,15 @@ def resolve(tree: dict, templates: Path) -> list:
     ctx = {"applicant": tree.get("applicant", "ANY"), "addressee": tree["addressee"]["kind"], "addressee.name": tree["addressee"]["name"],
            "prefill": tree.get("prefill", "MLPZ"), "pesel": tree.get("pesel", tree.get("prefill") == "PESEL"), "entity_option": tree["entity_option"],
            "entity_extract": tree.get("entity_extract", False), "proxy_id_card": tree.get("proxy_id_card", False),
-           "no_pesel": tree.get("no_pesel", False)}
+           "no_pesel": tree.get("no_pesel", False), "correspondence": tree.get("correspondence", False)}
     load = lambda n: json.loads((templates / f"{n}.json").read_text())
     subject = copy.deepcopy(tree["pages"])
     for p in subject:
         p["subject"] = True
-    pages = [load("dane"), *subject, load("kontakt"), load("finish")]
+    dane = load("dane")
+    at = next(i for i, s in enumerate(dane["sections"]) if s.get("key") == "__party__")
+    dane["sections"][at:at + 1] = copy.deepcopy(tree.get("party", []))  # parties' sections, after the applicant's data
+    pages = [dane, *subject, load("kontakt"), load("finish")]
     if tree.get("consents"):  # S11: document consents join the template consent field
         section = next(s for s in pages[-2]["sections"] for f in s["fields"] if f["type"] == "CONSENT_SECTION")
         groups: dict = {}  # a consent with a condition (variant, minor/adult) gets its own CONSENT_SECTION with SHOW

@@ -404,3 +404,47 @@ def test_identity_document_instead_of_pesel_from_paper_8():
     assert rep["validation"] == [] and rep["warnings"] == []
     plain = {f["techName"] for *_, f in fields(generate(tree("pattern1"), SHA, blocks={"p1.b1": "PESEL"})[0])}
     assert "numer_pesel" in plain and "czy_masz_numer_pesel" not in plain  # no such sentence: nothing changes
+
+
+def _blocks8():
+    from coi.extraction.anchors import blocks_of
+    from coi.parsing import parse
+    f = next(p for p in next(MATERIALS.glob("8. *")).glob("*.pdf"))
+    return blocks_of(parse(f.read_bytes(), f.name))
+
+
+def test_parties_and_correspondence_on_the_first_page_paper_8():
+    t = json.loads((FIX / "pattern1.tree.json").read_text())
+    kto = _field("rodzaj_skladajacego", "Rodzaj składającego", "RADIO", options=["Właściciel", "Współwłaściciel"])
+    t["pages"].append({"title": "Dane składającego", "sections": [
+        {"title": "Rodzaj składającego", "fields": [kto], "src": []},
+        {"title": "Dane współmałżonka", "show_if": {"field": "rodzaj_skladajacego", "options": ["Współwłaściciel"]}, "src": [],
+         "fields": [_field("imie_wspolmalzonka", "Imię"), _field("pesel_wspolmalzonka", "PESEL", preset="pesel")]},
+        {"title": "Adres do korespondencji", "src": [], "fields": [
+            _field("czy_inny_adres", "Czy adres do korespondencji jest inny", "RADIO", options=["Tak", "Nie"]),
+            _field("adres_do_korespondencji", "Adres do korespondencji", preset="address",
+                   show_if={"field": "czy_inny_adres", "options": ["Tak"]})]}]})
+    ft = FieldTree.model_validate(t)
+    for s in ft.pages[-1].sections[:2]:
+        object.__setattr__(s, "party", True)  # Section.party lands in FieldTree with extraction
+    form, rep, _ = generate(ft, SHA, blocks=_blocks8())
+    dane = [q["field"] for q in form["tabs"][0]["questions"]]
+    techs = [s["techName"] for s in dane]
+    assert techs.index("adres_siedziby") < techs.index("adres_do_korespondencji") < techs.index("rodzaj_skladajacego") \
+        < techs.index("dane_wspolmalzonka") < techs.index("potwierdzenie_ze_jestes_reprezentantem")
+    spouse = {c["field"]["techName"]: c["field"] for c in dane[techs.index("dane_wspolmalzonka")]["repeatingSectionGrid"]}
+    assert dane[techs.index("dane_wspolmalzonka")]["states"]  # SHOW kept on the moved section
+    assert list(spouse)[1:] == ["czy_ma_numer_pesel_pesel_wspolmalzonka", "pesel_wspolmalzonka",
+                                "rodzaj_dokumentu_tozsamosci_pesel_wspolmalzonka", "numer_dokumentu_tozsamosci_pesel_wspolmalzonka"]
+    kor = {c["field"]["techName"]: c["field"] for c in dane[techs.index("adres_do_korespondencji")]["repeatingSectionGrid"]}
+    assert list(kor)[0] == "czy_adres_do_korespondencji_jest_inny" and all(
+        any("czy_adres_do_korespondencji_jest_inny" in s["query"] for s in f["states"]) for f in list(kor.values())[1:])
+    every = {f["techName"] for *_, f in fields(form)}
+    assert "czy_inny_adres" not in every and "kraj_adres_do_korespondencji" not in every  # no duplicate from extraction
+    assert {"czy_inna_osoba_ma_numer_pesel", "numer_dokumentu_tozsamosci_inna_osoba"} <= every  # template "other person" too
+    assert [t["title"] for t in form["tabs"]][1] == "Informacje o budynku" and rep["validation"] == []
+
+
+def test_no_correspondence_block_without_the_wording():
+    techs = {f["techName"] for *_, f in fields(generate(tree("pattern1"), SHA, blocks={"p1.b1": "Adres zamieszkania"})[0])}
+    assert "czy_adres_do_korespondencji_jest_inny" not in techs and "czy_inna_osoba_ma_numer_pesel" not in techs

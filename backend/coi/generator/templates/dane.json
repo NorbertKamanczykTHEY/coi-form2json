@@ -465,6 +465,209 @@
    ]
   },
   {
+   "key": "adres_do_korespondencji",
+   "title": "Adres do korespondencji",
+   "repeating": false,
+   "when": {
+    "correspondence": [
+     true
+    ]
+   },
+   "fields": [
+    {
+     "key": "czy_adres_do_korespondencji_jest_inny",
+     "label": "Czy adres do korespondencji jest inny niż adres zamieszkania?",
+     "type": "RADIO",
+     "options": [
+      "Tak",
+      "Nie"
+     ]
+    },
+    {
+     "key": "kraj_korespondencja",
+     "label": "Kraj",
+     "type": "SELECT",
+     "dictionary": "Kraje",
+     "default": [
+      "Polska"
+     ],
+     "show_if": {
+      "field": "czy_adres_do_korespondencji_jest_inny",
+      "in": [
+       "Tak"
+      ]
+     }
+    },
+    {
+     "key": "miejscowosc_korespondencja_zagranica",
+     "label": "Miejscowość",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "all": [
+       {
+        "field": "czy_adres_do_korespondencji_jest_inny",
+        "in": [
+         "Tak"
+        ]
+       },
+       {
+        "not": {
+         "field": "kraj_korespondencja",
+         "in": [
+          "Polska"
+         ]
+        }
+       }
+      ]
+     }
+    },
+    {
+     "key": "kod_pocztowy_korespondencja_zagranica",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "all": [
+       {
+        "field": "czy_adres_do_korespondencji_jest_inny",
+        "in": [
+         "Tak"
+        ]
+       },
+       {
+        "not": {
+         "field": "kraj_korespondencja",
+         "in": [
+          "Polska"
+         ]
+        }
+       }
+      ]
+     }
+    },
+    {
+     "key": "ulica_korespondencja_zagranica",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "all": [
+       {
+        "field": "czy_adres_do_korespondencji_jest_inny",
+        "in": [
+         "Tak"
+        ]
+       },
+       {
+        "not": {
+         "field": "kraj_korespondencja",
+         "in": [
+          "Polska"
+         ]
+        }
+       }
+      ]
+     }
+    },
+    {
+     "key": "wojewodztwo_korespondencja",
+     "label": "Miejscowość",
+     "type": "SELECT",
+     "dictionary": "TERYT_4G_DOWODOWY",
+     "default": [],
+     "multi_level": true,
+     "search": true,
+     "show_if": {
+      "all": [
+       {
+        "field": "czy_adres_do_korespondencji_jest_inny",
+        "in": [
+         "Tak"
+        ]
+       },
+       {
+        "field": "kraj_korespondencja",
+        "in": [
+         "Polska"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "key": "kod_pocztowy_korespondencja",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "validators": [
+      "ZIP_CODE"
+     ],
+     "show_if": {
+      "all": [
+       {
+        "field": "czy_adres_do_korespondencji_jest_inny",
+        "in": [
+         "Tak"
+        ]
+       },
+       {
+        "field": "kraj_korespondencja",
+        "in": [
+         "Polska"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "key": "ulica_korespondencja",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "all": [
+       {
+        "field": "czy_adres_do_korespondencji_jest_inny",
+        "in": [
+         "Tak"
+        ]
+       },
+       {
+        "field": "kraj_korespondencja",
+        "in": [
+         "Polska"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "key": "numer_budynku_korespondencja",
+     "label": "Numer budynku",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "czy_adres_do_korespondencji_jest_inny",
+      "in": [
+       "Tak"
+      ]
+     }
+    },
+    {
+     "key": "numer_lokalu_korespondencja",
+     "label": "Numer lokalu",
+     "type": "TEXT_FIELD",
+     "required": false,
+     "show_if": {
+      "field": "czy_adres_do_korespondencji_jest_inny",
+      "in": [
+       "Tak"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "key": "__party__",
+   "title": "",
+   "fields": []
+  },
+  {
    "key": "potwierdzenie_ze_jestes_reprezentantem",
    "description_html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dołącz aktualny odpis danych z Krajowego Rejestru Sądowego lub innego rejestru. Odpis powinien potwierdzać, że jesteś reprezentantem podmiotu lub instytucji.</span></p></body></html>",
    "show_if": {
@@ -542,6 +745,73 @@
      "key": "nazwisko_inna_osoba",
      "label": "Nazwisko",
      "type": "TEXT_FIELD"
+    },
+    {
+     "key": "czy_inna_osoba_ma_numer_pesel",
+     "label": "Czy ta osoba ma numer PESEL?",
+     "type": "RADIO",
+     "options": [
+      "Tak",
+      "Nie"
+     ],
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     }
+    },
+    {
+     "key": "numer_pesel_inna_osoba",
+     "label": "Numer PESEL",
+     "type": "TEXT_FIELD",
+     "validators": [
+      "PESEL"
+     ],
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     },
+     "show_if": {
+      "not": {
+       "field": "czy_inna_osoba_ma_numer_pesel",
+       "in": [
+        "Nie"
+       ]
+      }
+     }
+    },
+    {
+     "key": "rodzaj_dokumentu_tozsamosci_inna_osoba",
+     "label": "Rodzaj dokumentu tożsamości",
+     "type": "TEXT_FIELD",
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     },
+     "show_if": {
+      "field": "czy_inna_osoba_ma_numer_pesel",
+      "in": [
+       "Nie"
+      ]
+     }
+    },
+    {
+     "key": "numer_dokumentu_tozsamosci_inna_osoba",
+     "label": "Numer dokumentu tożsamości",
+     "type": "TEXT_FIELD",
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     },
+     "show_if": {
+      "field": "czy_inna_osoba_ma_numer_pesel",
+      "in": [
+       "Nie"
+      ]
+     }
     }
    ]
   },

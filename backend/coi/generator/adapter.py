@@ -14,6 +14,7 @@ ID_CARD = re.compile(r"dowod\w* osobist", re.I)  # the paper asks the proxy for 
 # the paper lets an applicant without PESEL give an identity document instead (#8: "nie posiadające numeru PESEL wpisują
 # numer dokumentu tożsamości"); read on the whole text, the sentence usually sits in the instructions and spans blocks
 NO_PESEL = re.compile(r"(nie\s*posiada\w*|brak\w*|bez)\s+(numeru\s+)?PESEL\b.{0,150}?dokument\w*\s+tożsamości", re.I | re.S)
+CORRESPONDENCE = re.compile(r"adres\w*\s+(do\s+)?korespondenc", re.I)  # the paper has a separate address for letters
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}$")
 NOT_APPLICANT = {"rodo", "legal_info", "office_use"}  # blocks where "PESEL" is prose, not a field of the applicant
 ENTITY_ID = re.compile(r"^nazwa\b|\b(nip|regon|krs)\b", re.I)  # name and registry numbers the "Dane podmiotu" template asks for
@@ -108,6 +109,42 @@ def applicant_pesel(tree: FieldTree, blocks: dict[str, str]) -> bool:
     return any(PESEL.search(t) for a, t in blocks.items() if a not in elsewhere)
 
 
+def correspondence_asked(tree: FieldTree, blocks: dict[str, str]) -> bool:
+    """A correspondence address of the applicant: in the text, outside third-party sections and outside prose (RODO, instructions)."""
+    elsewhere = {a for p in tree.pages for s in p.sections if s.person_role == "third_party"
+                 for f in s.fields for a in expand(f.src + s.src, blocks)}
+    elsewhere |= {a for d in tree.dropped if d.reason in NOT_APPLICANT for a in expand(d.src, blocks)}
+    return any(CORRESPONDENCE.search(t) for a, t in blocks.items() if a not in elsewhere)
+
+
+def correspondence_duplicates(s: Section) -> set[str]:
+    """Keys the template's correspondence block replaces: the address itself, its "is it different" toggle, fields shown by it."""
+    if s.person_role == "third_party":
+        return set()
+    own = lambda f: CORRESPONDENCE.search(f"{f.key.replace('_', ' ')} {f.label} {f.source_label}") or "korespondencyjn" in f.key
+    dup = {f.key for f in s.fields if (f.preset == "address" or f.type in ("RADIO", "CHECKBOX")) and own(f)}
+    return dup | {f.key for f in s.fields if f.show_if and f.show_if.field in dup}
+
+
+def pesel_alternative(fields: list[dict]) -> list[dict]:
+    """A person typed in by hand (spouse, other person) gets the same no-PESEL alternative as the applicant."""
+    out = []
+    for n in fields:
+        if n["type"] != "TEXT_FIELD" or "PESEL" not in n.get("validators", []):
+            out.append(n)
+            continue
+        k, nie = n["key"], {"field": f"czy_ma_numer_pesel_{n['key']}", "in": ["Nie"]}
+        meta = n["meta"]
+        out += [{"key": nie["field"], "label": "Czy ta osoba ma numer PESEL?", "type": "RADIO", "options": ["Tak", "Nie"],
+                 "show_if": n.get("show_if"), "meta": meta},
+                n | {"show_if": both(n.get("show_if"), {"not": nie})},
+                {"key": f"rodzaj_dokumentu_tozsamosci_{k}", "label": "Rodzaj dokumentu tożsamości", "type": "TEXT_FIELD",
+                 "show_if": both(n.get("show_if"), nie), "meta": meta},
+                {"key": f"numer_dokumentu_tozsamosci_{k}", "label": "Numer dokumentu tożsamości", "type": "TEXT_FIELD",
+                 "show_if": both(n.get("show_if"), nie), "meta": meta}]
+    return out
+
+
 def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str, str] | None = None) -> tuple[dict, list[str], list[dict]]:
     """-> (internal tree, warnings, needs_review). `blocks` (anchor -> text) lets the paper's own wording decide template fields."""
     warnings = list(tree.issues)
@@ -121,17 +158,25 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         review.append({"key": "addressee", "why": "brak adresata, pole nazwy urzędu do uzupełnienia"})
     kinds = set(tree.applicant_kinds)
     applicant = "ENTITY" if kinds == {"legal_entity"} else "PERSON" if kinds == {"person"} else "ANY"
-    pages = []
+    no_pesel = bool(NO_PESEL.search(" ".join((blocks or {}).values())))
+    correspondence = correspondence_asked(tree, blocks or {})
+    pages, party = [], []
     for p in tree.pages:
         secs = []
         for s in p.sections:
             dup = entity_duplicates(s) if applicant == "ENTITY" else set()
             if dup:
                 warnings.append(f"sekcja {s.title!r}: pominięto {', '.join(sorted(dup))}, bo powtarzają dane podmiotu ze strony „Dane”")
+            if correspondence and (kor := correspondence_duplicates(s)):
+                warnings.append(f"sekcja {s.title!r}: pominięto {', '.join(sorted(kor))}, adres do korespondencji jest w szablonie „Dane”")
+                dup |= kor
             fields = [n for f in s.fields if f.key not in dup for n in field(f, presets)]
+            if no_pesel:
+                fields = pesel_alternative(fields)
             if not fields:
                 continue
-            secs += split_multiple(s, fields)
+            # Standardy s.6: the first page holds the data of every party of the proceedings, not only the applicant's
+            (party if getattr(s, "party", False) else secs).extend(split_multiple(s, fields))
         if secs:
             pages.append({"title": p.title, "sections": secs})
     internal = {
@@ -143,7 +188,9 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         "pesel": settings["prefill_identity"] == "PESEL" or applicant_pesel(tree, blocks or {}),
         "entity_option": tree.entity_option or settings["entity_option"],
         "entity_extract": bool(getattr(tree, "entity_extract_required", False)),  # registry extract from every entity applicant
-        "no_pesel": bool(NO_PESEL.search(" ".join((blocks or {}).values()))),
+        "no_pesel": no_pesel,
+        "correspondence": correspondence,
+        "party": party,
         "proxy_id_card": any(ID_CARD.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "proxy_data"),
         "pages": pages,
         "consents": [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if])} for c in tree.consents],
