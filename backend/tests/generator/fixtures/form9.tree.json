@@ -1,0 +1,1212 @@
+{
+ "title": "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta Zgierza",
+ "addressee": {
+  "kind": "organ",
+  "name": "Prezydent Miasta Zgierza",
+  "src": [
+   "p1.b2"
+  ]
+ },
+ "applicant_kinds": [
+  "person",
+  "legal_entity"
+ ],
+ "pages": [
+  {
+   "title": "Rodzaj wniosku",
+   "sections": [
+    {
+     "title": "Wybór rodzaju wniosku",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "application_type",
+       "label": "Wybierz rodzaj wniosku",
+       "source_label": "Rodzaje wniosków:",
+       "type": "RADIO",
+       "options": [
+        "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza",
+        "Wniosek o przyznanie nagrody sportowej Rady Miasta Zgierza",
+        "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b4",
+        "p1.b5",
+        "p1.b6",
+        "p1.b7"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b4-p1.b7"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Dane wnioskodawcy - Klub sportowy",
+   "sections": [
+    {
+     "title": "Dane klubu sportowego",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "club_name",
+       "label": "Nazwa klubu sportowego",
+       "source_label": "Nazwa klubu sportowego",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b24",
+        "p1.b115",
+        "p1.b179"
+       ]
+      },
+      {
+       "key": "club_phone",
+       "label": "Telefon kontaktowy",
+       "source_label": "Telefon kontaktowy (opcjonalnie)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "opcjonalnie",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b25",
+        "p1.b116",
+        "p1.b180"
+       ]
+      },
+      {
+       "key": "club_address",
+       "label": "Adres siedziby",
+       "source_label": "Adres siedziby",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "address",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b26",
+        "p1.b117",
+        "p1.b181"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b23-p1.b26",
+      "p1.b114-p1.b117",
+      "p1.b178-p1.b181"
+     ]
+    },
+    {
+     "title": "Dane reprezentanta lub pełnomocnika klubu",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "club_representative_type",
+       "label": "Wybierz rodzaj reprezentanta klubu",
+       "source_label": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru / Dane pełnomocnika klubu sportowego",
+       "type": "CHECKBOX",
+       "options": [
+        "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
+        "Dane pełnomocnika klubu sportowego"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13",
+        "p1.b17",
+        "p1.b104",
+        "p1.b108",
+        "p1.b168",
+        "p1.b172"
+       ]
+      },
+      {
+       "key": "representative_first_name",
+       "label": "Imię reprezentanta",
+       "source_label": "Imię",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b14",
+        "p1.b105",
+        "p1.b169"
+       ]
+      },
+      {
+       "key": "representative_last_name",
+       "label": "Nazwisko reprezentanta",
+       "source_label": "Nazwisko",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b15",
+        "p1.b106",
+        "p1.b170"
+       ]
+      },
+      {
+       "key": "representative_phone",
+       "label": "Numer telefonu",
+       "source_label": "Numer telefonu (opcjonalnie)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru"
+        ],
+        "negate": false
+       },
+       "optional_evidence": "opcjonalnie",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b16",
+        "p1.b107",
+        "p1.b171"
+       ]
+      },
+      {
+       "key": "proxy_first_name",
+       "label": "Imię pełnomocnika",
+       "source_label": "Imię",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane pełnomocnika klubu sportowego"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b18",
+        "p1.b109",
+        "p1.b173"
+       ]
+      },
+      {
+       "key": "proxy_last_name",
+       "label": "Nazwisko pełnomocnika",
+       "source_label": "Nazwisko",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane pełnomocnika klubu sportowego"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b19",
+        "p1.b110",
+        "p1.b174"
+       ]
+      },
+      {
+       "key": "proxy_id_card",
+       "label": "Seria i numer dowodu osobistego",
+       "source_label": "Seria i numer dowodu osobistego",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane pełnomocnika klubu sportowego"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b20",
+        "p1.b111",
+        "p1.b175"
+       ]
+      },
+      {
+       "key": "proxy_phone",
+       "label": "Numer telefonu",
+       "source_label": "Numer telefonu (opcjonalnie)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "club_representative_type",
+        "options": [
+         "Dane pełnomocnika klubu sportowego"
+        ],
+        "negate": false
+       },
+       "optional_evidence": "opcjonalnie",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b21",
+        "p1.b112",
+        "p1.b176"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b13-p1.b21",
+      "p1.b104-p1.b112",
+      "p1.b168-p1.b176"
+     ]
+    },
+    {
+     "title": "Korespondencja z urzędem",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "correspondence_method",
+       "label": "Wybierz preferowany sposób korespondencji z urzędem",
+       "source_label": "Korespondencja z urzędem (wybierz preferowany sposób korespondencji z urzędem)",
+       "type": "RADIO",
+       "options": [
+        "Poczta tradycyjna",
+        "Skrzynka ePUAP",
+        "eDoręczenia"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b27-p1.b29",
+        "p1.b118-p1.b120",
+        "p1.b182-p1.b184"
+       ]
+      },
+      {
+       "key": "correspondence_address_post",
+       "label": "Adres korespondencyjny",
+       "source_label": "inny adres korespondencyjny",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "correspondence_method",
+        "options": [
+         "Poczta tradycyjna"
+        ],
+        "negate": true
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b28",
+        "p1.b119",
+        "p1.b183"
+       ]
+      },
+      {
+       "key": "correspondence_address_post_which",
+       "label": "Wybierz adres korespondencyjny",
+       "source_label": "na który adres kierować korespondencję",
+       "type": "RADIO",
+       "options": [
+        "adres siedziby klubu",
+        "inny adres korespondencyjny"
+       ],
+       "preset": null,
+       "show_if": {
+        "field": "correspondence_method",
+        "options": [
+         "Poczta tradycyjna"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b28",
+        "p1.b119",
+        "p1.b183"
+       ]
+      },
+      {
+       "key": "correspondence_address_post_custom",
+       "label": "Inny adres korespondencyjny",
+       "source_label": "inny adres korespondencyjny",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "correspondence_address_post_which",
+        "options": [
+         "inny adres korespondencyjny"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b28",
+        "p1.b119",
+        "p1.b183"
+       ]
+      },
+      {
+       "key": "epuap_address",
+       "label": "Adres skrzynki ePUAP",
+       "source_label": "adres skrzynki:",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "correspondence_method",
+        "options": [
+         "Skrzynka ePUAP"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b28",
+        "p1.b119",
+        "p1.b183"
+       ]
+      },
+      {
+       "key": "edoręczenia_address",
+       "label": "Adres skrzynki eDoręczenia",
+       "source_label": "adres skrzynki:",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "correspondence_method",
+        "options": [
+         "eDoręczenia"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b29",
+        "p1.b120",
+        "p1.b184"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b27-p1.b29",
+      "p1.b118-p1.b120",
+      "p1.b182-p1.b184"
+     ]
+    },
+    {
+     "title": "Załączniki",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "krs_excerpt",
+       "label": "Odpis danych z KRS lub innego właściwego rejestru",
+       "source_label": "Odpis danych z KRS lub innego właściwego rejestru",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": "Aktualny odpis danych o klubie z Krajowego Rejestru Sądowego lub innego właściwego rejestru, zgodny z bieżącym stanem faktycznym i prawnym.",
+       "doubt": null,
+       "src": [
+        "p1.b30-p1.b31",
+        "p1.b121-p1.b122",
+        "p1.b185-p1.b186"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b30-p1.b31",
+      "p1.b121-p1.b122",
+      "p1.b185-p1.b186"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Dane sportowca",
+   "sections": [
+    {
+     "title": "Dane osobowe sportowca",
+     "repeating": false,
+     "person_role": "third_party",
+     "show_if": {
+      "field": "application_type",
+      "options": [
+       "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza",
+       "Wniosek o przyznanie nagrody sportowej Rady Miasta Zgierza"
+      ],
+      "negate": false
+     },
+     "fields": [
+      {
+       "key": "athlete_first_name",
+       "label": "Imię",
+       "source_label": "Imię",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "first_name",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b34",
+        "p1.b125"
+       ]
+      },
+      {
+       "key": "athlete_last_name",
+       "label": "Nazwisko",
+       "source_label": "Nazwisko",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "last_name",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b35",
+        "p1.b126"
+       ]
+      },
+      {
+       "key": "athlete_birth_date",
+       "label": "Data urodzenia",
+       "source_label": "Data urodzenia",
+       "type": "DATEPICKER",
+       "options": [],
+       "preset": "birth_date",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b36",
+        "p1.b127"
+       ]
+      },
+      {
+       "key": "athlete_registration_address",
+       "label": "Adres zameldowania",
+       "source_label": "Adres zameldowania (*adres zameldowania może być inny niż adres zamieszkania*)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "address",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b37-p1.b38",
+        "p1.b128-p1.b129"
+       ]
+      },
+      {
+       "key": "athlete_correspondence_address",
+       "label": "Adres do korespondencji",
+       "source_label": "Adres do korespondencji (*jeśli różni się od adresu zameldowania*)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "address",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b39-p1.b40",
+        "p1.b130-p1.b131"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b32-p1.b40",
+      "p1.b123-p1.b131"
+     ]
+    },
+    {
+     "title": "Dyscypliny sportowe",
+     "repeating": false,
+     "person_role": null,
+     "show_if": {
+      "field": "application_type",
+      "options": [
+       "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza"
+      ],
+      "negate": false
+     },
+     "fields": [
+      {
+       "key": "sport_discipline_type",
+       "label": "Wybierz rodzaj dyscypliny sportowej",
+       "source_label": "Wskaż rodzaje dyscyplin sportowych, w których bierze udział osoba objęta wnioskiem, a następnie wybierz konkretne dyscypliny z listy:",
+       "type": "CHECKBOX",
+       "options": [
+        "zespołowa",
+        "indywidualna – lekkoatletyka",
+        "indywidualna – inna"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b42-p1.b46"
+       ]
+      },
+      {
+       "key": "sport_disciplines",
+       "label": "Wybierz dyscypliny sportowe",
+       "source_label": "Dyscypliny sportowe:",
+       "type": "CHECKBOX",
+       "options": [
+        "gimnastyka artystyczna",
+        "hokej",
+        "karate",
+        "kolarstwo",
+        "koszykówka",
+        "lekkoatletyka",
+        "łucznictwo",
+        "łyżwiarstwo",
+        "narciarstwo klasyczne",
+        "piłka nożna",
+        "piłka ręczna",
+        "piłka siatkowa",
+        "piłka wodna",
+        "sport motocyklowy",
+        "sporty walki",
+        "sporty wodne",
+        "tenis stołowy",
+        "tenis ziemny",
+        "unihokej",
+        "zapasy",
+        "Inna"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b46-p1.b67"
+       ]
+      },
+      {
+       "key": "sport_discipline_other",
+       "label": "Inna dyscyplina",
+       "source_label": "Inna dyscyplina",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "sport_disciplines",
+        "options": [
+         "Inna"
+        ],
+        "negate": false
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b67"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b41-p1.b67"
+     ]
+    },
+    {
+     "title": "Osiągnięcia sportowe",
+     "repeating": false,
+     "person_role": null,
+     "show_if": {
+      "field": "application_type",
+      "options": [
+       "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza",
+       "Wniosek o przyznanie nagrody sportowej Rady Miasta Zgierza"
+      ],
+      "negate": false
+     },
+     "fields": [
+      {
+       "key": "sport_achievements",
+       "label": "Opis osiągnięć sportowych",
+       "source_label": "Opisz najważniejsze osiągnięcia sportowe kandydata, które będą brane pod uwagę przy ocenie wniosku",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b68-p1.b70",
+        "p1.b132-p1.b134"
+       ]
+      },
+      {
+       "key": "sport_achievements_documents",
+       "label": "Dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe",
+       "source_label": "Do wniosku można dołączyć dyplomy lub inne dokumenty potwierdzające opisane osiągnięcia sportowe.",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "można dołączyć",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b71",
+        "p1.b135"
+       ]
+      },
+      {
+       "key": "club_opinion",
+       "label": "Opinia macierzystego klubu sportowego",
+       "source_label": "Opinia macierzystego klubu sportowego, potwierdzająca nienaganną postawę etyczną i moralną sportowca",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b72-p1.b74",
+        "p1.b136-p1.b138"
+       ]
+      },
+      {
+       "key": "club_opinion_document",
+       "label": "Dokument z opinią klubu",
+       "source_label": "Do wniosku można dołączyć dokument z opinią klubu.",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "można dołączyć",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b75",
+        "p1.b139"
+       ]
+      },
+      {
+       "key": "sport_certificates",
+       "label": "Zaświadczenia wydane przez Polski Związek Sportowy",
+       "source_label": "Do wniosku należy załączyć zaświadczenia wydane przez Polski Związek Sportowy odpowiedni dla danej dyscypliny sportowej lub inne oficjalne dokumenty (np. komunikaty z zawodów), które potwierdzają osiągnięcia sportowe.",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b77",
+        "p1.b141"
+       ]
+      },
+      {
+       "key": "additional_info",
+       "label": "Dodatkowe informacje o osiągnięciach sportowych",
+       "source_label": "Ewentualne dodatkowe informacje o kandydatce/kandydacie do stypendium/nagrody",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "ewentualne",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b78-p1.b80",
+        "p1.b142-p1.b144"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b68-p1.b80",
+      "p1.b132-p1.b144"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Dane trenera i podopiecznych",
+   "sections": [
+    {
+     "title": "Dane osobowe trenera",
+     "repeating": false,
+     "person_role": "third_party",
+     "show_if": {
+      "field": "application_type",
+      "options": [
+       "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza"
+      ],
+      "negate": false
+     },
+     "fields": [
+      {
+       "key": "trainer_first_name",
+       "label": "Imię",
+       "source_label": "Imię",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "first_name",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b189"
+       ]
+      },
+      {
+       "key": "trainer_last_name",
+       "label": "Nazwisko",
+       "source_label": "Nazwisko",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "last_name",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b190"
+       ]
+      },
+      {
+       "key": "trainer_birth_date",
+       "label": "Data urodzenia",
+       "source_label": "Data urodzenia",
+       "type": "DATEPICKER",
+       "options": [],
+       "preset": "birth_date",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b191"
+       ]
+      },
+      {
+       "key": "trainer_registration_address",
+       "label": "Adres zameldowania",
+       "source_label": "Adres zameldowania (*adres zameldowania może być inny niż adres zamieszkania*)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "address",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b192-p1.b193"
+       ]
+      },
+      {
+       "key": "trainer_correspondence_address",
+       "label": "Adres do korespondencji",
+       "source_label": "Adres do korespondencji (*jeśli różni się od adresu zameldowania*)",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "address",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b194-p1.b195"
+       ]
+      },
+      {
+       "key": "trainer_club_opinion",
+       "label": "Opinia macierzystego klubu sportowego",
+       "source_label": "Opinia macierzystego klubu sportowego, potwierdzająca nienaganną postawę etyczną i moralną opiekuna sportowego.",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b196-p1.b198"
+       ]
+      },
+      {
+       "key": "trainer_club_opinion_document",
+       "label": "Dokument z opinią klubu",
+       "source_label": "Do wniosku można dołączyć dokument z opinią klubu",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "można dołączyć",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b199"
+       ]
+      },
+      {
+       "key": "trainer_additional_info",
+       "label": "Dodatkowe informacje o osiągnięciach sportowych",
+       "source_label": "Ewentualne dodatkowe informacje o kandydatce/kandydacie do wyróżnienia",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "ewentualne",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b200-p1.b202"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b187-p1.b202"
+     ]
+    },
+    {
+     "title": "Dane podopiecznych trenera",
+     "repeating": true,
+     "person_role": null,
+     "show_if": {
+      "field": "application_type",
+      "options": [
+       "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza"
+      ],
+      "negate": false
+     },
+     "fields": [
+      {
+       "key": "trainee_name",
+       "label": "Imię i nazwisko zawodniczki/zawodnika",
+       "source_label": "Imię i nazwisko zawodniczki/zawodnika",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b206",
+        "p1.b211",
+        "p1.b216",
+        "p1.b222"
+       ]
+      },
+      {
+       "key": "trainee_achievements",
+       "label": "Osiągnięcia sportowe podopiecznego",
+       "source_label": "Osiągnięcia sportowe podopiecznego / Osiągnięcia sportowe podopiecznego kandydata, które będą brane pod uwagę przy ocenie wniosku",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b208-p1.b209",
+        "p1.b213-p1.b214",
+        "p1.b218-p1.b220",
+        "p1.b224-p1.b226"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b203-p1.b226"
+     ]
+    },
+    {
+     "title": "Załączniki dla podopiecznych",
+     "repeating": false,
+     "person_role": null,
+     "show_if": {
+      "field": "application_type",
+      "options": [
+       "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza"
+      ],
+      "negate": false
+     },
+     "fields": [
+      {
+       "key": "trainee_achievements_documents",
+       "label": "Dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe podopiecznych",
+       "source_label": "Do wniosku można dołączyć dyplomy lub inne dokumenty potwierdzające opisane osiągnięcia sportowe.",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "można dołączyć",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b204"
+       ]
+      },
+      {
+       "key": "trainee_certificates",
+       "label": "Zaświadczenia wydane przez Polski Związek Sportowy dla podopiecznych",
+       "source_label": "Do wniosku należy załączyć zaświadczenia wydane przez Polski Związek Sportowy odpowiedni dla danej dyscypliny sportowej lub inne oficjalne dokumenty (np. komunikaty z zawodów), które potwierdzają osiągnięcia sportowe zawodniczek/zawodników.",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b227-p1.b228"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b204",
+      "p1.b227-p1.b228"
+     ]
+    }
+   ]
+  }
+ ],
+ "consents": [
+  {
+   "text": "Wyrażam zgodę na przetwarzanie moich danych osobowych zwartych we wniosku w celu przekazania go do dalszego procedowania przez Komisję stypendialną ds. stypendiów sportowych Rady Miasta Zgierza.",
+   "src": [
+    "p1.b88",
+    "p1.b152",
+    "p1.b238",
+    "p1.b246"
+   ]
+  },
+  {
+   "text": "Oświadczam, że zapoznałem się z regulaminem przyznawania stypendiów sportowych Rady Miasta Zgierza i akceptuję wszystkie jego postanowienia.",
+   "src": [
+    "p1.b89",
+    "p1.b153",
+    "p1.b239"
+   ]
+  },
+  {
+   "text": "Wyrażam zgodę na przetwarzanie danych osobowych mojego dziecka/podopiecznego zawartych we wniosku w celu przekazania go do dalszego procedowania przez Komisję stypendialną ds. stypendiów sportowych Rady Miasta Zgierza.",
+   "src": [
+    "p1.b94",
+    "p1.b158",
+    "p1.b252"
+   ]
+  },
+  {
+   "text": "Oświadczam, że zapoznałem się z regulaminem przyznawania nagród sportowych Rady Miasta Zgierza i akceptuję wszystkie jego postanowienia.",
+   "src": [
+    "p1.b95",
+    "p1.b159",
+    "p1.b253"
+   ]
+  }
+ ],
+ "dropped": [
+  {
+   "reason": "applicant_data",
+   "src": [
+    "p1.b9-p1.b22",
+    "p1.b100-p1.b113",
+    "p1.b164-p1.b177"
+   ]
+  },
+  {
+   "reason": "contact",
+   "src": [
+    "p1.b27-p1.b29",
+    "p1.b118-p1.b120",
+    "p1.b182-p1.b184"
+   ]
+  },
+  {
+   "reason": "signature_date",
+   "src": [
+    "p1.b80",
+    "p1.b144",
+    "p1.b230"
+   ]
+  },
+  {
+   "reason": "legal_info",
+   "src": [
+    "p1.b81-p1.b84",
+    "p1.b145-p1.b148",
+    "p1.b231-p1.b234"
+   ]
+  },
+  {
+   "reason": "consent",
+   "src": [
+    "p1.b85-p1.b98",
+    "p1.b149-p1.b162",
+    "p1.b235-p1.b256"
+   ]
+  },
+  {
+   "reason": "title",
+   "src": [
+    "p1.b0-p1.b3",
+    "p1.b8",
+    "p1.b99",
+    "p1.b163"
+   ]
+  },
+  {
+   "reason": "template_attachment",
+   "src": [
+    "p1.b22",
+    "p1.b113",
+    "p1.b177"
+   ]
+  },
+  {
+   "reason": "empty_slot",
+   "src": [
+    "p1.b90",
+    "p1.b96",
+    "p1.b154",
+    "p1.b160",
+    "p1.b240",
+    "p1.b248",
+    "p1.b254"
+   ]
+  }
+ ],
+ "issues": [
+  "Tytuł formularza sugeruje trzy oddzielne wnioski, ale struktura jest wspólna dla wszystkich trzech rodzajów. Wymagane jest rozdzielenie lub wyraźne wskazanie wspólnych i specyficznych sekcji."
+ ]
+}

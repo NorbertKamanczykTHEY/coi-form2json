@@ -228,8 +228,7 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
                 f["cond"] = cond(f, s["tech"], f"pole {f['tech']!r}")
             s["fields"] = [f for f in s["fields"] if f["cond"] is not False]
         p["sections"] = [s for s in p["sections"] if s["cond"] is not False and s["fields"]]
-        if p.get("subject") and p["sections"] and all(s["cond"] is not True for s in p["sections"]):
-            warnings.append(f"strona {p['title']!r}: wszystkie sekcje mają SHOW, strona może wyświetlić się pusta")
+    pages = merge_conditional_pages(pages, idx, warnings)
 
     tabs = []
     for p in pages:
@@ -249,6 +248,38 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
         tabs.append({"id": stable_id(source_sha256, "tab", p["title"]), "title": p["title"], "type": p["type"], "questions": questions})
     links = [{"id": stable_id(source_sha256, "link", a["id"], b["id"]), "source": a["id"], "target": b["id"]} for a, b in zip(tabs, tabs[1:])]
     return {"title": tree["title"], "tabs": tabs, "flow": {"links": links}}, warnings, field_map
+
+
+def merge_conditional_pages(pages: list, idx: dict, warnings: list) -> list:
+    """Tabs have no states in COI, so a subject page whose whole content has SHOW would show up empty. Its sections move,
+    SHOW and order kept, to the nearest unconditional subject page before it (or after it); with none, all subject sections
+    share one page. JSONata addresses pages by title, so the moved fields' page is updated before any query is written."""
+    hidden = lambda s: s["cond"] is not True or all(f["cond"] is not True for f in s["fields"])
+    subject = [p for p in pages if p.get("subject") and p["sections"]]
+    keep = [p for p in subject if not all(hidden(s) for s in p["sections"])]
+    if len(keep) == len(subject):
+        return pages
+    if not keep:  # every subject page is conditional: one shared page where the first one stood
+        keep = [{"title": "Szczegóły wniosku", "type": "MAIN", "subject": True, "sections": []}]
+        pages = pages[:pages.index(subject[0])] + keep + pages[pages.index(subject[0]):]
+    pos = {id(p): i for i, p in enumerate(pages)}
+    head = 0  # pages before the first kept one go in front of its sections, in their own order
+    for p in subject:
+        if any(p is k for k in keep):
+            continue
+        before = [k for k in keep if pos[id(k)] < pos[id(p)]]
+        target = before[-1] if before else keep[0]
+        if before:
+            target["sections"] = target["sections"] + p["sections"]
+        else:
+            target["sections"] = target["sections"][:head] + p["sections"] + target["sections"][head:]
+            head += len(p["sections"])
+        warnings.append(f"strona {p['title']!r}: cała treść warunkowa, sekcje przeniesione na stronę {target['title']!r}")
+        for sec in p["sections"]:
+            for f in sec["fields"]:
+                idx[f.get("key") or f["tech"]]["page"] = target["title"]
+    kept = {id(k) for k in keep}
+    return [p for p in pages if not p.get("subject") or id(p) in kept]
 
 
 def desc_html(n, empty):

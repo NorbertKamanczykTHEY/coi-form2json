@@ -330,3 +330,31 @@ def test_multiple_files_sit_under_the_last_required_upload():
     page2 = next(t for t in generate(t2, SHA)[0]["tabs"] if any(q["field"]["title"] == "Dodatkowe" for q in t["questions"]))
     titles = [(q["field"]["type"], q["field"]["title"]) for q in page2["questions"]][-3:]
     assert titles == [("SECTION", "Dodatkowe"), ("REPEATING_SECTION", "Inne załączniki"), ("SECTION", "Dodatkowe")]
+
+
+def test_fully_conditional_pages_merge_into_the_subject_page():
+    # #9 (ADR 0020): spike tree of the real form; variant pages carry SHOW on every section, as extraction is asked to emit
+    form, rep, _ = generate(tree("form9"), SHA)
+    titles = [t["title"] for t in form["tabs"]]
+    assert "Dane sportowca" not in titles and "Dane trenera i podopiecznych" not in titles
+    assert titles[-2:] == ["Kontakt i zgody", "Strona końcowa"]
+    host = next(t for t in form["tabs"] if t["title"] == "Dane wnioskodawcy - Klub sportowy")
+    secs = [q["field"]["title"] for q in host["questions"]]
+    assert secs[-6:] == ["Dane osobowe sportowca", "Dyscypliny sportowe", "Osiągnięcia sportowe",
+                         "Dane osobowe trenera", "Dane podopiecznych trenera", "Załączniki dla podopiecznych"]
+    assert all(q["field"]["states"] for q in host["questions"][-6:])  # SHOW kept on every moved section
+    assert [q["y"] for q in host["questions"]] == sorted(q["y"] for q in host["questions"])
+    assert rep["validation"] == []  # JSONata now points at the page the fields moved to (R6)
+    assert sum("cała treść warunkowa" in w for w in rep["warnings"]) == 2
+
+
+def test_conditional_pages_with_no_unconditional_page_share_one():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    radio = _field("rodzaj", "Rodzaj", "RADIO", options=["A", "B"])
+    t["pages"] = [{"title": "Wybór", "sections": [{"title": "Wybór", "fields": [radio], "src": [],
+                                                    "show_if": {"field": "rodzaj", "options": ["A", "B"]}}]},
+                  {"title": "Wariant B", "sections": [{"title": "B", "fields": [_field("b", "Pole B")], "src": [],
+                                                        "show_if": {"field": "rodzaj", "options": ["B"]}}]}]
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    assert [t["title"] for t in form["tabs"]] == ["Dane", "Szczegóły wniosku", "Kontakt i zgody", "Strona końcowa"]
+    assert [q["field"]["title"] for q in form["tabs"][1]["questions"]] == ["Wybór", "B"] and rep["validation"] == []
