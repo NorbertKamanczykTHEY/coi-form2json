@@ -17,7 +17,7 @@ Zasady:
 10. `key` unikalny, snake_case; zacznij klucze od skrótu tytułu strony, żeby nie powtarzały się w innych stronach. `show_if` = `{{field: key, options: [...]}}`; pole poza sekcją powtarzalną nie zależy od pola wewnątrz niej.
 11. `src` każdego pola i sekcji to kotwice bloków źródłowych.
 12. Pomijaj klucze z wartością null, false lub pustą listą.
-13. Data sporządzenia, miejscowość i data, podpis i pieczątka nie są polami: pomiń je.
+13. Data sporządzenia, miejscowość i data, podpis i pieczątka nie są polami: pomiń je. Podstawa prawna, organ właściwy, termin składania i dane do kontaktu wnioskodawcy (telefon, e-mail) też nie są polami.
 14. Pole albo sekcja dotycząca tylko jednej opcji ma `show_if`. Pole opisane warunkiem („jeśli różni się…”, „w przypadku…”) dostaje pole RADIO, które ten warunek rozstrzyga, i `show_if` na nie. Nie pomijaj pól sterujących ani wyborów z miejscami do wpisania. Pola wzajemnie wykluczające się („A lub B”, „jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”, kategorie, z których wybiera się jedną) nigdy nie są wymagane jednocześnie: RADIO wyboru i `show_if` na każdej gałęzi. Gdy warunku nie rozstrzyga żadne pole, pole jest opcjonalne, a warunek idzie do `description` i `optional_evidence`.
 Odpowiedz WYŁĄCZNIE obiektem JSON zgodnym z tym schematem:
 {schema}

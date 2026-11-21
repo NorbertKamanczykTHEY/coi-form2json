@@ -38,6 +38,7 @@ ACCOUNT_MASK = re.compile(r"X{6,}|\bformacie\b.{0,20}\d{2}", re.I)
 GENERIC = {"wpis", "poda", "wybi", "nale", "pros", "pole", "tuta", "któr", "dane", "dany", "nazw", "jest", "tego", "tym"}  # 4-letter stems
 LEAD_NUMBER = re.compile(r"^\s*(?:((?:[A-Z]\.)?\d{1,3}(?:\.\d{1,3})*)[.)]|([A-Z](?:\.\d{1,3})+)\.?)\s+(?=\S)")  # "26. Miejscowość", "B.2 Dane"
 PAST_READ = re.compile(r"\b([Zz])apoznał(?:em|am)(?:\s*/\s*(?:am|em|[Zz]apoznał(?:em|am)))?\s+się")
+SECTION_NUMBER = re.compile(r"^\W*([A-Z](?:\.\d{1,2})*|[IVX]{1,4})[.)]?\s+[^\W\d_]{3,}")  # "D.1 ADRES …", "B DANE …", "II. Dane …"
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -248,6 +249,16 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
         si.options = [clean_option(o) for o in si.options]
     review += rebuild_lost_controls(tree, blocks)
     review += _consents(tree)
+    if tree.case_fee and re.search(r"pełnomocn", tree.case_fee, re.I) and all(re.search(r"pełnomocn", blocks.get(a, ""), re.I) for a in expand(tree.case_fee_src, blocks) or ["-"]):
+        tree.case_fee, tree.case_fee_src, tree.case_fee_proof = None, [], False  # the proxy's 17 zł is in the template, not a case fee
+        review.append({"key": None, "why": "opłata za pełnomocnictwo nie jest opłatą za sprawę (case_fee); pominięto"})
+    for sec in (s for p in tree.pages for s in p.sections if not s.number and s.src):  # G12: the generator splits by the paper's numbering
+        first = (expand(sec.src, blocks) or [""])[0]
+        i = list(blocks).index(first) if first in blocks else 0
+        for head in (blocks.get(first, ""), blocks[list(blocks)[i - 1]] if i else ""):  # the heading, or the block right above the section
+            if m := SECTION_NUMBER.match(head):
+                sec.number = m[1]
+                break
     scope_controls(tree)
     if tree.entity_extract_required and not REGISTER.search(src_text(tree.entity_extract_src, blocks)):
         tree.entity_extract_required, tree.entity_extract_src = False, []  # the model's claim has no register extract in its source

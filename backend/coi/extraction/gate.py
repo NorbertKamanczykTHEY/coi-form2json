@@ -257,4 +257,21 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
     excl_c = [c.text[:60] for c in tree.consents if not c.show_if and re.search(r"niepełnolet|nieletni|małoletni", c.text, re.I)]
     if excl_c:
         fails.append(f"G23: zgoda dotyczy jednej sytuacji (osoba pełnoletnia albo niepełnoletnia) bez `show_if` na pytaniu, które ją rozstrzyga: {excl_c[:5]}")
+    # G8: a fee for the matter itself (amount + where/when to pay, not the proxy's fee) is case_fee
+    order = list(blocks)
+    fee_blocks = [a for i, (a, t) in enumerate(blocks.items()) if re.search(r"\d+[,.]?\d*\s*zł", t) and re.search(r"kont[ao]\b|rachun|przelew|w kasie|przed złożeniem", t, re.I)
+                  and not re.search(r"pełnomocn", (blocks[order[i - 1]] if i else "") + " " + t, re.I)]  # the proxy's fee sentence may wrap
+    if fee_blocks and not tree.case_fee:
+        fails.append(f"G25: dokument podaje opłatę za sprawę (kwota, konto lub termin), a `case_fee` jest puste: {fee_blocks[:3]}")
+    # header text (legal basis, competent authority, deadlines) is dropped, not a TEXT_BLOCK of the subject
+    legal_tb = [f.key for _, _, f in all_fields(tree) if f.type == "TEXT_BLOCK" and re.search(
+        r"podstawa prawna|\bart\.\s*\d|dz\.\s*u\.|termin składania|organ właściwy|składający:", " ".join(blocks.get(a, "") for a in ex(f.src)) + " " + (f.description or ""), re.I)]
+    if legal_tb:
+        fails.append(f"G26: opis z nagłówka lub pouczenia jako TEXT_BLOCK; to `dropped` z powodem `legal_info` albo `title`: {legal_tb[:5]}")
+    # S7: the applicant's phone / e-mail belong to the contact template
+    contact = [f.key for _, sec, f in all_fields(tree) if sec.person_role != "third_party" and not sec.party and f.type != "TEXT_BLOCK"
+               and re.search(r"\btelefon|\btel\.|e-?mail|faks|poczty elektronicznej", f.label + " " + f.source_label, re.I)
+               and not re.search(r"zgod|osob|wykonawc|opiekun|pełnomocn|właściciel", f.label + " " + f.source_label, re.I)]  # someone else's phone stays
+    if contact:
+        fails.append(f"G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: {contact[:5]}")
     return fails

@@ -228,3 +228,19 @@ def test_g24_declarations_must_not_be_lost():
     assert "G24" in codes(gate(t, BLOCKS | blocks))
     t.consents = [Consent(text="Nie wykorzystuję zwierząt do polowań.", src=["p1.b5"])]
     assert "G24" not in codes(gate(t, BLOCKS | blocks))
+
+
+def test_g25_case_fee_g26_header_text_block_g27_contact():
+    fee = {"p1.b5": "Opłata za wydanie zaświadczenia 17 zł, płatna przed złożeniem wniosku na konto urzędu."}
+    t = tree()
+    t.dropped.append(Drop(reason="legal_info", src=["p1.b5"]))
+    assert "G25" in codes(gate(t, BLOCKS | fee))
+    t.case_fee, t.case_fee_src = "17 zł przed złożeniem wniosku", ["p1.b5"]
+    assert "G25" not in codes(gate(t, BLOCKS | fee))
+    proxy = {"p1.b5": "Opłata skarbowa za pełnomocnictwo 17 zł na konto urzędu."}
+    assert "G25" not in codes(gate(tree(dropped=[{"reason": "legal_info", "src": ["p1.b5"]}] + tree().model_dump()["dropped"]), BLOCKS | proxy))
+    assert "G26" in codes(with_section({"p1.b5": "Podstawa prawna: art. 6 ustawy"}, fld("pp", "Podstawa prawna", "TEXT_BLOCK")))
+    g = with_section({"p1.b5": "Telefon ___ E-mail ___"}, fld("t", "Telefon", "TEXT_FIELD"), fld("e", "E-mail", "TEXT_FIELD"), title="Kontakt")
+    assert "G27" in codes(g)
+    g = with_section({"p1.b5": "Telefon ___"}, fld("t", "Telefon osoby odpowiedzialnej", "TEXT_FIELD"), title="Osoba")
+    assert "G27" not in codes(g)

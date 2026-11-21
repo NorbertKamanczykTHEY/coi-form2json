@@ -217,3 +217,11 @@ def test_past_masculine_reading_form_becomes_present():
         {"text": "Oświadczam, że zapoznałem/am się z regulaminem.", "src": ["p1.b1"]}, {"text": "Zapoznałam/zapoznałem się z warunkami.", "src": ["p1.b2"]}]})
     out, _ = normalize(t, {"p1.b1": "x", "p1.b2": "y"})
     assert [c.text for c in out.consents] == ["Oświadczam, że zapoznaję się z regulaminem.", "Zapoznaję się z warunkami."]
+
+
+def test_proxy_fee_is_no_case_fee_and_section_number_from_heading():
+    blocks = {"p1.b0": "D.1 ADRES NIERUCHOMOŚCI", "p1.b1": "Ulica ___", "p1.b2": "Opłata skarbowa od pełnomocnictwa 17 zł"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "case_fee": "17 zł za pełnomocnictwo", "case_fee_src": ["p1.b2"],
+                                  "pages": [{"title": "P", "sections": [{"title": "Adres", "src": ["p1.b0-p1.b1"], "fields": [f("u", "Ulica", src="p1.b1")]}]}]})
+    out, _ = normalize(t, blocks)
+    assert out.case_fee is None and out.pages[0].sections[0].number == "D.1"
