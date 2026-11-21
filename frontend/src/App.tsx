@@ -12,7 +12,10 @@ type Form = components['schemas']['Form']
 type Proposal = { dictionary: components['schemas']['Proposal']; fieldIds: string[]; changes: Record<string, Record<string, unknown>> }
 type Envelope = {
   id: string; form: Form; report: { needs_review?: { key?: string; field_id?: string; why?: string }[] } | null
-  editor?: { proposals?: Proposal[]; field_map?: Record<string, { needs_review?: boolean; doubt?: string | null }> }
+  editor?: {
+    proposals?: Proposal[]; field_map?: Record<string, { needs_review?: boolean; doubt?: string | null }>
+    applicant_self_only?: { value: boolean; source: 'dokument' | 'domyślnie' | 'edytor'; quote: string | null }
+  }
 }
 type Accept = { busy?: boolean; done?: boolean; error?: string }
 type Job = {
@@ -111,6 +114,51 @@ async function acceptProposal(id: string, form: Form, p: Proposal): Promise<Form
   const saved = await fetch(`/api/v1/forms/${id}`, { method: 'PUT', headers: json, body: JSON.stringify(applyChanges(form, changes)) })
   if (!saved.ok) throw new Error(`Zapis formularza: ${await problem(saved)}`)
   return saved.json()
+}
+
+// Rebuild a stored form with applicant_self_only (ADR 0027); the server saves it, replacing manual edits.
+async function regenerate(id: string, selfOnly: boolean): Promise<Envelope> {
+  const body: components['schemas']['Regenerate'] = { applicant_self_only: selfOnly }
+  const res = await fetch(`/api/v1/forms/${id}/regenerate?report=true&editor=true`, {
+    method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  })
+  if (res.status === 409) {
+    const p = await res.clone().json().catch(() => ({}))
+    if (p.code === 'no_stored_tree') throw new Error('Ten formularz powstał przed tą funkcją. Wczytaj plik ponownie, żeby móc go przebudować.')
+  }
+  if (!res.ok) throw new Error(await problem(res))
+  return res.json()
+}
+
+// "Only in person" switch: confirms inline, then regenerates and hands the new envelope back.
+function SelfOnly({ r, onDone }: { r: Envelope; onDone: (e: Envelope) => void }) {
+  const [ask, setAsk] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const s = r.editor?.applicant_self_only
+  if (!r.id || !s) return null
+  const from = s.source === 'dokument' ? `z dokumentu${s.quote ? `: „${s.quote}”` : ''}` : s.source === 'edytor' ? 'ustawione w edytorze' : 'domyślnie'
+  async function go() {
+    setBusy(true); setError('')
+    try { onDone(await regenerate(r.id, !s!.value)); setAsk(false) } catch (e) { setError(e instanceof Error ? e.message : String(e)) } finally { setBusy(false) }
+  }
+  return (
+    <div className="space-y-2 rounded border border-slate-200 p-3 text-sm">
+      <label className="flex items-center gap-2 font-medium">
+        <input type="checkbox" checked={s.value} disabled={busy || ask} onChange={() => setAsk(true)} />
+        Wniosek tylko osobiście (bez pełnomocnika)
+      </label>
+      <p className="text-slate-600">Źródło: {from}</p>
+      {ask && (
+        <div className="flex flex-wrap items-center gap-2 rounded bg-amber-50 p-2" role="alert">
+          <span>Zmiana przebuduje formularz i usunie ręczne poprawki. Kontynuuj?</span>
+          <button type="button" disabled={busy} onClick={go} className="rounded bg-slate-900 px-3 py-1 text-white disabled:opacity-50">{busy ? 'Przebudowuję…' : 'Tak, przebuduj'}</button>
+          <button type="button" disabled={busy} onClick={() => setAsk(false)} className="rounded border px-3 py-1">Anuluj</button>
+        </div>
+      )}
+      {error && <pre className="whitespace-pre-wrap text-red-700">{error}</pre>}
+    </div>
+  )
 }
 
 // POST /api/v1/forms?report=true&editor=true with Accept: text/event-stream; parses the SSE frames from the fetch body.
@@ -236,6 +284,7 @@ export default function App() {
           {j.result && (
             <>
               {j.result.id && <p className="text-sm">Id formularza: <code>{j.result.id}</code></p>}
+              <SelfOnly r={j.result} onDone={(e) => setJobs((js) => js.map((x) => (x.key === j.key ? { ...x, result: e, accepted: {} } : x)))} />
               <div className="flex gap-1 text-sm" role="group" aria-label="Widok wyniku">
                 {([[false, 'JSON i raport'], [true, 'Podgląd']] as const).map(([v, label]) => (
                   <button key={label} type="button" aria-pressed={!!j.preview === v}

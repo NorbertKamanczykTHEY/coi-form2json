@@ -926,6 +926,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forms/{form_id}/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rebuild a stored form with editor overrides (no LLM)
+         * @description Rebuilds the COI JSON from the stored FieldTree (`editor.tree`) with the given overrides and saves it, replacing manual edits. `editor.applicant_self_only` = {value, source: dokument|domyślnie|edytor, quote}.
+         */
+        post: {
+            parameters: {
+                query?: {
+                    /** @description Return the envelope {id, form, report} */
+                    report?: boolean;
+                    /** @description Add editor {source, field_map} to the envelope */
+                    editor?: boolean;
+                };
+                header?: never;
+                path: {
+                    form_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Regenerate"];
+                };
+            };
+            responses: {
+                /** @description Rebuilt form (or the envelope with ?report / ?editor) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationError"];
+                    };
+                };
+                /** @description Authentication error */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HTTPError"];
+                    };
+                };
+                /** @description Not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HTTPError"];
+                    };
+                };
+                /** @description Stored before FieldTree was kept */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HTTPError"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/info": {
         parameters: {
             query?: never;
@@ -1123,6 +1209,10 @@ export interface components {
             name: string;
         } & {
             [key: string]: unknown;
+        };
+        Regenerate: {
+            /** @description true: applicant acts only in person (no proxy, no „Podmiot wniosku” for a person; Standardy s.9). false: proxy allowed (default). */
+            applicant_self_only: boolean;
         };
         Upload: {
             /**
