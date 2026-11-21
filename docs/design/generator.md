@@ -1,6 +1,17 @@
 # Generator JSON COI: projekt
 
-Status: propozycja do omówienia · 2026-11-21 · spike: `app/spikes/generator/`
+Status: decyzje Q20–Q24 przyjęte (2026-11-21), kod spike'a jeszcze ich nie uwzględnia · spike: `app/spikes/generator/`
+
+## Decyzje użytkownika
+
+| # | Decyzja | Gdzie w projekcie |
+|---|---|---|
+| Q20 | S4 (np. #9): zamiast radia „w czyim imieniu” z jedną opcją robimy **CHECKBOX jak na papierze**, a pola podmiotu pokazują się (SHOW), gdy jest zaznaczony | pkt 2 |
+| Q21 | `rows` jedną regułą dla wszystkich sekcji: liczba pól + 1 | pkt 3 |
+| Q22 | Słownik adresowy to `TERYT_4G_DOWODOWY`, a `TERYT_DOWODOWY` jest jego aliasem. Aliasy są w konfiguracji `coi/config/` | pkt 5, pkt 8 |
+| Q23 | Ziarno UUID: `sha256` pliku + techName. Ten sam plik daje te same UUID, różne pliki dają różne | pkt 3 |
+| Q24 | „Twoje dane”: MLPZ domyślnie, PESEL jako opcja w konfiguracji | pkt 2, pkt 8 |
+| — | „Należy załączyć/dołączyć” i podobne sformułowania dają FILE_UPLOADER (wymagany, R4) | pkt 1 |
 
 Generator jest deterministyczny i nie używa LLM. Dostaje drzewo pól przedmiotu wniosku z metadanymi i zwraca JSON COI oraz kawałek raportu (`field_map`, `proposed_dictionaries`, ostrzeżenia). Ten sam plik wejściowy zawsze daje ten sam JSON, łącznie z UUID.
 
@@ -33,6 +44,9 @@ Przyjmujemy `FieldTree` z `app/spikes/field-extraction/tree.py` (wątek ekstrakc
 | `consents[]` | dopisane do CONSENT_SECTION na stronie „Kontakt i zgody” | `required: true` (S11) |
 | `src`, `doubt` | `report.field_map[fieldId] = {src, needs_review}` | `editor.field_map` z A4 |
 | `issues`, `dropped` | `report.warnings` | |
+| — (metadane pipeline'u) | `source_sha256` | ziarno UUID (Q23) |
+
+Załączniki: „należy załączyć/dołączyć” i podobne sformułowania dają FILE_UPLOADER z REQUIRED, a „można dołączyć” daje FILE_UPLOADER opcjonalny (`optional_evidence`). Rozpoznaje to ekstrakcja, a generator emituje FILE_UPLOADER bez zmian.
 
 **Prośby do wątku ekstrakcji** (wysłane do jego czatu):
 1. `show_if.option` jako lista (`options: [..]`, OR) i `negate: bool`. Potrzebne do „jeśli inny niż…” i CHECKBOX z kilkoma opcjami. Bez tego generator też działa, tylko część warunków wyjdzie słabiej.
@@ -45,9 +59,10 @@ Przyjmujemy `FieldTree` z `app/spikes/field-extraction/tree.py` (wątek ekstrakc
 
 Warianty to dwa mechanizmy, oba w danych:
 - `when: {"applicant": ["PERSON","ANY"]}` na sekcji, polu albo opcji. W szablonie „Dane” `when` mają tylko opcje radia „w czyim imieniu” i sekcje adresata.
-- Upraszczanie warunków robi resztę. Gdy w wariancie S2 znika opcja „Osoby prawnej…”, każdy warunek na niej daje `false`, więc „Dane podmiotu”, „Adres siedziby”, reprezentant i opłata 2 wypadają same, a warunek pełnomocnictwa skraca się do „Innej osoby”. Radio z jedną opcją (S4) jest stałą: znika, a warunki na nim dają `true` albo `false`.
+- Upraszczanie warunków robi resztę. Gdy w wariancie S2 znika opcja „Osoby prawnej…”, każdy warunek na niej daje `false`, więc „Dane podmiotu”, „Adres siedziby”, reprezentant i opłata 2 wypadają same, a warunek pełnomocnictwa skraca się do „Innej osoby”.
+- **S4 (Q20):** pole `wybierz_w_czyim_imieniu_wnioskujesz` ma w szablonie drugi wariant: CHECKBOX z `when: {"applicant": ["ENTITY"]}`, ten sam techName i jedną opcją, opcjonalny. Warunki SHOW sekcji podmiotu, reprezentanta i pełnomocnictwa zostają bez zmian, bo `"X" in __userAnswer` działa tak samo dla RADIO i CHECKBOX. Gdy pole jest odznaczone, sekcje podmiotu są ukryte. Etykieta i treść opcji pochodzą z papieru (#9: „Klub sportowy”) przez placeholder `{{entity_option}}`, który generator podstawia w opcji i w warunkach. Bez tekstu z papieru zostaje „Osoby prawnej lub jednostki organizacyjnej”. Spike'owa reguła „radio z jedną opcją znika” do usunięcia.
 
-Placeholdery: `{{addressee.name}}`, `{{prefill}}` (źródło tożsamości w „Twoje dane”: MLPZ domyślnie albo PESEL jak w #5; adres i kontakt zostają przy MLPZ, tak jak w #5).
+Placeholdery: `{{addressee.name}}`, `{{entity_option}}`, `{{prefill}}`. To ostatnie to źródło tożsamości w „Twoje dane”: MLPZ domyślnie, PESEL jako opcja w `coi/config/` (Q24). Adres i kontakt zostają przy MLPZ, tak jak w #5.
 
 ## 3. Layout i identyfikatory
 
@@ -55,12 +70,12 @@ Placeholdery: `{{addressee.name}}`, `{{prefill}}` (źródło tożsamości w „T
 |---|---|---|
 | `x`, `cols` | 0, 3 | zawsze |
 | pole w sekcji | `y` = indeks w sekcji, `rows` 1 | zawsze |
-| sekcja | `y` = suma `rows` poprzednich sekcji, `rows` = liczba pól + 1 | zgodne poza sekcjami adresowymi (9 pól: rows 9 albo 8) |
+| sekcja | `y` = suma `rows` poprzednich sekcji, `rows` = liczba pól + 1, **dla wszystkich sekcji** (Q21) | zgodne poza sekcjami adresowymi (9 pól: rows 9 albo 8). Tę różnicę akceptujemy |
 | `questionOrder` | = `y` | zawsze |
 | `description` | sekcja: pusty dokument HTML; pole: `""` | zawsze |
 | opcja | `{id: name, name, techName: slug(name)}` | `id` opcji to jej nazwa, nie UUID |
 | `techName` | `key` albo slug etykiety: małe litery, `ł→l` itd., `_`, maks. 60 znaków, unikalny w formularzu | |
-| UUID | `uuid4`-kształtny z `sha256(tytuł/ścieżka)`: powtarzalny i formalnie poprawny v4 | wzorce: losowe v4 |
+| UUID | w kształcie v4 z `sha256(source_sha256 / techName)` (Q23). Strona: `source_sha256 / tab / tytuł`, link: `source_sha256 / link / source / target`. Powtarzalny i formalnie poprawny v4 | wzorce: losowe v4 |
 | flow | łańcuch linków w kolejności stron | jak we wzorcach |
 
 ## 4. JSONata
@@ -77,17 +92,26 @@ READ_ONLY ma ten sam kształt (`read_only_if`). Wzorce używają tylko statyczne
 
 Dopasowanie i katalog należą do wątku „Słowniki: dane, SQLite, dopasowanie”. Generator woła jedną funkcję dla każdego pola przedmiotu typu SELECT/RADIO/CHECKBOX oraz TEXT_FIELD z etykietą, która może być słownikowa (rasa, kraj, dyscyplina):
 
+Interfejs uzgodniony z wątkiem słowników (G3gtp), kod: `coi.dictionaries`, opis: `app/docs/dictionaries.md`.
+
 ```python
-match(label: str, source_label: str, type: str, options: list[str]) -> DictMatch | None
-DictMatch = {dictionaryName: str, component: "SELECT"|"RADIO"|"CHECKBOX",
-             multiLevelTree: bool, searchEnabled: bool,
-             proposal: {name, levels, items, source} | None}   # None = słownik istnieje
+from coi.dictionaries import match, DictMatch
+with store.session() as s:          # store = current_app.config["STORE"] albo Store przekazany do pipeline (SSE działa bez app context)
+    m = match(s, label, source_label, type, options)   # None = bez słownika
+# DictMatch: dictionaryName, decision "existing"|"new", score, reason,
+#            component SELECT|RADIO|CHECKBOX, multiLevelTree, searchEnabled,
+#            proposal None (słownik istnieje) | {id, name, description, levels, items: [{id?, name, children?}], source: "catalog"|"document"}
 ```
 
-Co generator wpisuje:
-- `type = component`, `dictionaryName`, `options: []`, `multiLevelTree`, `searchEnabled`;
-- `proposal` trafia do `report.proposed_dictionaries` (deduplikacja po `name`), a generator dopisuje `usedIn: [techName…]`;
+Reguły komponentu (`component`, `searchEnabled`, `multiLevelTree`) liczy `match`, a generator je przepisuje. Generator wpisuje:
+- `type = component`, `dictionaryName`, `options: []`, `multiLevelTree`, `searchEnabled`. TEXT_FIELD, który dostał słownik istniejący (np. „Kraj” w przedmiocie), staje się SELECT-em;
+- `proposal` trafia do `report.proposed_dictionaries` (deduplikacja po `id`), a generator dopisuje `fields: [techName…]` (nazwa pola jak w P4 flow-review). Ten obiekt przyjmuje bez zmian `POST /api/v1/dictionaries/from-proposal`;
+- `score`, `reason` i `decision` idą do `report.field_map[fieldId]`; jako `needs_review` oznaczamy tylko propozycje nowych słowników (`decision: "new"`);
 - warunki SHOW na polu słownikowym nie są sprawdzane względem opcji, bo ich nie znamy.
+
+**Telefon:** `match("Numer telefonu")` zwraca `NUMERY_KIERUNKOWE`, czyli słownik dla osobnego SELECT-a z prefiksem. Generator ignoruje ten wynik dla TEXT_FIELD i pole zostaje tekstowe, tak jak we wzorcach #1 i #5, które prefiksu nie używają. Dodanie SELECT-a z prefiksem przed polem telefonu to ewentualne rozszerzenie, do decyzji.
+
+**Aliasy (Q22):** każdy `dictionaryName`, zarówno z szablonu, jak i z `match`, przechodzi przez mapę aliasów z `coi/config/` (`TERYT_DOWODOWY → TERYT_4G_DOWODOWY`). W wyniku jest zawsze nazwa kanoniczna, więc wszystkie adresy w szablonie dostają `TERYT_4G_DOWODOWY`.
 
 Pola szablonu (Kraje, TERYT) mają słownik w szablonie i nie przechodzą przez `match`. Dane inicjalne są tylko w szablonie („Twoje dane”, adres, kontakt). Pola osób trzecich (S9) nigdy nie dostają prefillu.
 
@@ -104,7 +128,18 @@ Ten sam walidator obsługuje `POST /forms/validate` (A8).
 
 Jeden formularz, flow liniowy (linki nie mają warunków, strony nie mają `states`). Na pierwszej stronie przedmiotu jest radio „Rodzaj wniosku”, a sekcje mają SHOW. Warunek między stronami działa, bo JSONata adresuje stronę po tytule (sprawdzone w spike'u). Ograniczenie: strona, której wszystkie sekcje są ukryte, wyświetli się pusta. Ekstrakcja powinna więc dzielić #9 na strony tematyczne wspólne dla wariantów, a nie na strony per wariant. Generator ostrzega, gdy wszystkie sekcje strony mają SHOW.
 
+## 8. Konfiguracja (`coi/config/`)
+
+Całą konfigurację generatora trzymamy w jednym miejscu, na wzór `config/` z Laravela. Generator czyta z niej:
+- `prefill_identity`: `MLPZ` (domyślnie) albo `PESEL` (Q24);
+- `dictionary_aliases`: `{"TERYT_DOWODOWY": "TERYT_4G_DOWODOWY"}` (Q22);
+- ścieżkę do szablonów (`templates/`) i presetów.
+
+Szablony i presety zostają plikami danych obok kodu, a konfiguracja wskazuje tylko, skąd je brać.
+
 ## Wynik spike'a
+
+Spike powstał przed decyzjami Q20–Q24, więc ma jeszcze regułę „radio z jedną opcją znika”, ziarno UUID z tytułu i TERYT jak w #1.
 
 | Test | Wynik |
 |---|---|
@@ -126,15 +161,15 @@ Błąd wychwycony przez diff: w #5 PESEL zasila tylko tożsamość, a adres nada
 | Schemat: `defaultValue` to string, wzorce: SELECT `["Polska"]` | jak wzorce; walidator pomija ten konflikt |
 | Schemat: `consentSectionConfig.required` obok `consents` (we wzorcach w każdej zgodzie) | jak wzorce |
 | `multiLevelTree`, `searchEnabled`, `minItemRows` poza schematem | emitujemy, gdy słownik lub szablon je ma |
-| TERYT_DOWODOWY kontra TERYT_4G_DOWODOWY: niespójne nawet w obrębie jednego wzorca | szablon trzyma #1 do decyzji |
+| TERYT_DOWODOWY kontra TERYT_4G_DOWODOWY: niespójne nawet w obrębie jednego wzorca | wszędzie `TERYT_4G_DOWODOWY`, a stara nazwa jest aliasem (Q22) |
 | Reguła: na FINISH „wyłącznie INFO_SECTION”, wzorce: SECTION + TEXT_BLOCK | jak wzorce; walidator dopuszcza TEXT_BLOCK |
 | Opcja w #5 bez `techName`; link w #5 z id `a16ec` | zawsze pełne |
 | Kontakt z prefillem MLPZ, edytowalny | jak wzorce |
 
-## Pytania do użytkownika
+## Zmiany w kodzie po decyzjach (do zrobienia przy implementacji)
 
-1. **S4**: usuwamy radio „w czyim imieniu” (została w nim jedna opcja), a sekcje podmiotu są zawsze widoczne. Alternatywa: zostawić radio z jedną opcją do kliknięcia.
-2. **`rows`**: jednolicie `pola + 1` czy kopiować nieregularności wzorców (adres 9/8)?
-3. **TERYT**: który słownik w adresach, `TERYT_4G_DOWODOWY` czy `TERYT_DOWODOWY`? Wzorce mieszają oba.
-4. **UUID**: deterministyczne z tytułu formularza. Czy dodać do ziarna hash pliku, żeby dwa różne pliki o tym samym tytule nie dawały tych samych UUID przy imporcie do COI?
-5. **Prefill tożsamości**: domyślnie MLPZ (standard, #1), PESEL jako opcja konfiguracji?
+1. Q20: wariant CHECKBOX w `templates/dane.json`, placeholder `{{entity_option}}`, usunięcie reguły „radio z jedną opcją znika” z `gen.py`.
+2. Q22: zamiana nazw TERYT w szablonie i mapa aliasów w `coi/config/`.
+3. Q23: `stable_id(source_sha256, …)` zamiast tytułu formularza.
+4. Q24: `prefill` z `coi/config/`, domyślnie MLPZ.
+5. Telefon: ignorowanie `NUMERY_KIERUNKOWE` dla TEXT_FIELD, chyba że zdecydujemy o SELECT-cie z prefiksem.
