@@ -79,6 +79,8 @@ def simplify(c, idx):
         return (not absorb) if not parts else parts[0] if len(parts) == 1 else {op: parts}
     ref = idx[c["field"]]
     vals = [v for v in c["in"] if v in ref["options"]] if ref["options"] is not None else c["in"]
+    if "constant" in ref:  # a choice field with a single option, removed from the form
+        return ref["constant"] in vals
     return {**c, "in": vals} if vals else False
 
 
@@ -109,7 +111,8 @@ def jsonata(c, idx, top=True) -> str:
 def resolve(tree: dict, templates: Path) -> list:
     """Assemble pages, apply `when`, placeholders and techNames. Returns pages with resolved nodes."""
     ctx = {"applicant": tree.get("applicant", "ANY"), "addressee": tree["addressee"]["kind"], "addressee.name": tree["addressee"]["name"],
-           "prefill": tree.get("prefill", "MLPZ"), "pesel": tree.get("pesel", tree.get("prefill") == "PESEL"), "entity_option": tree["entity_option"], "entity_required": tree.get("entity_required", True)}
+           "prefill": tree.get("prefill", "MLPZ"), "pesel": tree.get("pesel", tree.get("prefill") == "PESEL"), "entity_option": tree["entity_option"],
+           "entity_extract": tree.get("entity_extract", False), "proxy_id_card": tree.get("proxy_id_card", False)}
     load = lambda n: json.loads((templates / f"{n}.json").read_text())
     subject = copy.deepcopy(tree["pages"])
     for p in subject:
@@ -150,8 +153,6 @@ def resolve(tree: dict, templates: Path) -> list:
                 f["tech"] = tech(f, f.get("label") or f["type"], s["tech"])
                 for k in ("default", "label", "show_if"):
                     f[k] = subst(f.get(k), ctx)
-                if isinstance(f.get("required"), str):  # a setting name, e.g. "entity_required" (Q31)
-                    f["required"] = ctx[f["required"]]
                 if f.get("read_only") and f.get("default") in (None, "", []):  # nothing to show: the applicant fills it in
                     f["read_only"] = False
                 if "options" in f:
@@ -202,6 +203,10 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
                 opts = f.get("options") if f["type"] in CHOICE and not f.get("dictionary") else None
                 idx[f.get("key") or f["tech"]] = {"page": p["title"], "section": s["tech"], "tech": f["tech"],
                                                   "repeating": s.get("repeating", False), "options": opts}
+                if opts is not None and len(opts) == 1 and (f["type"] == "RADIO" or f.get("meta") is None):
+                    # one option is no choice (Standardy s.5 pkt 4d-4e): the field goes, conditions on it hold
+                    idx[f.get("key") or f["tech"]]["constant"] = opts[0]
+                    f["drop"] = True
 
     def cond(node, section, what):
         """Simplify node's show_if; a condition the COI editor cannot express is dropped with a warning (node stays visible)."""
@@ -226,7 +231,7 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
             s["cond"] = cond(s, None, f"sekcja {s['tech']!r}")
             for f in s["fields"]:
                 f["cond"] = cond(f, s["tech"], f"pole {f['tech']!r}")
-            s["fields"] = [f for f in s["fields"] if f["cond"] is not False]
+            s["fields"] = [f for f in s["fields"] if f["cond"] is not False and not f.get("drop")]
         p["sections"] = [s for s in p["sections"] if s["cond"] is not False and s["fields"]]
     pages = merge_conditional_pages(pages, idx, warnings)
 

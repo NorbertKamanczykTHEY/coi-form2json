@@ -4,12 +4,13 @@ import json
 import re
 from pathlib import Path
 
-from ..extraction.anchors import expand
+from ..extraction.anchors import expand, src_text
 from ..extraction.tree import FieldTree, FormField, Section, ShowIf
 
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
 PESEL = re.compile(r"\bPESEL\b", re.I)
 SEAT = re.compile(r"siedzib", re.I)  # "adres siedziby": the applicant entity's own address
+ID_CARD = re.compile(r"dowod\w* osobist", re.I)  # the paper asks the proxy for an ID card number
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}$")
 NOT_APPLICANT = {"rodo", "legal_info", "office_use"}  # blocks where "PESEL" is prose, not a field of the applicant
 ENTITY_ID = re.compile(r"^nazwa\b|\b(nip|regon|krs)\b", re.I)  # name and registry numbers the "Dane podmiotu" template asks for
@@ -138,7 +139,8 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         # the applicant's PESEL field: by setting, or because the paper asks for it
         "pesel": settings["prefill_identity"] == "PESEL" or applicant_pesel(tree, blocks or {}),
         "entity_option": tree.entity_option or settings["entity_option"],
-        "entity_required": settings["entity_required"],
+        "entity_extract": bool(getattr(tree, "entity_extract_required", False)),  # registry extract from every entity applicant
+        "proxy_id_card": any(ID_CARD.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "proxy_data"),
         "pages": pages,
         "consents": [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if])} for c in tree.consents],
     }

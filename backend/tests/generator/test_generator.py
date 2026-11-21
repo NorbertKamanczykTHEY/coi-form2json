@@ -82,17 +82,45 @@ def test_person_variant_drops_entity_sections():
     assert radio["type"] == "RADIO" and [o["name"] for o in radio["options"]] == ["Swoim", "Innej osoby"]
 
 
-@pytest.mark.parametrize("required", [True, False])
-def test_entity_variant_checkbox_from_paper(required):
-    t = tree("form1", applicant_kinds=["legal_entity"], entity_option="Klub sportowy")
-    form, rep, _ = generate(t, SHA, settings={"entity_required": required})
-    box = next(f for *_, f in fields(form) if f["techName"] == "wybierz_w_czyim_imieniu_wnioskujesz")
-    assert box["type"] == "CHECKBOX" and [o["name"] for o in box["options"]] == ["Klub sportowy"]
-    assert ("REQUIRED" in box["validation"]) is required  # Q31
-    shown = [s for _, s, _ in fields(form) if s["techName"] == "dane_podmiotu"][0]
-    assert '"Klub sportowy" in' in shown["states"][0]["query"]
-    assert "dane_innej_osoby" not in {s["techName"] for _, s, _ in fields(form)}
+def test_entity_only_applicant_has_no_choice_of_whose_name():
+    # ADR 0026 (Q20/Q31 withdrawn): "tylko podmiot" -> entity data always shown, "jako kto" required without SHOW
+    t = tree("form1", applicant_kinds=["legal_entity"], entity_option="Stowarzyszenie")
+    form, rep, _ = generate(t, SHA)
+    got = {f["techName"]: (s, f) for _, s, f in fields(form)}
+    assert "wybierz_w_czyim_imieniu_wnioskujesz" not in got and "dane_innej_osoby" not in {s["techName"] for s, _ in got.values()}
+    for k in ("nazwa", "kraj_siedziba"):
+        assert got[k][0]["states"] == []  # section always visible
+    role = got["wybierz_jako_kto_wnioskujesz"][1]
+    assert role["states"] == [] and role["validation"] == ["REQUIRED"]
+    rep_q = got["plik_z_odpisem_danych"][0]["states"][0]["query"]
+    assert '"Reprezentant" in' in rep_q and "w_czyim_imieniu" not in rep_q
+    assert got["regon"][1]["validation"] == ["REQUIRED", "REGON"]  # Standardy s.17
     assert rep["validation"] == []
+
+
+def test_single_option_choice_disappears():
+    t = _with_section("form3", [_field("jedyna", "Wybierz", "RADIO", options=["Tak"]),
+                                _field("zalezne", "Szczegóły", show_if={"field": "jedyna", "options": ["Tak"]})])
+    got = {f["techName"]: f for *_, f in fields(generate(t, SHA)[0])}
+    assert "jedyna" not in got and got["zalezne"]["states"] == []
+
+
+@pytest.mark.parametrize("signal", [False, True])
+def test_registry_extract_always_required_with_signal(signal):
+    t = tree("form1", applicant_kinds=["legal_entity"])
+    object.__setattr__(t, "entity_extract_required", signal)  # the field lands in FieldTree with extraction (ADR 0026)
+    sec = next(s for _, s, f in fields(generate(t, SHA)[0]) if f["techName"] == "plik_z_odpisem_danych")
+    assert (sec["states"] == []) is signal  # with the signal: every entity applicant, proxy included
+    anyone = next(s for _, s, f in fields(generate(tree("form1"), SHA)[0]) if f["techName"] == "plik_z_odpisem_danych")
+    assert anyone["title"] == "Potwierdzenie, że jesteś reprezentantem" and '"Reprezentant" in' in anyone["states"][0]["query"]
+
+
+def test_proxy_id_card_when_the_paper_asks():
+    blocks = {"p1.b7": "Dane pełnomocnika: imię, nazwisko, seria i numer dowodu osobistego"}
+    asked = tree("form1", dropped=[{"reason": "proxy_data", "src": ["p1.b7"]}])
+    f = next((f for *_, f in fields(generate(asked, SHA, blocks=blocks)[0]) if f["techName"].startswith("seria_i_numer_dowodu")), None)
+    assert f and f["validation"] == ["REQUIRED", "SERIAL_NUMBER_ID_CARD"] and not f["readOnly"]  # no registry holds it (Dane inicjalne)
+    assert not any(f["techName"].startswith("seria_i_numer_dowodu") for *_, f in fields(generate(tree("form1"), SHA, blocks=blocks)[0]))
 
 
 def test_addressee_missing_and_consent_from_document():

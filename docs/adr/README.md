@@ -35,3 +35,4 @@ Gdy decyzja wynika ze specyfikacji tylko częściowo, są dwa źródła, a Konte
 | 0023 | Przy rozbieżności schematu i wzorców trzymamy się wzorców #1 i #5 | proponowana | SPEC (M3) + ZESPÓŁ | [0023-wzorce-ponad-schemat.md](0023-wzorce-ponad-schemat.md) |
 | 0024 | Reguły, prompty i bramki są uniwersalne, bez poprawek pod konkretny formularz | przyjęta | ZESPÓŁ | [0024-uniwersalne-reguly-bez-poprawek-pod-formularz.md](0024-uniwersalne-reguly-bez-poprawek-pod-formularz.md) |
 | 0025 | Propozycje słowników tylko w raporcie i w edytorze, JSON COI ma wyłącznie słowniki istniejące | przyjęta | UŻYTKOWNIK | [0025-propozycje-slownikow-tylko-w-raporcie.md](0025-propozycje-slownikow-tylko-w-raporcie.md) |
+| 0026 | Wnioskodawca „tylko podmiot”: bez pola „w czyim imieniu”, odpis z rejestru według dokumentu, dowód pełnomocnika | przyjęta | UŻYTKOWNIK | [0026-wnioskodawca-tylko-podmiot.md](0026-wnioskodawca-tylko-podmiot.md) |

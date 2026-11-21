@@ -72,31 +72,12 @@
        "name": "{{entity_option}}",
        "when": {
         "applicant": [
-         "ANY"
+         "ANY",
+         "ENTITY"
         ]
        }
       }
-     ],
-     "when": {
-      "applicant": [
-       "PERSON",
-       "ANY"
-      ]
-     }
-    },
-    {
-     "key": "wybierz_w_czyim_imieniu_wnioskujesz",
-     "label": "Wybierz, w czyim imieniu wnioskujesz",
-     "type": "CHECKBOX",
-     "options": [
-      "{{entity_option}}"
-     ],
-     "required": "entity_required",
-     "when": {
-      "applicant": [
-       "ENTITY"
-      ]
-     }
+     ]
     },
     {
      "key": "wybierz_jako_kto_wnioskujesz",
@@ -289,7 +270,6 @@
      "key": "regon",
      "label": "REGON",
      "type": "TEXT_FIELD",
-     "required": false,
      "validators": [
       "REGON"
      ]
@@ -433,6 +413,35 @@
    },
    "repeating": false,
    "title": "Potwierdzenie, że jesteś reprezentantem",
+   "fields": [
+    {
+     "key": "plik_z_odpisem_danych",
+     "label": "Plik z odpisem danych",
+     "type": "FILE_UPLOADER"
+    }
+   ],
+   "when": {
+    "entity_extract": [
+     false
+    ]
+   }
+  },
+  {
+   "key": "potwierdzenie_ze_jestes_reprezentantem",
+   "title": "Odpis z rejestru podmiotu",
+   "repeating": false,
+   "description": "Dołącz aktualny odpis danych z Krajowego Rejestru Sądowego lub innego rejestru.",
+   "when": {
+    "entity_extract": [
+     true
+    ]
+   },
+   "show_if": {
+    "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+    "in": [
+     "{{entity_option}}"
+    ]
+   },
    "fields": [
     {
      "key": "plik_z_odpisem_danych",
@@ -610,6 +619,19 @@
      "key": "dokument_z_potwierdzeniem_podpisany_elektronicznie",
      "label": "Dokument z potwierdzeniem, podpisany elektronicznie",
      "type": "FILE_UPLOADER"
+    },
+    {
+     "key": "seria_i_numer_dowodu_osobistego_pelnomocnika",
+     "label": "Seria i numer dowodu osobistego",
+     "type": "TEXT_FIELD",
+     "validators": [
+      "SERIAL_NUMBER_ID_CARD"
+     ],
+     "when": {
+      "proxy_id_card": [
+       true
+      ]
+     }
     }
    ]
   },

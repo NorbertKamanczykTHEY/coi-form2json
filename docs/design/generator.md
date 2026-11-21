@@ -6,7 +6,8 @@ Status: decyzje Q20–Q24 przyjęte (2026-11-21), kod spike'a jeszcze ich nie uw
 
 | # | Decyzja | Gdzie w projekcie |
 |---|---|---|
-| Q20 | S4 (np. #9): zamiast radia „w czyim imieniu” z jedną opcją robimy **CHECKBOX jak na papierze**, a pola podmiotu pokazują się (SHOW), gdy jest zaznaczony | pkt 2 |
+| Q20 | ~~S4 (np. #9): zamiast radia „w czyim imieniu” z jedną opcją robimy CHECKBOX jak na papierze~~ **Cofnięta** ([ADR 0026](../adr/0026-wnioskodawca-tylko-podmiot.md)): w wariancie „tylko podmiot” nie ma pola „w czyim imieniu”, dane podmiotu są widoczne zawsze | pkt 2 |
+| Q31 | ~~checkbox „Klub sportowy” wymagany, przełącznik `entity_required`~~ **Cofnięta** razem z Q20 ([ADR 0026](../adr/0026-wnioskodawca-tylko-podmiot.md)) | pkt 2 |
 | Q21 | `rows` jedną regułą dla wszystkich sekcji: liczba pól + 1 | pkt 3 |
 | Q22 | Słownik adresowy to `TERYT_4G_DOWODOWY`, a `TERYT_DOWODOWY` jest jego aliasem. Aliasy są w konfiguracji `coi/config/` | pkt 5, pkt 8 |
 | Q23 | Ziarno UUID: `sha256` pliku + techName. Ten sam plik daje te same UUID, różne pliki dają różne | pkt 3 |
@@ -60,7 +61,9 @@ Załączniki: „należy załączyć/dołączyć” i podobne sformułowania daj
 Warianty to dwa mechanizmy, oba w danych:
 - `when: {"applicant": ["PERSON","ANY"]}` na sekcji, polu albo opcji. W szablonie „Dane” `when` mają tylko opcje radia „w czyim imieniu” i sekcje adresata.
 - Upraszczanie warunków robi resztę. Gdy w wariancie S2 znika opcja „Osoby prawnej…”, każdy warunek na niej daje `false`, więc „Dane podmiotu”, „Adres siedziby”, reprezentant i opłata 2 wypadają same, a warunek pełnomocnictwa skraca się do „Innej osoby”.
-- **S4 (Q20):** pole `wybierz_w_czyim_imieniu_wnioskujesz` ma w szablonie drugi wariant: CHECKBOX z `when: {"applicant": ["ENTITY"]}`, ten sam techName i jedną opcją, opcjonalny. Warunki SHOW sekcji podmiotu, reprezentanta i pełnomocnictwa zostają bez zmian, bo `"X" in __userAnswer` działa tak samo dla RADIO i CHECKBOX. Gdy pole jest odznaczone, sekcje podmiotu są ukryte. Etykieta i treść opcji pochodzą z papieru (#9: „Klub sportowy”) przez placeholder `{{entity_option}}`, który generator podstawia w opcji i w warunkach. Bez tekstu z papieru zostaje „Osoby prawnej lub jednostki organizacyjnej”. Spike'owa reguła „radio z jedną opcją znika” do usunięcia.
+- **S4 (ADR 0026, zastępuje Q20/Q31):** w radiu `wybierz_w_czyim_imieniu_wnioskujesz` opcja `{{entity_option}}` ma `when: {"applicant": ["ANY", "ENTITY"]}`, a „Swoim” i „Innej osoby” `["PERSON", "ANY"]`. W wariancie ENTITY zostaje więc jedna opcja i działa ogólna reguła: pole wyboru szablonu (oraz każde RADIO) z jedną opcją znika, a warunek na tej opcji jest zawsze spełniony. „Dane podmiotu” i „Adres siedziby” są widoczne zawsze, radio „jako kto” jest wymagane i bez SHOW, a warunki reprezentanta, pełnomocnictwa i opłaty 2 skracają się do roli. Placeholder `{{entity_option}}` (tekst z papieru albo „Osoby prawnej lub jednostki organizacyjnej”) jest etykietą opcji w wariancie ANY.
+- **Odpis z rejestru (ADR 0026):** gdy FieldTree ma `entity_extract_required`, sekcja `potwierdzenie_ze_jestes_reprezentantem` ma bliźniaka „Odpis z rejestru podmiotu” widocznego przy każdym podmiocie, także przy pełnomocniku. Bez sygnału odpis jest tylko od reprezentanta, jak we wzorcach #1 i #5.
+- **Seria i numer dowodu pełnomocnika:** pole w sekcji „Pełnomocnictwo”, gdy papier pyta o dowód w danych pełnomocnika (`dropped` z powodem `proxy_data`). Żaden rejestr z „Danych inicjalnych” (PESEL, PESEL_ADDRESS, MLPZ) nie ma tego atrybutu, więc pole jest edytowalne, wymagane, z walidatorem `SERIAL_NUMBER_ID_CARD`.
 
 Placeholdery: `{{addressee.name}}`, `{{entity_option}}`, `{{prefill}}`. To ostatnie to źródło tożsamości w „Twoje dane”: MLPZ domyślnie, PESEL jako opcja w `coi/config/` (Q24). Adres i kontakt zostają przy MLPZ, tak jak w #5.
 
