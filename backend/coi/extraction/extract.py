@@ -48,6 +48,7 @@ class SkeletonSection(BaseModel):
     variants: StrList = Field(default_factory=list, description="rodzaje wniosków, których dotyczy sekcja; pusto = wspólna")
     repeating: bool = False
     person_role: Literal["third_party"] | None = None
+    party: bool = False
     condition: ShowIf | None = Field(default=None, description="gdy sekcja dotyczy tylko jednej sytuacji: pytanie z `conditions` i opcje")
 
 
@@ -77,6 +78,8 @@ class Skeleton(BaseModel):
     entity_option: str | None = None
     entity_extract_required: bool = Field(default=False, description="true, gdy dokument wymaga odpisu lub wyciągu z rejestru (KRS, CEIDG lub innego) o podmiocie, niezależnie od tego, kto składa wniosek (nie tylko od reprezentanta)")
     entity_extract_src: StrList = Field(default_factory=list, description="kotwice bloków, które tego odpisu wymagają")
+    applicant_self_only: bool = Field(default=False, description="true tylko gdy dokument wprost wymaga, by wnioskodawca działał osobiście, albo wyklucza pełnomocnika")
+    applicant_self_only_src: StrList = Field(default_factory=list, description="kotwice bloków z tym wymogiem")
     variants: StrList = Field(default_factory=list, description="krótkie nazwy rodzajów wniosków, gdy dokument łączy kilka; inaczej pusto")
     conditions: list[Condition] = Field(default_factory=list, description="pytania RADIO rozstrzygające sytuacje, od których zależą zgody lub sekcje")
     pages: list[SkeletonPage]
@@ -172,6 +175,7 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
             sec.src = sec.src or sk.src
             sec.repeating = sec.repeating or sk.repeating
             sec.person_role = sec.person_role or sk.person_role
+            sec.party = sec.party or sk.party
             opts = [v for v in sk.variants if v in variants]
             if opts and set(opts) != set(variants) and not sec.show_if:  # Q2: variant sections are SHOW, not copies
                 sec.show_if = ShowIf(field=VARIANT_KEY, options=opts)
@@ -200,6 +204,7 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
         consents.append(Consent(text=c.text, src=c.src, show_if=show + [x for x in [cond_of(c.condition)] if x]))
     return FieldTree(title=skel.title, addressee=skel.addressee, applicant_kinds=skel.applicant_kinds, entity_option=skel.entity_option,
                      entity_extract_required=skel.entity_extract_required, entity_extract_src=skel.entity_extract_src,
+                     applicant_self_only=skel.applicant_self_only, applicant_self_only_src=skel.applicant_self_only_src,
                      pages=pages, consents=consents, dropped=skel.dropped, issues=skel.issues)
 
 

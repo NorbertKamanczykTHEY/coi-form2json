@@ -159,3 +159,25 @@ def test_lost_control_question_is_rebuilt_from_consent_conditions():
     assert (ctl.key, ctl.type, ctl.options, ctl.label) == ("czy_osoba_jest_pelnoletnia", "RADIO", ["Tak", "Nie"], "Czy osoba jest pełnoletnia")
     assert ctl.show_if.field == "rodzaj" and ctl.show_if.options == ["A"]  # scoped like its consents
     assert any(r["key"] == ctl.key for r in review)
+
+
+def test_unknown_drop_reason_is_coerced():
+    from coi.extraction.tree import Drop
+    assert Drop.model_validate({"reason": "party_data", "src": ["p1.b1"]}).reason == "legal_info"
+
+
+def test_self_only_signal_kept_only_with_a_quote_that_says_so():
+    def run(text):
+        t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "applicant_self_only": True, "applicant_self_only_src": ["p1.b2"], "pages": []})
+        return normalize(t, {"p1.b2": text})[0]
+    assert run("Wniosek składa się osobiście w urzędzie.").applicant_self_only_src == ["p1.b2"]
+    assert run("Wniosek nie może być złożony przez pełnomocnika.").applicant_self_only
+    assert not run("Dane wnioskodawcy: imię i nazwisko ___").applicant_self_only
+
+
+def test_correspondence_address_section_becomes_party_data():
+    t = FieldTree.model_validate({"title": "D", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Adres do korespondencji", "src": ["p1.b1"], "fields": [{"key": "ulica", "label": "Ulica", "source_label": "Ulica", "type": "TEXT_FIELD", "src": ["p1.b2"]}]},
+        {"title": "Dane dziecka", "person_role": "third_party", "src": ["p1.b1"], "fields": []}]}]})
+    out, _ = normalize(t, {"p1.b1": "B.4 ADRES DO KORESPONDENCJI", "p1.b2": "Ulica ___"})
+    assert [s.party for s in out.pages[0].sections] == [True, False]

@@ -7,7 +7,7 @@ import unicodedata
 from difflib import SequenceMatcher
 
 from .anchors import expand
-from .postprocess import attachment_items
+from .postprocess import CORRESPONDENCE, attachment_items
 from .tree import FieldTree
 
 FILL = re.compile(r"___|☐")
@@ -19,6 +19,7 @@ ORGAN = re.compile(r"\badresat\b|\b(wójt|burmistrz|prezydent miasta|starost[ay]
 SIGN_LABEL = re.compile(r"podpis|\bdata\b|miejscowość|imi[eę]|nazwisko|\bnazwa\b|\badres|telefon|e-?mail|pesel|\bnip\b|regon", re.I)  # captions of template data
 PERSON_PRESETS = {"first_name", "last_name", "pesel", "birth_date", "id_card", "address", "phone", "email"}
 SLOT = re.compile(r"_{3,}")
+NUMBERED_POS = re.compile(r"(^|\s)\d{1,3}\.\s+[^\W\d_]{2,}")  # "12. Ulica": numbered positions of a declaration (boxes, no ___)
 LEADING_FILL = re.compile(r"^\W*(___|☐)")
 TRAILING_FILL = re.compile(r"(___|☐)\W*$")
 SIGN_ONLY = re.compile(r"podpis|pieczęć|pieczątk|\bdata\b", re.I)
@@ -49,7 +50,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     titles = {a for d in tree.dropped if d.reason == "title" for a in ex(d.src)}
     def fillable(i):  # a block with a place to fill, a table row, or the caption right above/below a blank line
         t = blocks[order[i]]
-        return bool(FILL.search(t)) or " | " in t or (i + 1 < len(order) and LEADING_FILL.match(blocks[order[i + 1]])) \
+        return bool(FILL.search(t)) or " | " in t or NUMBERED_POS.search(t) or (i + 1 < len(order) and LEADING_FILL.match(blocks[order[i + 1]])) \
             or (i > 0 and TRAILING_FILL.search(blocks[order[i - 1]]))
     ground = norm(FILL.sub(" ", " ".join(blocks[a] for i, a in enumerate(order) if a not in titles and fillable(i))))
     for d in tree.dropped:
@@ -101,7 +102,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     leaks = []  # flagged per section, and only for a block of such data (>= 2 fields): one name field is usually someone else's
     for p in tree.pages:
         for sec in p.sections:
-            hits = [f.key for f in sec.fields if sec.person_role != "third_party" and f.preset not in PERSON_PRESETS and TEMPLATE_LABEL.search(f.source_label)]
+            hits = [f.key for f in sec.fields if sec.person_role != "third_party" and not sec.party and f.preset not in PERSON_PRESETS and TEMPLATE_LABEL.search(f.source_label)]
             if len(hits) >= 2:
                 leaks.append(hits[0])
     review += [{"key": k, "why": "wygląda na dane wnioskodawcy lub pełnomocnika (szablon), nie przedmiot wniosku"} for k in leaks]
@@ -163,6 +164,11 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     lost_att = [a for a in attachment_items(blocks) if a not in uploads and a not in templ]
     if lost_att:
         fails.append(f"G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): {lost_att[:10]}")
+    # G15: a correspondence address the document asks for is party data (page "Dane"), never silently dropped
+    prose = {x for d in tree.dropped if d.reason in ("rodo", "legal_info") for x in ex(d.src)} | {x for c in tree.consents for x in ex(c.src)}
+    lost_corr = [a for a, t in blocks.items() if CORRESPONDENCE.search(t) and len(t) <= 160 and a not in field_cited and a not in prose]
+    if lost_corr:
+        fails.append(f"G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: {lost_corr[:5]}")
     if no_addressee:
         fails.append("G13: brak `addressee`, choć dokument wskazuje adresata (organ albo urząd); wpisz go do `addressee`")
     if broken_show:
@@ -183,4 +189,4 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     review += [{"key": near.get(x.split(":")[0]), "anchor": x.split(":")[0], "why": f"brak pola dla{x.split(':', 1)[1]}"} for x in lost_slots]
     return {"ok": not fails, "fails": fails, "coverage": cov, "needs_review": review, "bad_anchors": bad_anchor, "uncovered": uncovered,
             "broken_show_if": broken_show, "no_options": no_opts, "dup_sections": dup_sections, "bad_drops": bad_drops,
-            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "empty_pages": empty_pages, "lost_slots": lost_slots, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}
+            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "lost_correspondence": lost_corr, "empty_pages": empty_pages, "lost_slots": lost_slots, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}

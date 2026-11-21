@@ -26,6 +26,8 @@ def list_heading(t: str) -> bool:
     """The short intro of an attachment list ("w załączeniu:", "Załączniki"), not a paragraph that mentions attaching."""
     t = t.strip(" *_")
     return bool(ATTACH_LIST.search(t)) and not LIST_ITEM.match(t) and (t.endswith(":") or len(t) <= 40)
+SELF_ONLY = re.compile(r"osobiście|osobist\w* stawienni|\bnie\b.{0,60}pełnomocni|\bbez\b.{0,20}pełnomocni|wyłącznie przez\b.{0,20}(wnioskodaw|składając)", re.I)
+CORRESPONDENCE = re.compile(r"\badres\w*\s+(do|dla)\s+korespondencji\b", re.I)
 REGISTER = re.compile(r"(odpis|wyciąg|wypis)\w*\b.{0,40}\b(rejestr\w*|krs|ceidg)\b|\b(krs|ceidg)\b", re.I)
 SIGNATURE = re.compile(r"podpis|pieczęć|pieczątk|^\W*data\W*$|data (sporządzenia|wypełnienia|złożenia)|miejscowość,? (i )?data", re.I)
 CONDITIONAL = re.compile(r"\bje[śs]li\b|\bje[żz]eli\b|\bw przypadku\b", re.I)
@@ -261,6 +263,12 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     if tree.entity_extract_required and not REGISTER.search(src_text(tree.entity_extract_src, blocks)):
         tree.entity_extract_required, tree.entity_extract_src = False, []  # the model's claim has no register extract in its source
         review.append({"key": None, "why": "model zgłosił wymóg odpisu z rejestru, ale wskazany fragment go nie zawiera; pominięto"})
+    for sec in (s for p in tree.pages for s in p.sections if s.person_role != "third_party"):
+        if CORRESPONDENCE.search(sec.title + " " + src_text(sec.src, blocks)):
+            sec.party = True  # the applicant's correspondence address is party data (page "Dane"), whatever the model flagged
+    if tree.applicant_self_only and not SELF_ONLY.search(src_text(tree.applicant_self_only_src, blocks)):
+        tree.applicant_self_only, tree.applicant_self_only_src = False, []  # no quote requiring personal action or excluding a proxy
+        review.append({"key": None, "why": "model zgłosił, że wniosek składa się tylko osobiście, ale wskazany fragment tego nie mówi; pominięto"})
     return tree, review
 
 

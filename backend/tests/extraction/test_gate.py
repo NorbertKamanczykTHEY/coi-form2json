@@ -1,5 +1,5 @@
 from coi.extraction.gate import gate
-from coi.extraction.tree import Addressee, Consent, Drop, FieldTree, FormField, ShowIf
+from coi.extraction.tree import Addressee, Consent, Drop, FieldTree, FormField, Section, ShowIf
 
 BLOCKS = {"p1.b0": "WNIOSEK o test", "p1.b1": "Sposób: ☐ przelew ☐ gotówka", "p1.b2": "Numer rachunku ___",
           "p1.b3": "Imię i nazwisko ___", "p1.b4": "Pouczenie: art. 1"}
@@ -122,3 +122,19 @@ def test_register_extract_dropped_as_template_attachment_passes_g11():
     t = tree()
     t.dropped.append(Drop(reason="template_attachment", src=["p1.b5"]))
     assert not gate(t, blocks)["bad_drops"]
+
+
+def test_correspondence_address_must_not_be_dropped_and_party_section_is_no_leak():
+    blocks = BLOCKS | {"p1.b5": "B.4 ADRES DO KORESPONDENCJI (wypełnić tylko gdy inny niż w poz. B.3)", "p1.b6": "17. Kraj 18. Miejscowość 19. Ulica"}
+    t = tree()
+    t.dropped.append(Drop(reason="applicant_data", src=["p1.b5-p1.b6"]))
+    assert any(f.startswith("G15") for f in gate(t, blocks)["fails"])
+    t.dropped = t.dropped[:-1]
+    t.pages[0].sections.append(Section(title="Adres do korespondencji", party=True, src=["p1.b5"], fields=[
+        FormField(key="kraj", label="Kraj", source_label="Kraj", type="TEXT_FIELD", src=["p1.b6"]),
+        FormField(key="ulica", label="Ulica", source_label="Ulica", type="TEXT_FIELD", src=["p1.b6"]),
+        FormField(key="imie_s", label="Imię", source_label="Imię", type="TEXT_FIELD", src=["p1.b6"]),
+        FormField(key="nazwisko_s", label="Nazwisko", source_label="Nazwisko", type="TEXT_FIELD", src=["p1.b6"])]))
+    g = gate(t, blocks | {"p1.b6": "17. Kraj 18. Ulica 19. Imię 20. Nazwisko"})
+    assert not any(f.startswith(("G15", "G7")) for f in g["fails"]), g["fails"]  # numbered positions ground the labels
+    assert not g["template_leaks"]

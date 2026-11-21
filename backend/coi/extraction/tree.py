@@ -61,7 +61,8 @@ class FormField(BaseModel):
 class Section(BaseModel):
     title: str
     repeating: bool = Field(default=False, description="true gdy źródło każe powtarzać blok (np. 'dla każdego …', numerowane identyczne bloki)")
-    person_role: Literal["third_party"] | None = Field(default=None, description="'third_party' gdy sekcja to dane osoby trzeciej (nie wnioskodawcy, nie pełnomocnika)")
+    person_role: Literal["third_party"] | None = Field(default=None, description="'third_party' gdy sekcja to dane osoby trzeciej, której dotyczy sprawa, ale która nie jest stroną postępowania")
+    party: bool = Field(default=False, description="true gdy sekcja to dane strony postępowania, których wymaga dokument (rodzaj składającego, współwnioskodawca, współmałżonek, współwłaściciel, adres zamieszkania lub do korespondencji składającego), a nie przedmiot wniosku; trafia na stronę „Dane”")
     show_if: ShowIf | None = None
     fields: Annotated[list[FormField], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
     src: StrList = Field(default_factory=list)
@@ -79,8 +80,12 @@ class Consent(BaseModel):
     src: StrList = Field(default_factory=list)
 
 
+def _known_reason(v):  # an invented reason must not sink a whole rung; G11 still checks the block (fill marks under legal_info)
+    return v if v in DropReason.__args__ else "legal_info"
+
+
 class Drop(BaseModel):
-    reason: DropReason
+    reason: Annotated[DropReason, BeforeValidator(_known_reason)]
     src: StrList = Field(default_factory=list)
 
 
@@ -96,6 +101,8 @@ class FieldTree(BaseModel):  # defaults everywhere: the prompt tells models to o
     applicant_kinds: list[Literal["person", "legal_entity"]] = Field(description="kim może być wnioskodawca: person = osoba fizyczna, legal_entity = firma/instytucja (NIP, REGON, nazwa)")
     entity_extract_required: bool = Field(default=False, description="true, gdy dokument wymaga odpisu lub wyciągu z rejestru (KRS, CEIDG lub innego) o podmiocie, niezależnie od tego, kto składa wniosek (nie tylko od reprezentanta)")
     entity_extract_src: StrList = Field(default_factory=list, description="kotwice bloków, które tego odpisu wymagają")
+    applicant_self_only: bool = Field(default=False, description="true tylko gdy dokument wprost wymaga, by wnioskodawca działał osobiście, albo wyklucza pełnomocnika")
+    applicant_self_only_src: StrList = Field(default_factory=list, description="kotwice bloków z tym wymogiem")
     entity_option: str | None = Field(default=None, description="tekst opcji wyboru podmiotu z papieru, gdy formularz każe zaznaczyć rodzaj wnioskodawcy (dosłowna nazwa rodzaju podmiotu z dokumentu); null gdy brak (P2a)")
     pages: list[SubjectPage] = Field(description="tylko strony przedmiotu wniosku, bez danych wnioskodawcy, kontaktu i zgód")
     consents: Annotated[list[Consent], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
