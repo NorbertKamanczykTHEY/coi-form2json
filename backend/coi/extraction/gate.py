@@ -178,6 +178,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     if lost_corr:
         fails.append(f"G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: {lost_corr[:5]}")
     fails += _eval3(tree, blocks, field_cited, cited)
+    review += [{"key": None, "why": f"treść zgody do redakcji (czas teraźniejszy, neutralnie płciowo): {c.text[:80]!r}"} for c in tree.consents if GENDER_SLASH.search(c.text)]
     if no_addressee:
         fails.append("G13: brak `addressee`, choć dokument wskazuje adresata (organ albo urząd); wpisz go do `addressee`")
     if broken_show:
@@ -222,11 +223,15 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
     if lost_person:
         fails.append(f"G17: blok danych osoby wypełniany tylko przy zaznaczonej opcji bez sekcji; to sekcja `person_role: \"third_party\"` z `show_if` na tę opcję: {lost_person[:5]}")
     # G4: consent text in the present tense and gender-neutral; a declaration is a consent, not a text block
-    bad_consents = [c.text[:60] for c in tree.consents if GENDER_SLASH.search(c.text)]
+    # (a consent's wording is review-only: models do not reliably rewrite it, and a repair round costs more than an edit)
     decl_blocks = [f.key for _, _, f in all_fields(tree) if f.type == "TEXT_BLOCK" and DECLARATION.search(f.source_label or f.label)]
-    if bad_consents or decl_blocks:
-        fails.append(f"G18: oświadczenia: treść zgody bez form „/am”, „/a” (czas teraźniejszy, neutralnie płciowo): {bad_consents[:5]}; "
-                     f"„Oświadczam…” to zgoda w `consents`, nie TEXT_BLOCK: {decl_blocks[:5]}")
+    if decl_blocks:
+        fails.append(f"G18: „Oświadczam…” to zgoda w `consents`, nie TEXT_BLOCK: {decl_blocks[:5]}")
+    # G4: every declaration of the document lands in consents (or a field, or the template's RODO consent)
+    kept = {a for c in tree.consents for a in ex(c.src)} | {a for d in tree.dropped if d.reason in ("consent", "rodo") for a in ex(d.src)}
+    lost_decl = [a for a, t in blocks.items() if DECLARATION.search(t) and a not in kept and a not in field_cited]
+    if lost_decl:
+        fails.append(f"G24: oświadczenia z dokumentu zgubione; każde „Oświadczam…” to zgoda w `consents` (i `dropped` z powodem `consent`): {lost_decl[:5]}")
     # G6: each printed SUMA / RAZEM position is a NUMBER field
     numbers = {a for _, _, f in all_fields(tree) if f.type == "NUMBER" for a in ex(f.src)}
     dropped = {a for d in tree.dropped for a in ex(d.src)}

@@ -210,3 +210,10 @@ def test_paper_numbering_moves_to_number_and_plain_address_parts_lose_the_preset
     sec = normalize(t, blocks)[0].pages[0].sections[0]
     assert (sec.number, sec.title) == ("D.1", "Adres nieruchomości")
     assert [(x.number, x.label, x.preset) for x in sec.fields] == [("26", "Miejscowość", None), ("27", "Kod pocztowy", None), (None, "10 zł stawka", None)]
+
+
+def test_past_masculine_reading_form_becomes_present():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [], "consents": [
+        {"text": "Oświadczam, że zapoznałem/am się z regulaminem.", "src": ["p1.b1"]}, {"text": "Zapoznałam/zapoznałem się z warunkami.", "src": ["p1.b2"]}]})
+    out, _ = normalize(t, {"p1.b1": "x", "p1.b2": "y"})
+    assert [c.text for c in out.consents] == ["Oświadczam, że zapoznaję się z regulaminem.", "Zapoznaję się z warunkami."]

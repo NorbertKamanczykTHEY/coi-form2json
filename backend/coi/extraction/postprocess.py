@@ -37,6 +37,7 @@ DATE_MASK = re.compile(r"\b(DD|RRRR|YYYY)[-./]|format\w* (daty|dd|rrrr)", re.I)
 ACCOUNT_MASK = re.compile(r"X{6,}|\bformacie\b.{0,20}\d{2}", re.I)
 GENERIC = {"wpis", "poda", "wybi", "nale", "pros", "pole", "tuta", "któr", "dane", "dany", "nazw", "jest", "tego", "tym"}  # 4-letter stems
 LEAD_NUMBER = re.compile(r"^\s*(?:((?:[A-Z]\.)?\d{1,3}(?:\.\d{1,3})*)[.)]|([A-Z](?:\.\d{1,3})+)\.?)\s+(?=\S)")  # "26. Miejscowość", "B.2 Dane"
+PAST_READ = re.compile(r"\b([Zz])apoznał(?:em|am)(?:\s*/\s*(?:am|em|[Zz]apoznał(?:em|am)))?\s+się")
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -277,6 +278,7 @@ def _consents(tree: FieldTree) -> list[dict]:
     """G4 (EVAL-3): a personal-data consent duplicates the template's RODO one; a contact-channel consent is voluntary."""
     review, keep = [], []
     for c in tree.consents:
+        c.text = PAST_READ.sub(lambda m: m[1] + "apoznaję się", c.text)  # the common 1st-person past form; the rest is review (gate)
         if DATA_CONSENT.search(c.text) and "___" not in c.text and len([x for x in SENTENCE.split(c.text) if x.strip()]) == 1:  # only a bare data consent; one with other statements stays
             tree.dropped.append(Drop(reason="rodo", src=c.src))
             review.append({"key": None, "why": f"zgoda na przetwarzanie danych osobowych z dokumentu usunięta (jest w szablonie): {c.text[:80]!r}"})

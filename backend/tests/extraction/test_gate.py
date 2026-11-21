@@ -172,8 +172,8 @@ def test_g17_conditional_person_block_must_be_a_section():
 
 def test_g18_consent_forms_and_declaration_text_block():
     t = tree()
-    t.consents = [Consent(text="Oświadczam, że zapoznałem/am się z warunkami.", src=["p1.b4"])]
-    assert "G18" in codes(gate(t, BLOCKS))
+    t.consents = [Consent(text="Oświadczam, że zobowiązany/a jestem.", src=["p1.b4"])]
+    assert any("redakcji" in r["why"] for r in gate(t, BLOCKS)["needs_review"])  # wording: review only
     g = with_section({"p1.b5": "Oświadczam, że dane są prawdziwe."}, fld("o", "Oświadczam, że dane są prawdziwe.", "TEXT_BLOCK"))
     assert "G18" in codes(g)
 
@@ -216,5 +216,15 @@ def test_g23_exclusive_consents_need_show_if_and_g18_catches_past_masculine():
     assert "G23" in codes(gate(t, BLOCKS))
     t.consents = [Consent(text="Wyrażam zgodę w imieniu osoby niepełnoletniej.", src=["p1.b4"], show_if=[ShowIf(field="sposob", options=["Przelew"])])]
     assert "G23" not in codes(gate(t, BLOCKS))
-    t.consents = [Consent(text="Oświadczam, że zapoznałem się z regulaminem.", src=["p1.b4"])]
-    assert "G18" in codes(gate(t, BLOCKS))
+    t.consents = [Consent(text="Oświadczam, że zobowiązany/a jestem.", src=["p1.b4"])]
+    g = gate(t, BLOCKS)
+    assert "G18" not in codes(g) and any("redakcji" in r["why"] for r in g["needs_review"])  # wording is review-only
+
+
+def test_g24_declarations_must_not_be_lost():
+    blocks = {"p1.b5": "Oświadczam, że nie wykorzystuję zwierząt do polowań."}
+    t = tree()
+    t.dropped.append(Drop(reason="legal_info", src=["p1.b5"]))
+    assert "G24" in codes(gate(t, BLOCKS | blocks))
+    t.consents = [Consent(text="Nie wykorzystuję zwierząt do polowań.", src=["p1.b5"])]
+    assert "G24" not in codes(gate(t, BLOCKS | blocks))
