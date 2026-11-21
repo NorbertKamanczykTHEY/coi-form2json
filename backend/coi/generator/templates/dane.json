@@ -124,11 +124,83 @@
      "when": {
       "pesel": [
        true
+      ],
+      "no_pesel": [
+       false
       ]
      },
      "validators": [
       "PESEL"
      ]
+    },
+    {
+     "key": "czy_masz_numer_pesel",
+     "label": "Czy masz numer PESEL?",
+     "type": "RADIO",
+     "options": [
+      "Tak",
+      "Nie"
+     ],
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     }
+    },
+    {
+     "key": "numer_pesel",
+     "label": "Numer PESEL",
+     "type": "TEXT_FIELD",
+     "default": "PESEL.pesel",
+     "read_only": true,
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     },
+     "validators": [
+      "PESEL"
+     ],
+     "show_if": {
+      "not": {
+       "field": "czy_masz_numer_pesel",
+       "in": [
+        "Nie"
+       ]
+      }
+     }
+    },
+    {
+     "key": "rodzaj_dokumentu_tozsamosci",
+     "label": "Rodzaj dokumentu tożsamości",
+     "type": "TEXT_FIELD",
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     },
+     "show_if": {
+      "field": "czy_masz_numer_pesel",
+      "in": [
+       "Nie"
+      ]
+     }
+    },
+    {
+     "key": "numer_dokumentu_tozsamosci",
+     "label": "Numer dokumentu tożsamości",
+     "type": "TEXT_FIELD",
+     "when": {
+      "no_pesel": [
+       true
+      ]
+     },
+     "show_if": {
+      "field": "czy_masz_numer_pesel",
+      "in": [
+       "Nie"
+      ]
+     }
     }
    ]
   },

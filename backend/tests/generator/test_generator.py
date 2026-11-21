@@ -386,3 +386,21 @@ def test_conditional_pages_with_no_unconditional_page_share_one():
     form, rep, _ = generate(FieldTree.model_validate(t), SHA)
     assert [t["title"] for t in form["tabs"]] == ["Dane", "Szczegóły wniosku", "Kontakt i zgody", "Strona końcowa"]
     assert [q["field"]["title"] for q in form["tabs"][1]["questions"]] == ["Wybór", "B"] and rep["validation"] == []
+
+
+def test_identity_document_instead_of_pesel_from_paper_8():
+    from coi.extraction.anchors import blocks_of
+    from coi.parsing import parse
+    f = next(p for p in next(MATERIALS.glob("8. *")).glob("*.pdf"))
+    form, rep, _ = generate(tree("pattern1"), SHA, blocks=blocks_of(parse(f.read_bytes(), f.name)))
+    sec = next(q["field"] for q in form["tabs"][0]["questions"] if q["field"]["techName"] == "twoje_dane")
+    got = {c["field"]["techName"]: c["field"] for c in sec["repeatingSectionGrid"]}
+    order = list(got)
+    assert order.index("czy_masz_numer_pesel") < order.index("numer_pesel") < order.index("rodzaj_dokumentu_tozsamosci")
+    assert got["czy_masz_numer_pesel"]["validation"] == ["REQUIRED"] and [o["name"] for o in got["czy_masz_numer_pesel"]["options"]] == ["Tak", "Nie"]
+    assert got["numer_pesel"]["states"][0]["query"].startswith('$not("Nie" in')  # PESEL only when the applicant has one
+    for k in ("rodzaj_dokumentu_tozsamosci", "numer_dokumentu_tozsamosci"):
+        assert got[k]["validation"] == ["REQUIRED"] and got[k]["states"][0]["query"].startswith('("Nie" in')
+    assert rep["validation"] == [] and rep["warnings"] == []
+    plain = {f["techName"] for *_, f in fields(generate(tree("pattern1"), SHA, blocks={"p1.b1": "PESEL"})[0])}
+    assert "numer_pesel" in plain and "czy_masz_numer_pesel" not in plain  # no such sentence: nothing changes

@@ -11,6 +11,9 @@ TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
 PESEL = re.compile(r"\bPESEL\b", re.I)
 SEAT = re.compile(r"siedzib", re.I)  # "adres siedziby": the applicant entity's own address
 ID_CARD = re.compile(r"dowod\w* osobist", re.I)  # the paper asks the proxy for an ID card number
+# the paper lets an applicant without PESEL give an identity document instead (#8: "nie posiadające numeru PESEL wpisują
+# numer dokumentu tożsamości"); read on the whole text, the sentence usually sits in the instructions and spans blocks
+NO_PESEL = re.compile(r"(nie\s*posiada\w*|brak\w*|bez)\s+(numeru\s+)?PESEL\b.{0,150}?dokument\w*\s+tożsamości", re.I | re.S)
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}$")
 NOT_APPLICANT = {"rodo", "legal_info", "office_use"}  # blocks where "PESEL" is prose, not a field of the applicant
 ENTITY_ID = re.compile(r"^nazwa\b|\b(nip|regon|krs)\b", re.I)  # name and registry numbers the "Dane podmiotu" template asks for
@@ -140,6 +143,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         "pesel": settings["prefill_identity"] == "PESEL" or applicant_pesel(tree, blocks or {}),
         "entity_option": tree.entity_option or settings["entity_option"],
         "entity_extract": bool(getattr(tree, "entity_extract_required", False)),  # registry extract from every entity applicant
+        "no_pesel": bool(NO_PESEL.search(" ".join((blocks or {}).values()))),
         "proxy_id_card": any(ID_CARD.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "proxy_data"),
         "pages": pages,
         "consents": [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if])} for c in tree.consents],

@@ -112,7 +112,8 @@ def resolve(tree: dict, templates: Path) -> list:
     """Assemble pages, apply `when`, placeholders and techNames. Returns pages with resolved nodes."""
     ctx = {"applicant": tree.get("applicant", "ANY"), "addressee": tree["addressee"]["kind"], "addressee.name": tree["addressee"]["name"],
            "prefill": tree.get("prefill", "MLPZ"), "pesel": tree.get("pesel", tree.get("prefill") == "PESEL"), "entity_option": tree["entity_option"],
-           "entity_extract": tree.get("entity_extract", False), "proxy_id_card": tree.get("proxy_id_card", False)}
+           "entity_extract": tree.get("entity_extract", False), "proxy_id_card": tree.get("proxy_id_card", False),
+           "no_pesel": tree.get("no_pesel", False)}
     load = lambda n: json.loads((templates / f"{n}.json").read_text())
     subject = copy.deepcopy(tree["pages"])
     for p in subject:
