@@ -19,6 +19,7 @@ INPUT_TYPES = {"TEXT_FIELD", "TEXTAREA", "NUMBER", "DATEPICKER", "RADIO", "CHECK
 CHOICE = ("RADIO", "CHECKBOX", "SELECT")
 PL = str.maketrans("ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", "acelnoszzACELNOSZZ")
 EXTERNAL = re.compile(r"(MLPZ|PESEL|PESEL_ADDRESS)\.\w+$")
+SEARCH_OVER = 15  # Standardy s.5 pkt 4f: a longer list is a SELECT with a search box
 
 
 def slug(s: str) -> str:
@@ -92,9 +93,12 @@ def simplify(c, idx):
         parts = [p for p in parts if not isinstance(p, bool)]
         return (not absorb) if not parts else parts[0] if len(parts) == 1 else {op: parts}
     ref = idx[c["field"]]
-    vals = [v for v in c["in"] if v in ref["options"]] if ref["options"] is not None else c["in"]
+    vals = [ref.get("rename", {}).get(v, v) for v in c["in"]]
+    vals = [v for v in vals if v in ref["options"]] if ref["options"] is not None else vals
     if "constant" in ref:  # a choice field with a single option, removed from the form
         return ref["constant"] in vals
+    if ref.get("required") and ref["options"] and set(ref["options"]) <= set(vals):
+        return True  # G10: any option of a required choice is always chosen once the controller is filled
     return {**c, "in": vals} if vals else False
 
 
@@ -136,6 +140,11 @@ def resolve(tree: dict, templates: Path) -> list:
     at = next(i for i, s in enumerate(dane["sections"]) if s.get("key") == "__party__")
     dane["sections"][at:at + 1] = copy.deepcopy(tree.get("party", []))  # parties' sections, after the applicant's data
     pages = [dane, *subject, load("kontakt"), load("finish")]
+    if tree.get("case_fee"):  # G8: the fee for the case itself, before the consents
+        fee = [{"key": "informacja_o_oplacie", "label": "", "type": "TEXT_BLOCK", "description": tree["case_fee"]}]
+        if tree.get("case_fee_proof"):
+            fee.append({"key": "potwierdzenie_zaplaty", "label": "Potwierdzenie zapłaty", "type": "FILE_UPLOADER"})
+        pages[-2]["sections"].insert(1, {"key": "oplata", "title": "Opłata", "fields": fee})
     if tree.get("consents"):  # S11: document consents join the template consent field
         section = next(s for s in pages[-2]["sections"] for f in s["fields"] if f["type"] == "CONSENT_SECTION")
         groups: dict = {}  # a consent with a condition (variant, minor/adult) gets its own CONSENT_SECTION with SHOW
@@ -151,6 +160,14 @@ def resolve(tree: dict, templates: Path) -> list:
                 section["fields"].append({"key": f"zgoda_warunkowa_{i}", "label": "", "type": "CONSENT_SECTION",
                                           "consents": items, "show_if": cs[0]["show_if"]})
     consent_title(pages[-2])
+    template_labels = {f.get("label", "").strip().lower() for p in pages if not p.get("subject") for s in p["sections"]
+                       for f in s["fields"] if f.get("label") and "{{" not in f["label"]}
+    for p in subject:  # G16: a subject label equal to a template one ("Nazwa organu") takes the paper's full wording
+        for s in p["sections"]:
+            for f in s["fields"]:
+                full = re.sub(r"[\s.:…_*]+$", "", (f.get("meta") or {}).get("source_label") or "").strip()
+                if f.get("label", "").strip().lower() in template_labels and full and full.lower() != f["label"].strip().lower():
+                    f["label"] = full[0].upper() + full[1:]
     used = set()
 
     def tech(n, fallback, section=""):
@@ -218,13 +235,29 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
             for f in s["fields"]:
                 if p.get("subject") and dictionaries and not f.get("dictionary") and (info := dictionaries(f)):
                     f.setdefault("meta", {})["dictionary"] = info
+    for p in pages:
+        for s in p["sections"]:
+            for f in s["fields"]:
+                if f.get("meta") is None or f.get("dictionary"):
+                    continue
+                opts = f.get("options") or []
+                if f["type"] == "CHECKBOX" and len(opts) == 1 and f.get("required", True):
+                    # G9: a required one-box checkbox forces one answer; Tak/Nie lets the applicant say no
+                    f |= {"type": "RADIO", "options": ["Tak", "Nie"], "rename": {opts[0]: "Tak"}, "label": f.get("label") or opts[0]}
+                    warnings.append(f"pole {f['tech']!r}: wymagane pole wyboru z jedną opcją zamienione na Tak/Nie")
+                elif f["type"] in ("RADIO", "CHECKBOX") and len(opts) > SEARCH_OVER:
+                    if f["type"] == "CHECKBOX":
+                        warnings.append(f"pole {f['tech']!r}: {len(opts)} opcji wielokrotnego wyboru jako lista z wyszukiwarką")
+                    f |= {"type": "SELECT", "search": True}
     idx = {}
     for p in pages:
         for s in p["sections"]:
             for f in s["fields"]:
                 opts = f.get("options") if f["type"] in CHOICE and not f.get("dictionary") else None
                 idx[f.get("key") or f["tech"]] = {"page": p["title"], "section": s["tech"], "tech": f["tech"],
-                                                  "repeating": s.get("repeating", False), "options": opts}
+                                                  "repeating": s.get("repeating", False), "options": opts, "rename": f.get("rename", {}),
+                                                  "required": f.get("required", True) and not f.get("read_only") and not s.get("show_if")
+                                                  and not f.get("show_if")}
                 if opts is not None and len(opts) == 1 and (f["type"] == "RADIO" or f.get("meta") is None):
                     # one option is no choice (Standardy s.5 pkt 4d-4e): the field goes, conditions on it hold
                     idx[f.get("key") or f["tech"]]["constant"] = opts[0]
@@ -241,9 +274,11 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
                 why = f"warunek wyświetlania odwołuje się do pola z sekcji powtarzalnej „{ref['section']}”, czego COI nie obsługuje"
             else:
                 return False
-            warnings.append(f"{what}: {why}; tę część warunku pominięto")
+            warnings.append(f"{what}: {why}; tę część warunku pominięto, element nie jest wymagany")
+            node["cut"] = True
             review.append({"field_id": stable_id(source_sha256, "field", node["tech"]), "key": node["tech"],
-                           "why": f"{why}. Tę część warunku pominięto, sprawdź, kiedy element ma być widoczny."})
+                           "why": f"{why}. Tę część warunku pominięto, a element nie jest już wymagany (bez warunku byłby wymagany "
+                                  "na każdej gałęzi). Sprawdź, kiedy ma być widoczny."})
             return True
         c = prune(node.get("show_if"), bad)
         r = simplify(c, idx)
@@ -258,9 +293,14 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
             s["cond"] = cond(s, None, f"sekcja {s['tech']!r}")
             for f in s["fields"]:
                 f["cond"] = cond(f, s["tech"], f"pole {f['tech']!r}")
+                if f.get("cut") or s.get("cut"):  # G1: a cut condition must not leave the element required on every branch
+                    f["required"] = False
+                    for c in f.get("consents") or []:
+                        c["required"] = False
             s["fields"] = [f for f in s["fields"] if f["cond"] is not False and not f.get("drop")]
         p["sections"] = [s for s in p["sections"] if s["cond"] is not False and s["fields"]]
     pages = merge_conditional_pages(pages, idx, warnings)
+    later_controllers(pages, idx, warnings)
 
     tabs = []
     for p in pages:
@@ -282,6 +322,30 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
     keys = {k: {"id": stable_id(source_sha256, "field", v["tech"]), "techName": v["tech"]} for k, v in idx.items()}
     extra = {"review": review, "keys": keys, "consents": [c.get("field_key", "zgoda") for c in tree.get("consents", [])]}
     return {"title": tree["title"], "tabs": tabs, "flow": {"links": links}}, warnings, field_map, extra
+
+
+def later_controllers(pages: list, idx: dict, warnings: list) -> None:
+    """G10: SHOW must be decidable when the page is shown. A section whose condition reads a field from a later page moves
+    right after that field's section; a field cannot leave its section, so it only gets a warning."""
+    at = lambda title: next(i for i, p in enumerate(pages) if p["title"] == title)
+    for i, p in enumerate(pages):
+        for s in list(p["sections"]):
+            refs = [idx[lf["field"]] for lf in leaves(s["cond"] if s["cond"] is not True else None)]
+            later = [r for r in refs if at(r["page"]) > i]
+            if later:
+                r = max(later, key=lambda r: at(r["page"]))
+                target = pages[at(r["page"])]
+                p["sections"].remove(s)
+                pos = next(j for j, x in enumerate(target["sections"]) if x["tech"] == r["section"]) + 1
+                target["sections"].insert(pos, s)
+                for f in s["fields"]:
+                    idx[f.get("key") or f["tech"]]["page"] = target["title"]
+                warnings.append(f"sekcja {s['tech']!r}: warunek czyta pole z późniejszej strony, sekcja przeniesiona na {target['title']!r}")
+            for f in s["fields"]:
+                if f["cond"] is not True and any(at(idx[lf["field"]]["page"]) > at(next(q["title"] for q in pages if s in q["sections"]))
+                                                 for lf in leaves(f["cond"])):
+                    warnings.append(f"pole {f['tech']!r}: warunek czyta pole z późniejszej strony")
+    pages[:] = [p for p in pages if p["sections"] or not p.get("subject")]
 
 
 def merge_conditional_pages(pages: list, idx: dict, warnings: list) -> list:

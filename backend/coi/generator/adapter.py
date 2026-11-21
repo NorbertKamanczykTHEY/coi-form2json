@@ -18,6 +18,12 @@ CORRESPONDENCE = re.compile(r"adres\w*\s+(do\s+)?korespondenc", re.I)  # the pap
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}$")
 NOT_APPLICANT = {"rodo", "legal_info", "office_use"}  # blocks where "PESEL" is prose, not a field of the applicant
 ENTITY_ID = re.compile(r"^nazwa\b|\b(nip|regon|krs)\b", re.I)  # name and registry numbers the "Dane podmiotu" template asks for
+FLAT = re.compile(r"\b(numer|nr)\.?\s+(lokalu|mieszkania)\b", re.I)  # Standardy: a flat number is never required ("Brak numeru lokalu")
+DATE_MASK = re.compile(r"^\W*(DD|RRRR|YYYY|MM)([-./ ]*(DD|MM|RRRR|YYYY|RR))+\W*$", re.I)  # a date mask from the paper: the picker shows the format
+X_MASK = re.compile(r"X{8,}|_{8,}")  # "w formacie XXXX…": a mask, not a hint
+ACCOUNT = re.compile(r"rachun|konto|konta", re.I)
+# the template's proxy section asks for these (S12); a subject uploader for them is a duplicate
+TEMPLATE_FILE = re.compile(r"pełnomocnictw|upoważniając|umocowani|opłat\w*\s+skarbow", re.I)
 
 
 def cond(si: ShowIf | None) -> dict | None:
@@ -45,19 +51,27 @@ def label_validators(n: dict, rules: list) -> list[str]:
 
 
 def field(f: FormField, presets: dict) -> list[dict]:
-    n = {"key": f.key, "label": f.label, "type": f.type, "required": f.optional_evidence is None,
+    n = {"key": f.key, "label": f.label, "type": f.type, "required": f.optional_evidence is None and not FLAT.search(f"{f.label} {f.source_label}"),
          "meta": {"src": f.src, "source_label": f.source_label, "needs_review": f.doubt is not None, "doubt": f.doubt,
                   "description_source": f.description_source}}
     if f.options:
         n["options"] = list(f.options)
     if c := cond(f.show_if):
         n["show_if"] = c
-    if f.default_value is not None and not (f.type == "DATEPICKER" and not ISO_DATE.match(f.default_value)):
+    if f.type == "TEXT_BLOCK":  # its content is the description, the patterns give it no title; a block shows no defaultValue (G6)
+        text = f.description or f.label
+        if f.default_value and f.default_value not in text:
+            text = f"{text}: {f.default_value}"
+        n |= {"description": text, "label": ""}
+    elif f.default_value is not None and not (f.type == "DATEPICKER" and not ISO_DATE.match(f.default_value)):
         n |= {"default": f.default_value, "read_only": True}  # S15: printed on paper, fixed; a date only as YYYY-MM-DD
-    if f.type == "TEXT_BLOCK":  # its content is the description, the patterns give it no title
-        n |= {"description": f.description or f.label, "label": ""}
-    elif f.description:
-        n["description"] = f.description
+    desc = f.description if f.type != "TEXT_BLOCK" else None
+    if desc and f.type == "DATEPICKER" and DATE_MASK.match(desc):
+        desc = None
+    elif desc and X_MASK.search(desc):
+        desc = "Wpisz 26 cyfr numeru rachunku." if ACCOUNT.search(f"{f.label} {f.source_label}") else None
+    if desc:
+        n["description"] = desc
     p = presets.get(f.preset) if f.preset else None
     if p and "fields" in p:  # address: the "Dane" block, keyed after the field, no prefill
         block = json.loads(json.dumps(p["fields"]).replace("{{k}}", f.key))
@@ -145,6 +159,67 @@ def pesel_alternative(fields: list[dict]) -> list[dict]:
     return out
 
 
+def rate_into_result(fields: list[dict]) -> list[dict]:
+    """G6 (ADR 0019): a rate printed next to a computed amount ("Stawka 38 zł") goes into the description of the NUMBER right after it."""
+    out = []
+    for i, n in enumerate(fields):
+        nxt = fields[i + 1] if i + 1 < len(fields) else None
+        if n["type"] == "TEXT_BLOCK" and nxt and nxt["type"] == "NUMBER" and len(n["description"]) <= 120 \
+                and n.get("show_if") == nxt.get("show_if"):
+            nxt["description"] = f"{nxt['description']} {n['description']}" if nxt.get("description") else n["description"]
+            continue
+        out.append(n)
+    return out
+
+
+def sig(sec: dict):
+    """What a section asks for, without keys: identical variant blocks have the same signature."""
+    return tuple((f["label"], f["type"], tuple(f.get("options") or ()), f.get("required", True)) for f in sec["fields"])
+
+
+def merge_variant_twins(pages: list[dict], consents: list[dict], party: list[dict]) -> tuple[dict, list[str]]:
+    """G12: a block repeated for each variant (same fields, SHOW on different options of one field) becomes one section with
+    SHOW on all those options. Returns the key aliases (dropped twin -> kept field) applied to every condition."""
+    alias, seen, notes = {}, {}, []
+    for p in pages:
+        keep = []
+        for sec in p["sections"]:
+            c = sec.get("show_if")
+            leaf = c if c and "field" in c else None
+            k = (leaf["field"], sig(sec)) if leaf and sec["fields"] else None
+            if k in seen:
+                first = seen[k]
+                first["show_if"]["in"] += [v for v in leaf["in"] if v not in first["show_if"]["in"]]
+                for a, b in zip(sec["fields"], first["fields"]):
+                    alias[a["key"]] = b["key"]
+                    b["meta"]["src"] = b["meta"]["src"] + [x for x in a["meta"]["src"] if x not in b["meta"]["src"]]
+                notes.append(f"sekcja {sec['title']!r}: te same pola co {first['title']!r} w innym wariancie, scalone w jedną sekcję")
+                continue
+            if k:
+                seen[k] = sec
+            keep.append(sec)
+        p["sections"] = keep
+    pages[:] = [p for p in pages if p["sections"]]
+
+    def ren(c):
+        if not c:
+            return c
+        if "not" in c:
+            return {"not": ren(c["not"])}
+        if "all" in c or "any" in c:
+            op = "all" if "all" in c else "any"
+            return {op: [ren(x) for x in c[op]]}
+        return {**c, "field": alias.get(c["field"], c["field"])}
+    if alias:
+        for n in [s for p in pages for s in p["sections"]] + party:
+            n["show_if"] = ren(n.get("show_if"))
+            for f in n["fields"]:
+                f["show_if"] = ren(f.get("show_if"))
+        for c in consents:
+            c["show_if"] = ren(c.get("show_if"))
+    return alias, notes
+
+
 def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str, str] | None = None) -> tuple[dict, list[str], list[dict]]:
     """-> (internal tree, warnings, needs_review). `blocks` (anchor -> text) lets the paper's own wording decide template fields."""
     warnings = list(tree.issues)
@@ -160,7 +235,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
     applicant = "ENTITY" if kinds == {"legal_entity"} else "PERSON" if kinds == {"person"} else "ANY"
     no_pesel = bool(NO_PESEL.search(" ".join((blocks or {}).values())))
     correspondence = correspondence_asked(tree, blocks or {})
-    pages, party = [], []
+    pages, party, files = [], [], {}
     for p in tree.pages:
         secs = []
         for s in p.sections:
@@ -171,6 +246,18 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
                 warnings.append(f"sekcja {s.title!r}: pominięto {', '.join(sorted(kor))}, adres do korespondencji jest w szablonie „Dane”")
                 dup |= kor
             fields = [n for f in s.fields if f.key not in dup for n in field(f, presets)]
+            for n in [n for n in fields if n["type"] == "FILE_UPLOADER"]:  # G3: one uploader per document, none for template ones
+                name = re.sub(r"\W+", " ", n["label"]).strip().lower()
+                if TEMPLATE_FILE.search(f"{n['label']} {n['meta']['source_label']}"):
+                    warnings.append(f"pole {n['key']!r}: dokument jest w szablonie (pełnomocnictwo, opłata skarbowa), pominięto")
+                elif name in files:
+                    files[name]["required"] = files[name].get("required", True) or n.get("required", True)
+                    warnings.append(f"pole {n['key']!r}: ten sam dokument co {files[name]['key']!r}, jeden plik")
+                else:
+                    files[name] = n
+                    continue
+                fields.remove(n)
+            fields = rate_into_result(fields)
             if no_pesel:
                 fields = pesel_alternative(fields)
             if not fields:
@@ -179,6 +266,12 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
             (party if getattr(s, "party", False) else secs).extend(split_multiple(s, fields))
         if secs:
             pages.append({"title": p.title, "sections": secs})
+    consents = [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if]), "required": getattr(c, "required", True)} for c in tree.consents]
+    _, notes = merge_variant_twins(pages, consents, party)
+    warnings += notes
+    entity_option = settings["entity_option"]  # G5: the Standardy's text; the paper's wording names a role, not the option
+    if tree.entity_option and tree.entity_option != entity_option:
+        warnings.append(f"opcja podmiotu z dokumentu {tree.entity_option!r} zastąpiona opcją ze Standardów {entity_option!r}")
     internal = {
         "title": tree.title,
         "addressee": {"kind": "ORGAN" if a and a.kind == "organ" else "URZAD", "name": a.name if a else ""},
@@ -186,14 +279,16 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
         "prefill": settings["prefill_identity"],
         # the applicant's PESEL field: by setting, or because the paper asks for it
         "pesel": settings["prefill_identity"] == "PESEL" or applicant_pesel(tree, blocks or {}),
-        "entity_option": tree.entity_option or settings["entity_option"],
+        "entity_option": entity_option,
         "entity_extract": bool(getattr(tree, "entity_extract_required", False)),  # registry extract from every entity applicant
         "no_pesel": no_pesel,
         "correspondence": correspondence,
         "party": party,
-        "proxy_id_card": any(ID_CARD.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "proxy_data"),
+        "proxy_id_card": bool(getattr(tree, "proxy_id_card", False)) or any(ID_CARD.search(src_text(d.src, blocks or {})) for d in tree.dropped if d.reason == "proxy_data"),
         "pages": pages,
-        "consents": [{"text": c.text, "show_if": _all([cond(x) for x in c.show_if])} for c in tree.consents],
+        "consents": consents,
+        "case_fee": getattr(tree, "case_fee", None),  # G8: the fee for the case itself, shown before the consents
+        "case_fee_proof": bool(getattr(tree, "case_fee_proof", False)),
     }
     return internal, warnings, review
 

@@ -387,22 +387,22 @@ def test_conditional_pages_with_no_unconditional_page_share_one():
     assert [q["field"]["title"] for q in form["tabs"][1]["questions"]] == ["Wybór", "B"] and rep["validation"] == []
 
 
-def test_identity_document_instead_of_pesel_from_paper_8():
+def test_identity_document_instead_of_pesel_only_for_persons_typed_in_paper_8():
+    # G14: the logged-in applicant has a PESEL from the registry; the no-PESEL branch is for "Inna osoba" only
     from coi.extraction.anchors import blocks_of
     from coi.parsing import parse
     f = next(p for p in next(MATERIALS.glob("8. *")).glob("*.pdf"))
     form, rep, _ = generate(tree("pattern1"), SHA, blocks=blocks_of(parse(f.read_bytes(), f.name)))
     sec = next(q["field"] for q in form["tabs"][0]["questions"] if q["field"]["techName"] == "twoje_dane")
-    got = {c["field"]["techName"]: c["field"] for c in sec["repeatingSectionGrid"]}
-    order = list(got)
-    assert order.index("czy_masz_numer_pesel") < order.index("numer_pesel") < order.index("rodzaj_dokumentu_tozsamosci")
-    assert got["czy_masz_numer_pesel"]["validation"] == ["REQUIRED"] and [o["name"] for o in got["czy_masz_numer_pesel"]["options"]] == ["Tak", "Nie"]
-    assert got["numer_pesel"]["states"][0]["query"].startswith('$not("Nie" in')  # PESEL only when the applicant has one
-    for k in ("rodzaj_dokumentu_tozsamosci", "numer_dokumentu_tozsamosci"):
+    own = {c["field"]["techName"] for c in sec["repeatingSectionGrid"]}
+    assert not own & {"czy_masz_numer_pesel", "rodzaj_dokumentu_tozsamosci", "numer_dokumentu_tozsamosci"}
+    got = {x["techName"]: x for *_, x in fields(form)}
+    assert got["numer_pesel_inna_osoba"]["states"][0]["query"].startswith('$not("Nie" in')
+    for k in ("rodzaj_dokumentu_tozsamosci_inna_osoba", "numer_dokumentu_tozsamosci_inna_osoba"):
         assert got[k]["validation"] == ["REQUIRED"] and got[k]["states"][0]["query"].startswith('("Nie" in')
-    assert rep["validation"] == [] and rep["warnings"] == []
+    assert rep["validation"] == []
     plain = {f["techName"] for *_, f in fields(generate(tree("pattern1"), SHA, blocks={"p1.b1": "PESEL"})[0])}
-    assert "numer_pesel" in plain and "czy_masz_numer_pesel" not in plain  # no such sentence: nothing changes
+    assert "numer_pesel" in plain and "czy_inna_osoba_ma_numer_pesel" not in plain  # no such sentence: nothing changes
 
 
 def _blocks8():
@@ -493,3 +493,119 @@ def test_applicant_self_only_drops_proxy_parts(name):
     assert rep["applicant_self_only"] == {"value": True, "source": "edytor", "quote": None} and rep["validation"] == []
     default = generate(tree(name), SHA)[1]["applicant_self_only"]
     assert default == {"value": False, "source": "domyślnie", "quote": None}
+
+
+# ---- EVAL-3 rules (brief 10), generic examples --------------------------------------------------------------------
+def _techs(form):
+    return {f["techName"]: f for *_, f in fields(form)}
+
+
+def test_g5_entity_option_is_the_standards_text():
+    form, rep, _ = generate(tree("form3", applicant_kinds=["person", "legal_entity"], entity_option="właściciel / najemca / inny podmiot"), SHA)
+    opts = [o["name"] for o in _techs(form)["wybierz_w_czyim_imieniu_wnioskujesz"]["options"]]
+    assert "Osoby prawnej lub jednostki organizacyjnej" in opts and not any("najemca" in o for o in opts)
+    assert any("zastąpiona opcją ze Standardów" in w for w in rep["warnings"]) and rep["validation"] == []
+
+
+def test_g9_required_single_checkbox_becomes_yes_no_and_keeps_conditions():
+    t = _with_section("form3", [_field("kompostownik", "Nieruchomość ma kompostownik", "CHECKBOX", options=["Oświadczam"]),
+                                _field("ulga", "Kwota ulgi", "NUMBER", show_if={"field": "kompostownik", "options": ["Oświadczam"]})])
+    form, rep, _ = generate(t, SHA)
+    f = _techs(form)
+    assert f["kompostownik"]["type"] == "RADIO" and [o["name"] for o in f["kompostownik"]["options"]] == ["Tak", "Nie"]
+    assert f["ulga"]["states"][0]["query"].startswith('("Tak" in') and rep["validation"] == []
+
+
+def test_g10_condition_on_every_option_of_a_required_choice_is_dropped():
+    t = _with_section("form3", [_field("rodzaj", "Rodzaj", "RADIO", options=["A", "B", "C"]),
+                                _field("wspolne", "Wspólne", show_if={"field": "rodzaj", "options": ["A", "B", "C"]}),
+                                _field("tylko_a", "Tylko A", show_if={"field": "rodzaj", "options": ["A"]})])
+    f = _techs(generate(t, SHA)[0])
+    assert f["wspolne"]["states"] == [] and f["tylko_a"]["states"]
+
+
+def test_g10_section_conditioned_on_a_later_page_moves_after_its_controller():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].insert(0, {"title": "Wcześniej", "sections": [
+        {"title": "Stała", "fields": [_field("stala", "Stała")], "src": []},
+        {"title": "Zależna", "show_if": {"field": "rodzaj", "options": ["A"]}, "fields": [_field("zalezna", "Zależna")], "src": []}]})
+    t["pages"].append({"title": "Później", "sections": [{"title": "Wybór", "fields": [_field("rodzaj", "Rodzaj", "RADIO", options=["A", "B"])], "src": []}]})
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    later = next(tab for tab in form["tabs"] if tab["title"] == "Później")
+    assert [q["field"]["title"] for q in later["questions"]] == ["Wybór", "Zależna"] and rep["validation"] == []
+
+
+def test_g11_flat_number_in_subject_is_optional():
+    t = _with_section("form3", [_field("ulica_n", "Ulica"), _field("lokal_n", "Numer lokalu")])
+    f = _techs(generate(t, SHA)[0])
+    assert f["ulica_n"]["validation"] == ["REQUIRED"] and f["lokal_n"]["validation"] == []
+
+
+def test_g1_cut_condition_leaves_no_branch_required():
+    t = _with_section("form3", [_field("rodzaj", "Rodzaj", "RADIO", options=["A", "B"])],
+                      consents=[{"text": "Zgoda dorosłego.", "src": [], "show_if": [{"field": "rodzaj", "options": ["A"]}, {"field": "brak", "options": ["Tak"]}]},
+                                {"text": "Zgoda rodzica.", "src": [], "show_if": [{"field": "rodzaj", "options": ["A"]}, {"field": "brak", "options": ["Nie"]}]}])
+    form, rep, _ = generate(t, SHA)
+    cs = [c for *_, f in fields(form) if f["techName"].startswith("zgoda_warunkowa") for c in f["consentSectionConfig"]["consents"]]
+    assert len(cs) == 2 and not any(c["required"] for c in cs)
+
+
+def test_g3_template_and_duplicate_uploaders_go():
+    t = _with_section("form3", [_field("zal1", "Kopia umowy", "FILE_UPLOADER"), _field("zal2", "Kopia umowy", "FILE_UPLOADER"),
+                                _field("upow", "Dokumenty upoważniające do złożenia wniosku", "FILE_UPLOADER")])
+    f = _techs(generate(t, SHA)[0])
+    assert "zal1" in f and "zal2" not in f and "upow" not in f
+
+
+def test_g6_rate_goes_into_the_result_description_and_masks_go():
+    t = _with_section("form3", [_field("stawka", "Stawka opłaty", "TEXT_BLOCK", default_value="38 zł"),
+                                _field("oplata", "Wysokość opłaty", "NUMBER"),
+                                _field("data", "Data wpłaty", "DATEPICKER", description="DD-MM-RRRR"),
+                                _field("konto", "Numer rachunku", description="w formacie XXXXXXXXXXXXXXXXXXXXXXXXXX")])
+    f = _techs(generate(t, SHA)[0])
+    assert "stawka" not in f and "38 zł" in f["oplata"]["description"] and "defaultValue" not in f["oplata"]
+    assert f["data"]["description"] == "" and "26 cyfr" in f["konto"]["description"]
+
+
+def test_g8_case_fee_on_the_contact_page_with_proof():
+    form, rep, _ = generate(tree("form3", case_fee="Opłata 17 zł na konto urzędu, płatna przed złożeniem wniosku.", case_fee_proof=True), SHA)
+    tab = next(t for t in form["tabs"] if t["title"] == "Kontakt i zgody")
+    sec = next(q["field"] for q in tab["questions"] if q["field"]["title"] == "Opłata")
+    kinds = [c["field"]["type"] for c in sec["repeatingSectionGrid"]]
+    assert kinds == ["TEXT_BLOCK", "FILE_UPLOADER"] and "17 zł" in sec["repeatingSectionGrid"][0]["field"]["description"]
+    assert rep["validation"] == []
+    assert "Opłata" not in [q["field"]["title"] for t in generate(tree("form3"), SHA)[0]["tabs"] for q in t["questions"]]
+
+
+def test_g12_identical_variant_blocks_merge():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    blk = lambda k: [_field(f"imie_{k}", "Imię"), _field(f"uwagi_{k}", "Uwagi", "TEXTAREA")]
+    t["pages"].append({"title": "Warianty", "sections": [
+        {"title": "Wybór", "fields": [_field("wariant", "Wariant", "RADIO", options=["I", "II", "III"])], "src": []},
+        {"title": "Dane I", "show_if": {"field": "wariant", "options": ["I"]}, "fields": blk("a"), "src": []},
+        {"title": "Dane II", "show_if": {"field": "wariant", "options": ["II"]}, "fields": blk("b"), "src": []}]})
+    t["consents"] = [{"text": "Oświadczam.", "src": [], "show_if": [{"field": "imie_b", "options": ["x"]}]}]
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    f = _techs(form)
+    assert "imie_a" in f and "imie_b" not in f and '"II" in' in next(
+        q["field"] for tab in form["tabs"] for q in tab["questions"] if q["field"]["title"] == "Dane I")["states"][0]["query"]
+
+
+def test_g15_long_lists_become_searchable_selects():
+    opts = [f"Opcja {i}" for i in range(16)]
+    t = _with_section("form3", [_field("lista", "Dyscypliny", "CHECKBOX", options=opts), _field("krotka", "Krótka", "CHECKBOX", options=opts[:3])])
+    f = _techs(generate(t, SHA)[0])
+    assert f["lista"]["type"] == "SELECT" and f["lista"]["searchEnabled"] is True and f["krotka"]["type"] == "CHECKBOX"
+
+
+def test_g16_subject_label_equal_to_a_template_label_takes_the_paper_wording():
+    t = _with_section("form3", [{**_field("organ_wplaty", "Nazwa organu"), "source_label": "Nazwa organu, w którym zapłacono opłatę:"}])
+    assert _techs(generate(t, SHA)[0])["organ_wplaty"]["title"] == "Nazwa organu, w którym zapłacono opłatę"
+
+
+def test_consent_required_and_proxy_id_card_from_the_tree():
+    t = tree("form3", consents=[{"text": "Zgadzam się na kontakt e-mailowy.", "required": False, "src": []}], proxy_id_card=True)
+    form, rep, _ = generate(t, SHA)
+    cs = [c for *_, f in fields(form) if f["type"] == "CONSENT_SECTION" for c in f["consentSectionConfig"]["consents"]]
+    assert [c["required"] for c in cs] == [True, False]
+    assert any("SERIAL_NUMBER_ID_CARD" in f["validation"] for *_, f in fields(form))
