@@ -12,6 +12,22 @@ type Job = { key: string; name: string; status: 'pending' | 'running' | 'done' |
 // shortcut: the token is baked into the bundle (VITE_API_TOKEN), demo only; replace with a real login/IdP before deployment.
 const auth = { Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN ?? ''}` }
 
+// At most `limit` uploads run at once; the rest wait in FIFO order.
+const limit = Math.max(1, Number(import.meta.env.VITE_BATCH_CONCURRENCY) || 3)
+let active = 0
+const waiting: (() => void)[] = []
+async function withSlot(fn: () => Promise<void>) {
+  if (active < limit) active++
+  else await new Promise<void>((r) => waiting.push(r)) // slot handed over by a finishing upload
+  try {
+    await fn()
+  } finally {
+    const next = waiting.shift()
+    if (next) next()
+    else active--
+  }
+}
+
 function checkFile(f: File, info: Info | null): string | null {
   if (!info) return null
   const l = info.limits
@@ -92,11 +108,14 @@ export default function App() {
     for (const file of Array.from(files ?? [])) {
       const key = crypto.randomUUID()
       const invalid = checkFile(file, info)
-      setJobs((js) => [{ key, name: file.name, status: invalid ? 'error' : 'running', log: [], error: invalid ?? undefined }, ...js])
+      setJobs((js) => [{ key, name: file.name, status: invalid ? 'error' : 'pending', log: [], error: invalid ?? undefined }, ...js])
       if (invalid) continue
       const update = (p: Partial<Job>, line?: string) =>
         setJobs((js) => js.map((j) => (j.key === key ? { ...j, ...p, log: line ? [...j.log, line] : j.log } : j)))
-      upload(file, update).catch((e) => update({ status: 'error', error: String(e) }))
+      withSlot(() => {
+        update({ status: 'running' })
+        return upload(file, update).catch((e) => update({ status: 'error', error: String(e) }))
+      })
     }
   }
 

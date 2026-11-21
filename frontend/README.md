@@ -16,6 +16,10 @@ printf 'VITE_API_TOKEN=%s\n' "$(cd ../backend && uv run python -m coi.make_token
 
 **Uwaga: Vite wkleja token do bundla JS, więc każdy, kto otworzy stronę, może go odczytać. To rozwiązanie wyłącznie na demo.** Na produkcji token musi przychodzić z logowania (IdP urzędu).
 
+## Batch
+
+Można wybrać kilka plików naraz: jeden plik to jeden formularz i jedno żądanie. Równolegle idzie najwyżej `VITE_BATCH_CONCURRENCY` żądań (w `frontend/.env`, domyślnie 3), reszta czeka w kolejce („w kolejce”). Wartość jest wbudowywana przy buildzie.
+
 ## Dev
 
 ```bash
