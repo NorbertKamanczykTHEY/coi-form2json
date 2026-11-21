@@ -1,0 +1,17 @@
+{
+  "_doc": "VLM escalation ladder (cheap -> strong), used when the gate rejects T0 (Kreuzberg / Tesseract pol) on a scan or image page. Tiers taken from poc-1-ocr/ladder/ladder.json (mistral family: passed every vision case in the PoC run). Changing the ladder = editing this file; LADDER_PATH points elsewhere.",
+  "tiers": ["mistral/ministral-8b-2512", "mistral/ministral-14b-2512", "mistral/mistral-small-2603", "mistral/mistral-large-2512"],
+  "max_tokens": 4000,
+  "page_workers": 4,
+  "page_width": 1654,
+  "tile_rows": 3,
+  "pdf_min_chars": 50,
+  "gate": {
+    "max_garbage": 0.03,
+    "max_nonsense": 0.03,
+    "min_polish": 0.003,
+    "min_marks": 3,
+    "min_ocr_confidence": 0.8,
+    "min_witness_coverage": 0.85
+  }
+}
