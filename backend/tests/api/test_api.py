@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from coi import create_app
+from coi import create_app, pipeline
+from coi.extraction.extract import ExtractionResult
+from coi.extraction.tree import FieldTree
 from coi.make_token import make
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -14,6 +16,8 @@ DOCX = next(p for p in FORM1.glob("*.docx") if "wizualizacja" not in p.name)
 PDF = next(FORM1.glob("*.pdf"))
 JPE = next(next(MAT.glob("7. *")).glob("*.JPE"))
 SECRET = "test-secret-at-least-32-bytes-long!!"
+# offline: extraction (LLM) is replaced by the recorded FieldTree of #1; parse and generate run for real
+TREE1 = FieldTree.model_validate_json((Path(__file__).parents[1] / "generator/fixtures/form1.tree.json").read_text())
 
 
 @pytest.fixture
@@ -24,6 +28,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("MAX_FILE_MB", "5")
     for k in ("JWT_ISSUER", "JWT_AUDIENCE"):
         monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(pipeline, "extract", lambda doc, on_event=None: ExtractionResult(TREE1, [], [{"stage": "extract"}], 0.01))
     return create_app().test_client()
 
 
@@ -84,7 +89,7 @@ def test_convert_docx_store_and_read(client, docx):
     r = upload(client, docx, "Wniosek 1.docx")
     assert r.status_code == 200
     form = r.json
-    assert form["title"] == "Wniosek 1" and [t["type"] for t in form["tabs"]] == ["MAIN", "FINISH"]
+    assert form["title"] == TREE1.title and [t["type"] for t in form["tabs"]] == ["MAIN", "MAIN", "MAIN", "FINISH"]
     assert client.post("/api/v1/forms/validate", json=form, headers=H).json == {"valid": True, "errors": []}
     fid = r.headers["Location"].rsplit("/", 1)[1]
 
@@ -100,7 +105,8 @@ def test_report_and_editor(client, docx):
     r = upload(client, docx, "w.docx", "?report=true").json
     assert set(r) == {"id", "form", "report"} and {"trace", "warnings", "needs_review", "cost"} <= set(r["report"])
     r = upload(client, docx, "w.docx", "?editor=true").json
-    assert r["editor"]["source"]["pages"][0]["blocks"] and r["editor"]["field_map"] == {}
+    fmap = r["editor"]["field_map"]
+    assert r["editor"]["source"]["pages"][0]["blocks"] and fmap and all(m["src"] for m in fmap.values())
 
 
 def test_sse(client, docx):
@@ -123,7 +129,9 @@ def test_put_validates(client, docx):
     fid = upload(client, docx, "w.docx", "?report=true").json["id"]
     bad = client.put(f"/api/v1/forms/{fid}", json={"title": 5, "tabs": []}, headers=H)
     assert bad.status_code == 422 and bad.json["errors"][0]["path"] == "/title"
-    good = {"title": "Poprawiony", "tabs": [], "flow": {"links": []}}
+    rules = client.put(f"/api/v1/forms/{fid}", json={"title": "Poprawiony", "tabs": [], "flow": {"links": []}}, headers=H)
+    assert rules.status_code == 422 and rules.json["errors"][0]["rule"] == "R1"
+    good = client.get(f"/api/v1/forms/{fid}", headers=H).json | {"title": "Poprawiony"}
     assert client.put(f"/api/v1/forms/{fid}", json=good, headers=H).json == good
     assert client.get(f"/api/v1/forms/{fid}", headers=H).json == good
     assert client.get("/api/v1/forms", headers=H).json["items"][0]["updated_by"] == "tester"

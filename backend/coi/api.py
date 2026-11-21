@@ -5,25 +5,24 @@ import logging
 import queue
 import threading
 from http import HTTPStatus
-from pathlib import Path
 
 import openai
 from apiflask import APIBlueprint, HTTPError, Schema, abort
 from apiflask.fields import Boolean, File, Raw
 from flask import Response, current_app, request
-from jsonschema import Draft202012Validator
 from kreuzberg import KreuzbergError
 from marshmallow import INCLUDE
 
 from . import pipeline
 from .auth import auth, user
+from .extraction.extract import ExtractionError
+from .generator import validate
 from .parsing import TooLarge, UnsupportedType
 from .parsing.detect import ALLOWED
 
 log = logging.getLogger(__name__)
 bp = APIBlueprint("api", __name__, url_prefix="/api/v1", tag="COI")
 FORBIDDEN = ";:><\\/|'*%$"
-FORM_SCHEMA = Draft202012Validator(json.loads((Path(__file__).parent / "form_schema.json").read_text()))
 CODES = {400: "bad_request", 401: "unauthorized", 404: "not_found", 405: "method_not_allowed", 413: "file_too_large",
          415: "unsupported_type", 422: "unprocessable", 500: "internal_error", 502: "llm_error", 504: "llm_timeout"}
 
@@ -62,8 +61,7 @@ class Form(Schema):
 
 # helpers
 def violations(form) -> list[dict]:
-    # shortcut: JSON Schema only; rules 1-6 from "Reguły techniczne" come with the generator's validator
-    return [{"path": "/" + "/".join(map(str, e.absolute_path)), "message": e.message, "rule": "schema"} for e in FORM_SCHEMA.iter_errors(form)]
+    return validate(form)  # JSON Schema + rules 1-6 of "Reguły techniczne" + JSONata references
 
 
 def _body(fid: str, form: dict, report: dict, editor: dict, q: dict):
@@ -72,13 +70,15 @@ def _body(fid: str, form: dict, report: dict, editor: dict, q: dict):
     return {"id": fid, "form": form, "report": report} | ({"editor": editor} if q["editor"] else {})
 
 
-def _convert(data: bytes, name: str, on_event, cfg) -> pipeline.Result:
+def _convert(data: bytes, name: str, on_event, cfg, store) -> pipeline.Result:
     try:
-        return pipeline.convert(data, name, on_event, cfg)
+        return pipeline.convert(data, name, on_event, cfg, store)
     except TooLarge as e:
         abort(413, str(e))
     except UnsupportedType as e:
         abort(415, str(e))
+    except ExtractionError as e:
+        abort(502, f"Field extraction failed: {e}")
     except openai.APITimeoutError:
         abort(504, "LLM timed out")
     except openai.APIError as e:
@@ -140,7 +140,7 @@ def create_form(query_data, files_data):
     log.info("convert sha256=%s size=%d user=%s", sha[:12], len(data), uid)  # no file name or content in logs
 
     def work(on_event):
-        r = _convert(data, name, on_event, cfg)
+        r = _convert(data, name, on_event, cfg, store)
         fid = store.add_form(filename=name, sha256=sha, user=uid, form=r.form, report=r.report, editor=r.editor)
         return fid, _body(fid, r.form, r.report, r.editor, query_data)
 
@@ -183,7 +183,7 @@ def put_form(form_id, json_data):
 @bp.post("/forms/validate")
 @bp.auth_required(auth)
 @bp.input(Form, location="json")
-@bp.doc(summary="Validate a COI form JSON", description="Returns {valid, errors[]}. Today: the task's JSON Schema only.")
+@bp.doc(summary="Validate a COI form JSON", description="Returns {valid, errors[{path, message, rule}]}: the task's JSON Schema, rules R1-R6 of \"Reguły techniczne\", unique techName, choice fields, JSONata references.")
 def validate_form(json_data):
     errors = violations(json_data)
     return {"valid": not errors, "errors": errors}
@@ -200,5 +200,5 @@ def info():
                    "extensions": sorted(ALLOWED), "forbidden_filename_chars": FORBIDDEN},
         "llm": {"tiers": json.loads(cfg.ladder_path.read_text())["tiers"]},
         "auth": {"alg": c["JWT_ALG"]},
-        "generator": "stub",  # shortcut: flips when the real generator is wired into coi.pipeline.convert
+        "generator": "templates-v1",
     }
