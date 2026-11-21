@@ -313,12 +313,19 @@ def test_show_if_always_emitted():
     assert any("zawsze spełniony" in w for w in rep["warnings"])  # a condition that cannot hide anything is reported, not lost silently
 
 
-def test_multiple_files_become_a_repeating_section():
-    t = _with_section("form3", [_field("uwagi", "Uwagi", "TEXTAREA"),
-                                _field("inne", "Inne załączniki", "FILE_UPLOADER", multiple=True, optional_evidence="....")])
+def test_multiple_files_sit_under_the_last_required_upload():
+    t = _with_section("form3", [_field("odpis", "Odpis z rejestru", "FILE_UPLOADER"), _field("uwagi", "Uwagi", "TEXTAREA"),
+                                _field("inne", "Inne załączniki", "FILE_UPLOADER", multiple=True, optional_evidence="...."),
+                                _field("zgoda_wlasciciela", "Zgoda właściciela", "FILE_UPLOADER")])
     form, rep, _ = generate(t, SHA)
-    rep_sec = next(s for _, s, _ in fields(form) if s["title"] == "Inne załączniki")
-    (child,) = rep_sec["repeatingSectionGrid"]
-    assert rep_sec["type"] == "REPEATING_SECTION" and child["field"]["type"] == "FILE_UPLOADER" and child["field"]["validation"] == []
-    assert next(s for _, s, _ in fields(form) if s["title"] == "Dodatkowe")["repeatingSectionGrid"][0]["field"]["techName"] == "uwagi"
-    assert rep["validation"] == []
+    page = next(t for t in form["tabs"] if any(q["field"]["title"] == "Dodatkowe" for q in t["questions"]))
+    order = [(q["field"]["type"], q["field"]["title"], [c["field"]["techName"] for c in q["field"]["repeatingSectionGrid"]])
+             for q in page["questions"]][-2:]
+    assert order == [("SECTION", "Dodatkowe", ["odpis", "uwagi", "zgoda_wlasciciela"]), ("REPEATING_SECTION", "Inne załączniki", ["inne"])]
+    (child,) = page["questions"][-1]["field"]["repeatingSectionGrid"]
+    assert child["field"]["type"] == "FILE_UPLOADER" and child["field"]["validation"] == [] and rep["validation"] == []
+    t2 = _with_section("form3", [_field("odpis", "Odpis z rejestru", "FILE_UPLOADER"),
+                                 _field("inne", "Inne załączniki", "FILE_UPLOADER", multiple=True, optional_evidence="...."),
+                                 _field("uwagi", "Uwagi", "TEXTAREA", optional_evidence="opcjonalnie")])
+    titles = [(q["field"]["type"], q["field"]["title"]) for t in generate(t2, SHA)[0]["tabs"] for q in t["questions"]][-7:-4]
+    assert titles == [("SECTION", "Dodatkowe"), ("REPEATING_SECTION", "Inne załączniki"), ("SECTION", "Dodatkowe")]

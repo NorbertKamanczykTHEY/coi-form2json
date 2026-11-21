@@ -78,6 +78,23 @@ def entity_duplicates(s: Section) -> set[str]:
             or (f.type == "TEXT_FIELD" and ENTITY_ID.search(f.label))}
 
 
+def split_multiple(s: Section, fields: list[dict]) -> list[dict]:
+    """COI has no multi-file uploader and no section inside a section (R2): a `multiple` upload becomes a REPEATING_SECTION
+    with one optional FILE_UPLOADER placed right under the last required upload of its section; the fields after it continue
+    in a section with the same title."""
+    many = [n for n in fields if n["key"] in {f.key for f in s.fields if f.multiple}]
+    rest = [n for n in fields if n not in many]
+    show = cond(s.show_if)
+    part = lambda fs: {"title": s.title, "repeating": s.repeating, "fields": fs} | ({"show_if": show} if show else {})
+    if not many:
+        return [part(rest)] if rest else []
+    cut = max((i + 1 for i, n in enumerate(rest) if n["type"] == "FILE_UPLOADER" and n.get("required", True)), default=len(rest))
+    out = [part(rest[:cut])] if rest[:cut] else []
+    out += [{"title": n["label"], "repeating": True, "show_if": both(show, n.pop("show_if", None)), "fields": [n | {"required": False}]}
+            for n in many]
+    return out + ([part(rest[cut:])] if rest[cut:] else [])
+
+
 def applicant_pesel(tree: FieldTree, blocks: dict[str, str]) -> bool:
     """The paper asks for a PESEL that is not a subject field (third party) nor prose (RODO, instructions): the applicant's own.
     Read from the source text itself, so it does not depend on how the model labelled the dropped block."""
@@ -110,15 +127,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
             fields = [n for f in s.fields if f.key not in dup for n in field(f, presets)]
             if not fields:
                 continue
-            many = {f.key for f in s.fields if f.multiple}  # several files: COI has no multi-file uploader, a repeating section does it
-            sec = {"title": s.title, "repeating": s.repeating, "fields": [n for n in fields if n["key"] not in many]}
-            if c := cond(s.show_if):
-                sec["show_if"] = c
-            if sec["fields"]:
-                secs.append(sec)
-            for n in (n for n in fields if n["key"] in many):
-                secs.append({"title": n["label"], "repeating": True, "show_if": both(sec.get("show_if"), n.pop("show_if", None)),
-                             "fields": [n | {"required": False}]})
+            secs += split_multiple(s, fields)
         if secs:
             pages.append({"title": p.title, "sections": secs})
     internal = {
