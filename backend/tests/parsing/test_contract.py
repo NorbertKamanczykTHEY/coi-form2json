@@ -80,5 +80,5 @@ def test_scanned_pdf(form1_jpg):
     doc = parse(buf.getvalue(), "skan.pdf")
     print(doc.source, [(e["page"], e["step"], e.get("model"), e.get("accepted")) for e in doc.trace])
     assert doc.source["kind"] == "pdf_scan"
-    assert len(doc.pages) == 2 and all(e["step"] != "T0" or e["parser"] == "kreuzberg+tesseract" for e in doc.trace)
+    assert len(doc.pages) == 2 and all(e["step"] != "T0" or e["parser"] == "tesseract" for e in doc.trace)
     check(doc, "form1", ".pdf")

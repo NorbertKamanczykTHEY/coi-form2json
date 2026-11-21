@@ -15,6 +15,10 @@ class TooLarge(ValueError):
     """-> HTTP 413"""
 
 
+class ParserEnvironmentError(RuntimeError):
+    """The server, not the file, is at fault (no Tesseract or its language data, missing Kreuzberg plugin, LLM misconfigured) -> HTTP 500"""
+
+
 # extension -> magic-bytes types it may contain (filetype names jpeg "jpg")
 ALLOWED = {
     "pdf": {"pdf"},

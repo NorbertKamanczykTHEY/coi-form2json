@@ -1,15 +1,15 @@
-"""T0: Kreuzberg in process. Native text for office/PDF, Tesseract `pol` for page images (also the witness for the VLM gate)."""
+"""T0 for files with text: Kreuzberg in process (docx, doc, ods, xlsx, PDF text layer)."""
 import html
 import importlib.metadata
 import re
 
-from kreuzberg import ExtractionConfig, OcrConfig, PageConfig, extract_bytes_sync
+from kreuzberg import ExtractionConfig, MissingDependencyError, OCRError, PageConfig, PluginError, extract_bytes_sync
 
+from ..detect import ParserEnvironmentError
 from ..normalize import normalize
 
 NAME = "kreuzberg"
 VERSION = importlib.metadata.version("kreuzberg")
-OCR = OcrConfig(backend="tesseract", language="pol")
 
 
 def _clean(md: str) -> str:
@@ -26,13 +26,9 @@ def _clean(md: str) -> str:
 def native(data: bytes, mime: str) -> list[str]:
     """One normalized text per page (office formats have no pages: one entry)."""
     cfg = ExtractionConfig(output_format="markdown", disable_ocr=True, pages=PageConfig(extract_pages=True))
-    r = extract_bytes_sync(data, mime, cfg)
+    try:
+        r = extract_bytes_sync(data, mime, cfg)
+    except (MissingDependencyError, PluginError, OCRError) as e:  # install problem; ParsingError (broken file) propagates as is
+        raise ParserEnvironmentError(f"kreuzberg: {e}") from e
     texts = [p["content"] for p in r.pages] if mime == "application/pdf" and r.pages else [r.content]
     return [normalize(_clean(t)) for t in texts]
-
-
-def ocr(image: bytes, mime: str = "image/png") -> tuple[str, float | None]:
-    """Tesseract text (normalized, ocr=True) + mean word confidence."""
-    r = extract_bytes_sync(image, mime, ExtractionConfig(output_format="plain", ocr=OCR))
-    conf = [e["confidence"]["recognition"] for e in r.ocr_elements or [] if e.get("level") == "word" and e["text"].strip()]
-    return normalize(r.content, ocr=True), (sum(conf) / len(conf) if conf else None)

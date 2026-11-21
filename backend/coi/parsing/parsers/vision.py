@@ -1,20 +1,14 @@
-"""Page image -> VLM (OpenAI-compatible, Eden by default) -> markdown transcription. Retries as horizontal tiles when the answer is cut at max_tokens."""
+"""Page image -> VLM through the provider adapter (coi.llm) -> markdown transcription. Retries as horizontal tiles when cut at max_tokens."""
 import base64
 import io
 
 from PIL import Image
 
 from ... import llm
+from ...prompts import prompt
 from ..normalize import normalize
 
 A4 = 1.4142
-PROMPT = """To jest strona polskiego formularza urzędowego. Przepisz wiernie CAŁY tekst strony w kolejności czytania jako Markdown:
-- nagłówki sekcji jako # (sekcje A., I., 1.) i ## (podsekcje B.1, 2.1),
-- tabele jako tabele Markdown,
-- zachowaj polskie znaki, gwiazdki * i **, numerację i przypisy,
-- każde miejsce do wypełnienia (linia kropek, podkreślenie, pusta ramka) zapisz jako [___], NIE przepisuj kropek,
-- pole wyboru zapisz jako ☐ opcja.
-Zwróć tylko transkrypcję, bez komentarzy."""
 
 
 def split_pages(img: Image.Image) -> list[Image.Image]:
@@ -40,9 +34,9 @@ def _data_url(img: Image.Image, width: int) -> str:
     return "data:image/jpeg;base64," + base64.b64encode(b.getvalue()).decode()
 
 
-def _ask(client, model: str, img: Image.Image, ladder: dict) -> llm.Reply:
-    content = [{"type": "image_url", "image_url": {"url": _data_url(img, ladder["page_width"])}}, {"type": "text", "text": PROMPT}]
-    return llm.chat(client, model, content, ladder["max_tokens"])
+def _ask(llm_: llm.Provider, model: str, img: Image.Image, ladder: dict) -> llm.Reply:
+    content = [{"type": "image_url", "image_url": {"url": _data_url(img, ladder["page_width"])}}, {"type": "text", "text": prompt("vision_page")}]
+    return llm_.chat(model, content, ladder["max_tokens"])
 
 
 def _tiles(img: Image.Image, n: int) -> list[Image.Image]:
@@ -50,14 +44,14 @@ def _tiles(img: Image.Image, n: int) -> list[Image.Image]:
     return [img.crop((0, max(0, round(i * h) - pad), img.width, min(img.height, round((i + 1) * h) + pad))) for i in range(n)]
 
 
-def transcribe(client, model: str, img: Image.Image, ladder: dict) -> dict:
+def transcribe(llm_: llm.Provider, model: str, img: Image.Image, ladder: dict) -> dict:
     """-> {md, finish, cost, seconds, tiles, error}"""
     out = {"md": "", "finish": None, "cost": 0.0, "seconds": 0.0, "tiles": 1, "error": None}
     try:
-        r = _ask(client, model, img, ladder)
+        r = _ask(llm_, model, img, ladder)
         out.update(md=r.text, finish=r.finish, cost=r.cost, seconds=r.seconds)
         if r.finish == "length":  # gate M1: retry on smaller pieces
-            parts = [_ask(client, model, t, ladder) for t in _tiles(img, ladder["tile_rows"])]
+            parts = [_ask(llm_, model, t, ladder) for t in _tiles(img, ladder["tile_rows"])]
             out.update(md="\n\n".join(p.text for p in parts), tiles=len(parts),
                        finish="length" if any(p.finish == "length" for p in parts) else "stop",
                        cost=out["cost"] + sum(p.cost for p in parts), seconds=out["seconds"] + sum(p.seconds for p in parts))

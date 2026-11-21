@@ -1,0 +1,19 @@
+{
+  "_doc": "VLM ladder for LLM_PROVIDER=local (air gap): model names as served by the local OpenAI-compatible server (Ollama tags here; for vLLM use the served model id). Same gate thresholds as ladder.json.",
+  "tiers": [
+    "qwen3-vl:8b"
+  ],
+  "max_tokens": 4000,
+  "page_workers": 1,
+  "page_width": 1654,
+  "tile_rows": 3,
+  "pdf_min_chars": 50,
+  "gate": {
+    "max_garbage": 0.03,
+    "max_nonsense": 0.03,
+    "min_polish": 0.003,
+    "min_marks": 3,
+    "min_ocr_confidence": 0.8,
+    "min_witness_coverage": 0.85
+  }
+}
