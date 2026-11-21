@@ -6,6 +6,7 @@ from pathlib import Path
 
 from ..extraction.anchors import expand, src_text
 from ..extraction.tree import FieldTree, FormField, Section, ShowIf
+from .build import NUMBERING
 
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
 PESEL = re.compile(r"\bPESEL\b", re.I)
@@ -51,7 +52,7 @@ def label_validators(n: dict, rules: list) -> list[str]:
 
 
 def field(f: FormField, presets: dict) -> list[dict]:
-    n = {"key": f.key, "label": f.label, "type": f.type, "required": f.optional_evidence is None and not FLAT.search(f"{f.label} {f.source_label}"),
+    n = {"key": f.key, "label": NUMBERING.sub("", f.label) or f.label, "type": f.type, "required": f.optional_evidence is None and not FLAT.search(f"{f.label} {f.source_label}"),
          "meta": {"src": f.src, "source_label": f.source_label, "needs_review": f.doubt is not None, "doubt": f.doubt,
                   "description_source": f.description_source, "number": getattr(f, "number", None)}}
     if f.options:

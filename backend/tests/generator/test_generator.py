@@ -636,3 +636,12 @@ def test_g12_long_page_splits_between_numbered_sections():
     unnumbered = json.loads((FIX / "form3.tree.json").read_text())
     unnumbered["pages"].append({"title": "Szczegóły", "sections": [{**x, "number": None} for x in secs]})
     assert "Część C" not in [x["title"] for x in generate(FieldTree.model_validate(unnumbered), SHA)[0]["tabs"]]
+
+
+@pytest.mark.parametrize("source", ["26. Miejscowość:", "B.2 Miejscowość", "D.1.26) Miejscowość", "IV. Miejscowość", "(3) Miejscowość"])
+def test_paper_numbering_never_reaches_a_label(source):
+    # G16 takes the paper's wording on a clash with a template label ("Miejscowość"), but without the item number
+    t = _with_section("form3", [{**_field("miejscowosc_n", "Miejscowość"), "source_label": source, "number": "26"},
+                                _field("ulica_n", "12. Ulica")])
+    f = _techs(generate(t, SHA)[0])
+    assert f["miejscowosc_n"]["title"] == "Miejscowość" and f["ulica_n"]["title"] == "Ulica"

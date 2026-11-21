@@ -19,6 +19,8 @@ INPUT_TYPES = {"TEXT_FIELD", "TEXTAREA", "NUMBER", "DATEPICKER", "RADIO", "CHECK
 CHOICE = ("RADIO", "CHECKBOX", "SELECT")
 PL = str.maketrans("ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", "acelnoszzACELNOSZZ")
 EXTERNAL = re.compile(r"(MLPZ|PESEL|PESEL_ADDRESS)\.\w+$")
+# the paper's item number at the start of a label ("26. Miejscowość", "B.2 Nazwa", "D.1.26) Ulica", "IV. Dane"): never in the JSON
+NUMBERING = re.compile(r"^\s*(\d+(\.\d+)*[.)]|[A-Z](\.\d+)+[.)]?|[IVX]+\.|\(\d+\)|[a-z]\))\s+")
 SEARCH_OVER = 15  # Standardy s.5 pkt 4f: a longer list is a SELECT with a search box
 
 
@@ -164,6 +166,7 @@ def resolve(tree: dict, templates: Path) -> list:
         for s in p["sections"]:
             for f in s["fields"]:
                 full = re.sub(r"[\s.:…_*]+$", "", (f.get("meta") or {}).get("source_label") or "").strip()
+                full = NUMBERING.sub("", full) or full
                 if f.get("label", "").strip().lower() in template_labels and full and full.lower() != f["label"].strip().lower():
                     f["label"] = full[0].upper() + full[1:]
     used = set()
