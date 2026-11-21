@@ -69,6 +69,7 @@ class SkeletonConsent(BaseModel):
     src: StrList = Field(default_factory=list)
     variants: StrList = Field(default_factory=list, description="rodzaje wniosków, których dotyczy zgoda; pusto = wszystkie")
     condition: ShowIf | None = Field(default=None, description="gdy zgoda dotyczy tylko jednej sytuacji: pytanie z `conditions` i opcje")
+    required: bool = Field(default=True, description="false dla dobrowolnej zgody na kanał kontaktu (e-mail, SMS) albo zgody z bloku oznaczonego jako nieobowiązkowy")
 
 
 class Skeleton(BaseModel):
@@ -80,6 +81,11 @@ class Skeleton(BaseModel):
     entity_extract_src: StrList = Field(default_factory=list, description="kotwice bloków, które tego odpisu wymagają")
     applicant_self_only: bool = Field(default=False, description="true tylko gdy dokument wprost wymaga, by wnioskodawca działał osobiście, albo wyklucza pełnomocnika")
     applicant_self_only_src: StrList = Field(default_factory=list, description="kotwice bloków z tym wymogiem")
+    proxy_id_card: bool = Field(default=False, description="true, gdy dokument każe podać o pełnomocniku serię i numer dowodu osobistego (pole spoza danych z profilu)")
+    proxy_id_card_src: StrList = Field(default_factory=list)
+    case_fee: str | None = Field(default=None, description="opłata za samą sprawę (nie 17 zł za pełnomocnictwo): kwota, numer konta, termin, np. „płatne przed złożeniem wniosku”, zwięźle z dokumentu; null gdy dokument jej nie podaje")
+    case_fee_src: StrList = Field(default_factory=list, description="kotwice bloków z informacją o tej opłacie")
+    case_fee_proof: bool = Field(default=False, description="true, gdy dokument każe dołączyć potwierdzenie zapłaty tej opłaty")
     variants: StrList = Field(default_factory=list, description="krótkie nazwy rodzajów wniosków, gdy dokument łączy kilka; inaczej pusto")
     conditions: list[Condition] = Field(default_factory=list, description="pytania RADIO rozstrzygające sytuacje, od których zależą zgody lub sekcje")
     pages: list[SkeletonPage]
@@ -201,10 +207,12 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
     consents = []
     for c in skel.consents:
         show = [ShowIf(field=VARIANT_KEY, options=o)] if (o := [v for v in c.variants if v in variants]) and set(o) != set(variants) else []
-        consents.append(Consent(text=c.text, src=c.src, show_if=show + [x for x in [cond_of(c.condition)] if x]))
+        consents.append(Consent(text=c.text, required=c.required, src=c.src, show_if=show + [x for x in [cond_of(c.condition)] if x]))
     return FieldTree(title=skel.title, addressee=skel.addressee, applicant_kinds=skel.applicant_kinds, entity_option=skel.entity_option,
                      entity_extract_required=skel.entity_extract_required, entity_extract_src=skel.entity_extract_src,
                      applicant_self_only=skel.applicant_self_only, applicant_self_only_src=skel.applicant_self_only_src,
+                     proxy_id_card=skel.proxy_id_card, proxy_id_card_src=skel.proxy_id_card_src,
+                     case_fee=skel.case_fee, case_fee_src=skel.case_fee_src, case_fee_proof=skel.case_fee_proof,
                      pages=pages, consents=consents, dropped=skel.dropped, issues=skel.issues)
 
 

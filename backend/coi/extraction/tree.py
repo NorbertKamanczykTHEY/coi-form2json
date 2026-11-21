@@ -62,7 +62,7 @@ class Section(BaseModel):
     title: str
     repeating: bool = Field(default=False, description="true gdy źródło każe powtarzać blok (np. 'dla każdego …', numerowane identyczne bloki)")
     person_role: Literal["third_party"] | None = Field(default=None, description="'third_party' gdy sekcja to dane osoby trzeciej, której dotyczy sprawa, ale która nie jest stroną postępowania")
-    party: bool = Field(default=False, description="true gdy sekcja to dane strony postępowania, których wymaga dokument (rodzaj składającego, współwnioskodawca, współmałżonek, współwłaściciel, adres zamieszkania lub do korespondencji składającego), a nie przedmiot wniosku; trafia na stronę „Dane”")
+    party: bool = Field(default=False, description="true gdy sekcja to adres składającego, którego wymaga dokument (adres zamieszkania lub siedziby rozpisany na pozycje, adres do korespondencji), a nie przedmiot wniosku; trafia na stronę „Dane”")
     show_if: ShowIf | None = None
     fields: Annotated[list[FormField], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
     src: StrList = Field(default_factory=list)
@@ -74,7 +74,8 @@ class SubjectPage(BaseModel):
 
 
 class Consent(BaseModel):
-    text: str = Field(description="treść oświadczenia w formie neutralnej płciowo, np. 'Oświadczam, że…'")
+    text: str = Field(description="treść oświadczenia: czas teraźniejszy, strona czynna, neutralnie płciowo, bez „/am”, „/a”")
+    required: bool = Field(default=True, description="false dla dobrowolnej zgody na kanał kontaktu (e-mail, SMS) albo zgody z bloku oznaczonego jako nieobowiązkowy")
     show_if: Annotated[list[ShowIf], BeforeValidator(lambda v: [] if not v else [v] if isinstance(v, dict) else v)] = Field(
         default_factory=list, description="warunki (wszystkie naraz), gdy zgoda dotyczy tylko jednego rodzaju wniosku albo jednej sytuacji; pusto = zawsze")
     src: StrList = Field(default_factory=list)
@@ -103,6 +104,11 @@ class FieldTree(BaseModel):  # defaults everywhere: the prompt tells models to o
     entity_extract_src: StrList = Field(default_factory=list, description="kotwice bloków, które tego odpisu wymagają")
     applicant_self_only: bool = Field(default=False, description="true tylko gdy dokument wprost wymaga, by wnioskodawca działał osobiście, albo wyklucza pełnomocnika")
     applicant_self_only_src: StrList = Field(default_factory=list, description="kotwice bloków z tym wymogiem")
+    proxy_id_card: bool = Field(default=False, description="true, gdy dokument każe podać o pełnomocniku serię i numer dowodu osobistego (pole spoza danych z profilu)")
+    proxy_id_card_src: StrList = Field(default_factory=list)
+    case_fee: str | None = Field(default=None, description="opłata za samą sprawę (nie 17 zł za pełnomocnictwo): kwota, numer konta, termin, np. „płatne przed złożeniem wniosku”, zwięźle z dokumentu; null gdy dokument jej nie podaje")
+    case_fee_src: StrList = Field(default_factory=list, description="kotwice bloków z informacją o tej opłacie")
+    case_fee_proof: bool = Field(default=False, description="true, gdy dokument każe dołączyć potwierdzenie zapłaty tej opłaty")
     entity_option: str | None = Field(default=None, description="tekst opcji wyboru podmiotu z papieru, gdy formularz każe zaznaczyć rodzaj wnioskodawcy (dosłowna nazwa rodzaju podmiotu z dokumentu); null gdy brak (P2a)")
     pages: list[SubjectPage] = Field(description="tylko strony przedmiotu wniosku, bez danych wnioskodawcy, kontaktu i zgód")
     consents: Annotated[list[Consent], BeforeValidator(lambda v: v or [])] = Field(default_factory=list)
