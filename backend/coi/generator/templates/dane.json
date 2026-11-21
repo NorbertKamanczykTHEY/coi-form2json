@@ -685,6 +685,19 @@
      "type": "TEXT_FIELD"
     },
     {
+     "key": "numer_pesel_inna_osoba",
+     "label": "Numer PESEL",
+     "type": "TEXT_FIELD",
+     "validators": [
+      "PESEL"
+     ],
+     "when": {
+      "no_pesel": [
+       false
+      ]
+     }
+    },
+    {
      "key": "czy_inna_osoba_ma_numer_pesel",
      "label": "Czy ta osoba ma numer PESEL?",
      "type": "RADIO",
