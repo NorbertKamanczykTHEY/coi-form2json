@@ -235,7 +235,8 @@ def node_json(n, typ, label, sha, idx, order):
 def field_json(f, sha, idx, order):
     j = node_json(f, f["type"], f.get("label"), sha, idx, order)
     if f["type"] in INPUT_TYPES:
-        j["validation"] = (["REQUIRED"] if f.get("required", True) else []) + f.get("validators", [])
+        required = f.get("required", True) and not j["readOnly"]  # the applicant cannot fill a read-only field (e.g. empty office name)
+        j["validation"] = (["REQUIRED"] if required else []) + f.get("validators", [])
     if f.get("dictionary"):
         j["dictionaryName"] = f["dictionary"]
     elif f.get("options"):

@@ -99,7 +99,7 @@ def test_addressee_missing_and_consent_from_document():
     form, rep, _ = generate(t, SHA)
     assert {"key": "addressee", "why": "brak adresata, wstawiono pustą nazwę urzędu"} in rep["needs_review"]
     urzad = next(f for *_, f in fields(form) if f["techName"] == "nazwa_urzedu")
-    assert urzad["defaultValue"] == "" and urzad["readOnly"]
+    assert urzad["defaultValue"] == "" and urzad["readOnly"] and urzad["validation"] == []  # read-only never blocks submission
     consents = next(f for *_, f in fields(form) if f["type"] == "CONSENT_SECTION")["consentSectionConfig"]["consents"]
     assert consents[-1] == {"description": "<html><head></head><body><p>Oświadczam, że dane są prawdziwe.</p></body></html>", "required": True}
 
