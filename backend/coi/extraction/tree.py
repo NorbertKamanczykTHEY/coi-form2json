@@ -55,11 +55,13 @@ class FormField(BaseModel):
     description: str | None = Field(default=None, description="krótka podpowiedź dla wypełniającego")
     description_source: Literal["document", "ai"] | None = Field(default=None, description="'document' gdy podpowiedź pochodzi z tekstu źródła, 'ai' gdy to Twoja sugestia; kod to weryfikuje")
     doubt: str | None = Field(default=None, description="krótko, jeśli interpretacja pola jest niepewna")
+    number: str | None = Field(default=None, description="numeracja pozycji w dokumencie, np. '17' albo 'B.2'; null gdy brak")
     src: StrList = Field(default_factory=list, description="kotwice bloków źródłowych, np. ['p1.b12']")
 
 
 class Section(BaseModel):
     title: str
+    number: str | None = Field(default=None, description="numeracja sekcji w dokumencie, np. '17' albo 'B.2'; null gdy brak")
     repeating: bool = Field(default=False, description="true gdy źródło każe powtarzać blok (np. 'dla każdego …', numerowane identyczne bloki)")
     person_role: Literal["third_party"] | None = Field(default=None, description="'third_party' gdy sekcja to dane osoby trzeciej, której dotyczy sprawa, ale która nie jest stroną postępowania")
     party: bool = Field(default=False, description="true gdy sekcja to adres składającego, którego wymaga dokument (adres zamieszkania lub siedziby rozpisany na pozycje, adres do korespondencji), a nie przedmiot wniosku; trafia na stronę „Dane”")

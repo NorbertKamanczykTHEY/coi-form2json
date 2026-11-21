@@ -25,7 +25,7 @@ TRAILING_FILL = re.compile(r"(___|☐)\W*$")
 SIGN_ONLY = re.compile(r"podpis|pieczęć|pieczątk|\bdata\b", re.I)
 EXCLUSIVE = re.compile(r"\bje[żz]eli\b|\bje[śs]li\b|\bw przypadku\b|wypełnia\w* (wyłącznie|tylko)", re.I)  # EVAL-3 G1
 PERSON_IF = re.compile(r"wypełni\w*\s+(tylko|wyłącznie)\s+w\s+przypadku\s+zaznaczeni", re.I)  # EVAL-3 G2: "fill only if box X is ticked"
-GENDER_SLASH = re.compile(r"[^\W\d_]/(am|a|łam|łem|em|aś)\b", re.I)  # "zapoznałem/am", "zobowiązany/a"
+GENDER_SLASH = re.compile(r"[^\W\d_]/(am|a|łam|łem|em|aś)\b|\b[^\W\d_]{3,}(łem|łam)\b", re.I)  # "zapoznałem/am", "zobowiązany/a", "zapoznałem"
 DECLARATION = re.compile(r"^\W*(jednocześnie\s+)?oświadcz", re.I)
 SUM_POS = re.compile(r"\b(SUMA|RAZEM)\b")  # printed capitals of a calculation part
 SLASH_CHOICE = re.compile(r"[^\W\d_]{3,}\s?/\s?[^\W\d_]{3,}\s?\*")  # "wynajem/użyczenie*"
@@ -244,4 +244,12 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
     if contra:
         fails.append(f"G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); "
                      f"zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: {contra[:10]}")
+    # G3: an attachment list is one FILE_UPLOADER per document, never a CHECKBOX of documents
+    att_choice = [f.key for _, _, f in all_fields(tree) if f.type in ("CHECKBOX", "RADIO", "SELECT") and re.search(r"załącz|dołącz", f.label + " " + f.source_label, re.I)]
+    if att_choice:
+        fails.append(f"G22: lista załączników jako pole wyboru; każdy dokument to osobne pole FILE_UPLOADER (warunkowy z `show_if`): {att_choice[:5]}")
+    # G1 for consents: consents for exclusive situations (adult / on behalf of a minor) need show_if on the control question
+    excl_c = [c.text[:60] for c in tree.consents if not c.show_if and re.search(r"niepełnolet|nieletni|małoletni", c.text, re.I)]
+    if excl_c:
+        fails.append(f"G23: zgoda dotyczy jednej sytuacji (osoba pełnoletnia albo niepełnoletnia) bez `show_if` na pytaniu, które ją rozstrzyga: {excl_c[:5]}")
     return fails

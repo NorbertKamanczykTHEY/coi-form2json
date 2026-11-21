@@ -46,3 +46,10 @@ def test_eval3_rules_in_prompts():
         assert "`case_fee`" in t and "`proxy_id_card: true`" in t and "`required: false`" in t and "`rodo`" in t
     for t in (main, page):
         assert "SUMA" in t and "DATEPICKER" in t and "wzajemnie wykluczające" in t and "Stały tekst bez znaku wyboru" in t
+
+
+def test_queue_rules_in_prompts_and_schema():
+    main, skel, page, schema = list(texts())
+    for t in (main, page):
+        assert "„Oświadczenie <kogo>”" in t and "nigdy jedno pole CHECKBOX" in t and "`number`" in t
+    assert "pełnoletniej i w imieniu niepełnoletniej" in main and "`issues`" in skel and '"number"' in schema

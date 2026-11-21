@@ -200,3 +200,13 @@ def test_descriptions_without_masks_or_label_paraphrase():
         f("o", "Obręb", src="p1.b0") | {"description": "Znajdziesz go w wypisie z rejestru gruntów."}]}]}]})
     out, _ = normalize(t, blocks)
     assert [x.description for x in out.pages[0].sections[0].fields] == [None, "Wpisz 26 cyfr numeru rachunku.", None, "Znajdziesz go w wypisie z rejestru gruntów."]
+
+
+def test_paper_numbering_moves_to_number_and_plain_address_parts_lose_the_preset():
+    blocks = {"p1.b0": "D.1 ADRES 26. Miejscowość ___ 27. Kod pocztowy ___ 10 zł stawka ___"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "D.1 Adres nieruchomości", "fields": [
+        f("m", "26. Miejscowość", src="p1.b0", preset="address"), f("k", "27. Kod pocztowy", src="p1.b0", preset="address"),
+        f("s", "10 zł stawka", "NUMBER", "p1.b0")]}]}]})
+    sec = normalize(t, blocks)[0].pages[0].sections[0]
+    assert (sec.number, sec.title) == ("D.1", "Adres nieruchomości")
+    assert [(x.number, x.label, x.preset) for x in sec.fields] == [("26", "Miejscowość", None), ("27", "Kod pocztowy", None), (None, "10 zł stawka", None)]

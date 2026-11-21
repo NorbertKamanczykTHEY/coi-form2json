@@ -44,6 +44,7 @@ class ExtractionResult:
 
 class SkeletonSection(BaseModel):
     title: str
+    number: str | None = Field(default=None, description="numeracja sekcji w dokumencie, np. 'B.2'")
     src: list[str] = Field(description="zakresy kotwic bloków sekcji, np. ['p1.b24-p1.b59']")
     variants: StrList = Field(default_factory=list, description="rodzaje wniosków, których dotyczy sekcja; pusto = wspólna")
     repeating: bool = False
@@ -182,6 +183,7 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
             sec.repeating = sec.repeating or sk.repeating
             sec.person_role = sec.person_role or sk.person_role
             sec.party = sec.party or sk.party
+            sec.number = sec.number or sk.number
             opts = [v for v in sk.variants if v in variants]
             if opts and set(opts) != set(variants) and not sec.show_if:  # Q2: variant sections are SHOW, not copies
                 sec.show_if = ShowIf(field=VARIANT_KEY, options=opts)

@@ -202,3 +202,19 @@ def test_g7_uses_whole_text_when_document_has_no_fill_marks():
                                   "pages": [{"title": "P", "sections": [{"title": "S", "src": ["p1.b1"], "fields": [
                                       {"key": "d", "label": "Data uiszczenia opłaty", "source_label": "Data uiszczenia opłaty", "type": "DATEPICKER", "src": ["p1.b2"]}]}]}]})
     assert "G7" not in codes(gate(t, blocks))
+
+
+def test_g22_attachment_list_is_uploads_not_a_checkbox():
+    blocks = {"p1.b5": "Załączniki: ☐ plan ☐ mapa"}
+    assert "G22" in codes(with_section(blocks, fld("z", "Wybierz załączniki", "CHECKBOX", options=["Plan", "Mapa"])))
+    assert "G22" not in codes(with_section(blocks, fld("p", "Plan"), fld("m", "Mapa")))
+
+
+def test_g23_exclusive_consents_need_show_if_and_g18_catches_past_masculine():
+    t = tree()
+    t.consents = [Consent(text="Wyrażam zgodę w imieniu osoby niepełnoletniej.", src=["p1.b4"])]
+    assert "G23" in codes(gate(t, BLOCKS))
+    t.consents = [Consent(text="Wyrażam zgodę w imieniu osoby niepełnoletniej.", src=["p1.b4"], show_if=[ShowIf(field="sposob", options=["Przelew"])])]
+    assert "G23" not in codes(gate(t, BLOCKS))
+    t.consents = [Consent(text="Oświadczam, że zapoznałem się z regulaminem.", src=["p1.b4"])]
+    assert "G18" in codes(gate(t, BLOCKS))

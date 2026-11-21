@@ -36,6 +36,7 @@ CHANNEL = re.compile(r"e-?mail|\bsms\b|poczty elektronicznej|drogą elektroniczn
 DATE_MASK = re.compile(r"\b(DD|RRRR|YYYY)[-./]|format\w* (daty|dd|rrrr)", re.I)
 ACCOUNT_MASK = re.compile(r"X{6,}|\bformacie\b.{0,20}\d{2}", re.I)
 GENERIC = {"wpis", "poda", "wybi", "nale", "pros", "pole", "tuta", "któr", "dane", "dany", "nazw", "jest", "tego", "tym"}  # 4-letter stems
+LEAD_NUMBER = re.compile(r"^\s*(?:((?:[A-Z]\.)?\d{1,3}(?:\.\d{1,3})*)[.)]|([A-Z](?:\.\d{1,3})+)\.?)\s+(?=\S)")  # "26. Miejscowość", "B.2 Dane"
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -189,6 +190,8 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                         tree.entity_extract_required, tree.entity_extract_src = True, list(f.src)
                     continue
                 f.options = [clean_option(o) for o in f.options]
+                if m := LEAD_NUMBER.match(f.label):  # G12: the paper's numbering is data for the generator, not label text
+                    f.number, f.label = f.number or m[1] or m[2], f.label[m.end():]
                 if not f.preset and (hit := next((ps for rx, ps in LABEL_PRESETS if rx.search(f.label + " " + f.source_label)), None)):
                     f.preset = hit
                 if f.preset == "birth_date" or re.match(r"data\b", f.label, re.I):
@@ -221,6 +224,11 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                     review.append({"key": f.key, "why": f.doubt})  # R7: stays required, flagged
                 keep.append(f)
             s.fields = keep
+            if sum(f.preset == "address" for f in s.fields) > 1:  # an address is ONE preset field; several mean the parts of a plain address
+                for f in s.fields:
+                    f.preset = None if f.preset == "address" else f.preset
+            if m := LEAD_NUMBER.match(s.title):
+                s.number, s.title = s.number or m[1] or m[2], s.title[m.end():]
     for p in tree.pages:
         for s in p.sections:
             named = {tuple(f.src) for f in s.fields if f.type == "FILE_UPLOADER" and not f.multiple}
