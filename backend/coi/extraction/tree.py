@@ -73,6 +73,8 @@ class SubjectPage(BaseModel):
 
 class Consent(BaseModel):
     text: str = Field(description="treść oświadczenia w formie neutralnej płciowo, np. 'Oświadczam, że…'")
+    show_if: Annotated[list[ShowIf], BeforeValidator(lambda v: [] if not v else [v] if isinstance(v, dict) else v)] = Field(
+        default_factory=list, description="warunki (wszystkie naraz), gdy zgoda dotyczy tylko jednego rodzaju wniosku albo jednej sytuacji; pusto = zawsze")
     src: StrList = Field(default_factory=list)
 
 
