@@ -1,0 +1,364 @@
+{
+ "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
+ "addressee": {
+  "kind": "office",
+  "name": "Urząd Miejski Wrocławia, Wydział Środowiska",
+  "src": [
+   "p1.b3",
+   "p1.b4"
+  ]
+ },
+ "applicant_kinds": [
+  "person"
+ ],
+ "pages": [
+  {
+   "title": "Informacje o psie",
+   "sections": [
+    {
+     "title": "Rodzaj wniosku",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "purpose",
+       "label": "Wybierz cel wniosku",
+       "source_label": "proszę o wydanie zezwolenia na hodowanie/utrzymywanie* charta/chartów* lub mieszańca charta/mieszańców chartów*",
+       "type": "RADIO",
+       "options": [
+        "hodowanie charta",
+        "hodowanie chartów",
+        "hodowanie mieszańca charta",
+        "hodowanie mieszańców chartów",
+        "utrzymywanie charta",
+        "utrzymywanie chartów",
+        "utrzymywanie mieszańca charta",
+        "utrzymywanie mieszańców chartów"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b10"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b10"
+     ]
+    },
+    {
+     "title": "Dane psa",
+     "repeating": true,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "dog_origin",
+       "label": "Pochodzenie psa",
+       "source_label": "Pochodzenie psa (metryka, numer rodowodu, imię, nazwisko i adres poprzedniego właściciela)",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b12"
+       ]
+      },
+      {
+       "key": "dog_breed",
+       "label": "Rasa psa",
+       "source_label": "Rasa psa:",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "dog_birth_date",
+       "label": "Data urodzenia psa",
+       "source_label": "Data urodzenia psa:",
+       "type": "DATEPICKER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "dog_vaccination_date",
+       "label": "Data szczepienia przeciwko wściekliźnie",
+       "source_label": "Data szczepienia *(w przypadku jego braku)*",
+       "type": "DATEPICKER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": "*(w przypadku jego braku)*",
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "dog_sex",
+       "label": "Płeć psa",
+       "source_label": "Płeć:",
+       "type": "RADIO",
+       "options": [
+        "pies",
+        "suka"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "dog_identification_method",
+       "label": "Sposób oznakowania psa",
+       "source_label": "Sposób oznakowania psa / nr ident.:",
+       "type": "RADIO",
+       "options": [
+        "mikroprocesor",
+        "tatuaż",
+        "brak"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "dog_microchip_number",
+       "label": "Numer mikroprocesora",
+       "source_label": "mikroprocesor ___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "dog_identification_method",
+        "option": "mikroprocesor"
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "dog_tattoo_number",
+       "label": "Numer tatuażu",
+       "source_label": "tatuaż ___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "dog_identification_method",
+        "option": "tatuaż"
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b11",
+      "p1.b12",
+      "p1.b13"
+     ]
+    },
+    {
+     "title": "Miejsce utrzymywania psa",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "dog_keeping_address",
+       "label": "Adres miejsca utrzymywania psa",
+       "source_label": "Adres miejsca utrzymywania psa/psów:",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": "address",
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b14"
+       ]
+      },
+      {
+       "key": "dog_keeping_conditions",
+       "label": "Opis warunków utrzymywania psa",
+       "source_label": "Opis miejsca i warunków w jakich wnioskodawca zamierza utrzymywać psa/psy:",
+       "type": "TEXTAREA",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b15"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b14",
+      "p1.b15"
+     ]
+    },
+    {
+     "title": "Załączniki",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "vaccination_certificates",
+       "label": "Kopie zaświadczeń o szczepieniu przeciwko wściekliźnie",
+       "source_label": "w załączeniu kopia dla każdego psa",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": "Dla każdego psa wymagana jest kopia zaświadczenia o szczepieniu przeciwko wściekliźnie.",
+       "doubt": null,
+       "src": [
+        "p1.b20"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b20"
+     ]
+    }
+   ]
+  }
+ ],
+ "consents": [
+  {
+   "text": "Oświadczam, że psy nie będą wykorzystywane do polowań.",
+   "src": [
+    "p1.b19"
+   ]
+  },
+  {
+   "text": "Oświadczam, że zaszczepiono psa/psy przeciwko wściekliźnie.",
+   "src": [
+    "p1.b20"
+   ]
+  },
+  {
+   "text": "Oświadczam, że zapewniam warunki utrzymywania psa, zgodnie z rozporządzeniem Ministra Rolnictwa i Rozwoju Wsi z dnia 5 lipca 2010 r.",
+   "src": [
+    "p1.b21"
+   ]
+  }
+ ],
+ "dropped": [
+  {
+   "reason": "applicant_data",
+   "src": [
+    "p1.b6",
+    "p1.b7",
+    "p1.b8",
+    "p1.b9"
+   ]
+  },
+  {
+   "reason": "signature_date",
+   "src": [
+    "p1.b1",
+    "p1.b2",
+    "p1.b22",
+    "p1.b23"
+   ]
+  },
+  {
+   "reason": "title",
+   "src": [
+    "p1.b5"
+   ]
+  },
+  {
+   "reason": "office_use",
+   "src": [
+    "p1.b1"
+   ]
+  },
+  {
+   "reason": "legal_info",
+   "src": [
+    "p1.b10"
+   ]
+  },
+  {
+   "reason": "rodo",
+   "src": [
+    "p1.b24-p1.b59"
+   ]
+  },
+  {
+   "reason": "consent",
+   "src": [
+    "p1.b18",
+    "p1.b19",
+    "p1.b20",
+    "p1.b21"
+   ]
+  },
+  {
+   "reason": "empty_slot",
+   "src": [
+    "p1.b16"
+   ]
+  }
+ ],
+ "issues": [
+  "Tytuł formularza mówi o psach ras uznawanych za agresywne, ale treść dotyczy chartów i ich mieszańców, co może wprowadzać w błąd."
+ ]
+}

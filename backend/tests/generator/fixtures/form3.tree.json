@@ -1,0 +1,145 @@
+{
+ "title": "Wniosek o wydanie zaświadczenia",
+ "addressee": {
+  "kind": "office",
+  "name": "Urząd Miasta i Gminy Młynary",
+  "src": [
+   "p1.b1"
+  ]
+ },
+ "applicant_kinds": [
+  "person"
+ ],
+ "pages": [
+  {
+   "title": "Rodzaj zaświadczenia",
+   "sections": [
+    {
+     "title": "Rodzaj zaświadczenia",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "certificate_purpose",
+       "label": "Wybierz rodzaj zaświadczenia",
+       "source_label": "Proszę o wydanie zaświadczenia o:*",
+       "type": "CHECKBOX",
+       "options": [
+        "ilości posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+        "ilości dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+        "okresie posiadania gospodarstwa rolnego",
+        "nieposiadaniu użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
+        "Inne"
+       ],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b7",
+        "p1.b8",
+        "p1.b9",
+        "p1.b10",
+        "p1.b11",
+        "p1.b12"
+       ]
+      },
+      {
+       "key": "other_certificate_purpose",
+       "label": "Inny rodzaj zaświadczenia",
+       "source_label": "inne___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": {
+        "field": "certificate_purpose",
+        "option": "Inne"
+       },
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b12"
+       ]
+      },
+      {
+       "key": "certificate_destination",
+       "label": "Cel przedłożenia zaświadczenia",
+       "source_label": "Zaświadczenie potrzebne jest celem przedłożenia w ___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b12"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b7",
+      "p1.b8",
+      "p1.b9",
+      "p1.b10",
+      "p1.b11",
+      "p1.b12"
+     ]
+    }
+   ]
+  }
+ ],
+ "consents": [],
+ "dropped": [
+  {
+   "reason": "applicant_data",
+   "src": [
+    "p1.b0",
+    "p1.b2",
+    "p1.b3",
+    "p1.b4",
+    "p1.b5",
+    "p1.b6"
+   ]
+  },
+  {
+   "reason": "signature_date",
+   "src": [
+    "p1.b0",
+    "p1.b12"
+   ]
+  },
+  {
+   "reason": "office_use",
+   "src": []
+  },
+  {
+   "reason": "legal_info",
+   "src": [
+    "p1.b13",
+    "p1.b14",
+    "p1.b15",
+    "p1.b16"
+   ]
+  },
+  {
+   "reason": "title",
+   "src": []
+  },
+  {
+   "reason": "template_attachment",
+   "src": []
+  },
+  {
+   "reason": "empty_slot",
+   "src": []
+  }
+ ],
+ "issues": []
+}

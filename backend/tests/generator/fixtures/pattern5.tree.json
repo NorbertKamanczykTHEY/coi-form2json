@@ -1,0 +1,136 @@
+{
+ "title": "Wniosek o stwierdzenie nadpłaty podatku",
+ "addressee": {
+  "kind": "office",
+  "name": "Urząd Gminy Ulan-Majorat",
+  "src": []
+ },
+ "applicant_kinds": [
+  "person",
+  "legal_entity"
+ ],
+ "pages": [
+  {
+   "title": "Informacje o nadpłacie",
+   "sections": [
+    {
+     "title": "Informacje o nadpłacie",
+     "fields": [
+      {
+       "key": "podatek_ktorego_dotyczy_nadplata",
+       "label": "Podatek, którego dotyczy nadpłata",
+       "source_label": "Podatek, którego dotyczy nadpłata",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "show_if": null,
+       "description": null,
+       "src": [
+        "p1.b1"
+       ]
+      },
+      {
+       "key": "kwota",
+       "label": "Kwota",
+       "source_label": "Kwota",
+       "type": "NUMBER",
+       "options": [],
+       "show_if": null,
+       "description": null,
+       "src": [
+        "p1.b1"
+       ]
+      },
+      {
+       "key": "uzasadnienie",
+       "label": "Uzasadnienie",
+       "source_label": "Uzasadnienie",
+       "type": "TEXTAREA",
+       "options": [],
+       "show_if": null,
+       "description": "Uzasadnij dlaczego Twoim zdaniem powstała nadpłata i z czego wynika jej wysokość.",
+       "src": [
+        "p1.b1"
+       ]
+      }
+     ],
+     "src": []
+    },
+    {
+     "title": "Rozliczenie nadpłaty",
+     "fields": [
+      {
+       "key": "wybierz_co_mamy_zrobic_z_nadplata",
+       "label": "Wybierz, co mamy zrobić z nadpłatą",
+       "source_label": "Wybierz, co mamy zrobić z nadpłatą",
+       "type": "RADIO",
+       "options": [
+        "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
+        "Zwrócić przelewem na rachunek bankowy"
+       ],
+       "show_if": null,
+       "description": null,
+       "src": [
+        "p1.b1"
+       ]
+      },
+      {
+       "key": "nazwa_podatku",
+       "label": "Nazwa podatku",
+       "source_label": "Nazwa podatku",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "show_if": {
+        "field": "wybierz_co_mamy_zrobic_z_nadplata",
+        "options": [
+         "Zaliczyć na poczet przyszłego zobowiązania podatkowego"
+        ]
+       },
+       "description": null,
+       "src": [
+        "p1.b1"
+       ]
+      },
+      {
+       "key": "numer_rachunku",
+       "label": "Numer rachunku",
+       "source_label": "Numer rachunku",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "show_if": {
+        "field": "wybierz_co_mamy_zrobic_z_nadplata",
+        "options": [
+         "Zwrócić przelewem na rachunek bankowy"
+        ]
+       },
+       "description": null,
+       "src": [
+        "p1.b1"
+       ]
+      }
+     ],
+     "src": []
+    },
+    {
+     "title": "Korekta deklaracji",
+     "fields": [
+      {
+       "key": "plik_deklaracji_podatkowej",
+       "label": "Plik deklaracji podatkowej",
+       "source_label": "Plik deklaracji podatkowej",
+       "type": "FILE_UPLOADER",
+       "options": [],
+       "show_if": null,
+       "description": null,
+       "src": [
+        "p1.b1"
+       ]
+      }
+     ],
+     "src": []
+    }
+   ]
+  }
+ ],
+ "consents": [],
+ "dropped": []
+}

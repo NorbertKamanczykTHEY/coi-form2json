@@ -1,0 +1,19 @@
+{
+ "title": "Strona końcowa",
+ "type": "FINISH",
+ "sections": [
+  {
+   "key": "podglad_uzupelnionego_wniosku",
+   "repeating": false,
+   "title": "Podgląd uzupełnionego wniosku",
+   "fields": [
+    {
+     "key": "podglad_1",
+     "label": "",
+     "type": "TEXT_BLOCK",
+     "description_html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Zanim wyślesz wniosek, sprawdź uzupełnione dane na podglądzie. Jeśli zobaczysz błędy, wróć do edycji.</span></p></body></html>"
+    }
+   ]
+  }
+ ]
+}

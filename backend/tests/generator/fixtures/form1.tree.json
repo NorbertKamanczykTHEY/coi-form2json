@@ -1,0 +1,174 @@
+{
+ "title": "Wniosek o ustalenie numeru porządkowego budynku",
+ "addressee": {
+  "kind": "organ",
+  "name": "Wójt Gminy Elbląg",
+  "src": [
+   "p1.b4"
+  ]
+ },
+ "applicant_kinds": [
+  "person",
+  "legal_entity"
+ ],
+ "pages": [
+  {
+   "title": "Dane budynku",
+   "sections": [
+    {
+     "title": "Lokalizacja budynku",
+     "repeating": false,
+     "person_role": null,
+     "show_if": null,
+     "fields": [
+      {
+       "key": "locality",
+       "label": "Miejscowość",
+       "source_label": "w miejscowości___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b12"
+       ]
+      },
+      {
+       "key": "street",
+       "label": "Ulica",
+       "source_label": "przy ulicy1)___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b12"
+       ]
+      },
+      {
+       "key": "plot_number",
+       "label": "Numer ewidencyjny działki",
+       "source_label": "nr ewidencyjny działki ___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      },
+      {
+       "key": "precinct",
+       "label": "Obręb",
+       "source_label": "w obrębie ___",
+       "type": "TEXT_FIELD",
+       "options": [],
+       "preset": null,
+       "show_if": null,
+       "optional_evidence": null,
+       "default_value": null,
+       "description": null,
+       "doubt": null,
+       "src": [
+        "p1.b13"
+       ]
+      }
+     ],
+     "src": [
+      "p1.b12",
+      "p1.b13"
+     ]
+    }
+   ]
+  }
+ ],
+ "consents": [],
+ "dropped": [
+  {
+   "reason": "title",
+   "src": [
+    "p1.b10"
+   ]
+  },
+  {
+   "reason": "applicant_data",
+   "src": [
+    "p1.b3",
+    "p1.b4",
+    "p1.b5",
+    "p1.b6",
+    "p1.b7",
+    "p1.b8"
+   ]
+  },
+  {
+   "reason": "contact",
+   "src": [
+    "p1.b9"
+   ]
+  },
+  {
+   "reason": "signature_date",
+   "src": [
+    "p1.b0",
+    "p1.b1",
+    "p1.b31"
+   ]
+  },
+  {
+   "reason": "addressee",
+   "src": [
+    "p1.b2",
+    "p1.b4",
+    "p1.b5",
+    "p1.b6"
+   ]
+  },
+  {
+   "reason": "legal_info",
+   "src": [
+    "p1.b14",
+    "p1.b15",
+    "p1.b16",
+    "p1.b17",
+    "p1.b18",
+    "p1.b19",
+    "p1.b20",
+    "p1.b21",
+    "p1.b22",
+    "p1.b23",
+    "p1.b24",
+    "p1.b25",
+    "p1.b26",
+    "p1.b27",
+    "p1.b28",
+    "p1.b29"
+   ]
+  },
+  {
+   "reason": "rodo",
+   "src": [
+    "p1.b14-p1.b30"
+   ]
+  },
+  {
+   "reason": "empty_slot",
+   "src": [
+    "p1.b0"
+   ]
+  }
+ ],
+ "issues": []
+}
