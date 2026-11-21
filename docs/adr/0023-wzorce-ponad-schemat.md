@@ -1,6 +1,6 @@
-# 0023. Przy rozbieżności schematu i wzorców trzymamy się wzorców #1 i #5
+# 0023. Hierarchia źródeł: Standardy > wzorce #1/#5 > schemat
 Data: 2026-11-21 · Status: proponowana
-Źródło: SPEC (M3) + ZESPÓŁ
+Źródło: SPEC (M3, M4) + ZESPÓŁ · Aktualizacja 2026-11-21: decyzja użytkownika „Standardy > ADR”
 
 ## Kontekst
 - M3: JSON ma być zgodny ze strukturą oczekiwaną: schematem i wzorcami #1, #5. Obie wersje się rozchodzą:
@@ -11,6 +11,8 @@ Data: 2026-11-21 · Status: proponowana
 - Pełna lista: [generator](../design/generator.md), „Rozbieżności w materiałach”.
 
 ## Decyzja
+- **Kolejność ważności: Standardy i Reguły techniczne COI > wzorce #1/#5 > schemat > nasze ADR-y.** Przykład: PESEL w „Dane innej osoby” (Standardy s. 15) dodajemy, choć wzorce go nie mają.
+- Przy rozbieżności schematu i wzorców (forma JSON):
 - Emitujemy tak jak wzorce (np. `repeatingSectionGrid`), a `validation` zawsze jako lista.
 - Walidator końcowy pomija znany konflikt `defaultValue`. Regresja `compare.py` porównuje strukturę z #1 i #5.
 
