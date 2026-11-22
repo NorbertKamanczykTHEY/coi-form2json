@@ -46,6 +46,9 @@ PROOF = re.compile(r"(dołącz|załącz)\w*.{0,100}(dow[oó]d|potwierdzeni|kopi)
 CONSISTENT = re.compile(r"\b(jest|są) spójn|brak niespójno|nie stwierdzono niespójno|zgodn\w* z treści", re.I)
 OTHER_BRANCH = re.compile(r"\binn\w+|\bnie\b|\bbrak\b", re.I)
 SLASH_ALT = re.compile(r"(?<![\w/])([^\W\d_]{3,}(?:\s?/\s?[^\W\d_]{3,})+)\s?\*")  # S14: "wynajem/użyczenie*", "a/b/c*"
+POS_REF = re.compile(r"(?:w przypadku|je[żz]eli|je[śs]li)\b[^;]{0,60}?(?:\bpoz\.?|pozycj\w*|zaznaczeni\w*)\s*(?:kratki\s+)?(?:w\s+)?(?:poz\.?\s*)?((?:[A-Z]\.)*\d{1,3}(?:\.\d{1,3})*)", re.I)  # needs "poz." or "zaznaczenia"
+POS_LIST = re.compile(r"\b(poz(?:ycj\w*|\.)?)\s*(\d{1,3}(?:\s*(?:,|\bi\b|\boraz\b|\blub\b)\s*\d{1,3})*)", re.I)
+ADDRESS_PART = re.compile(r"kraj|wojew|powiat|gmin|miejscow|ulic|numer (domu|budynku|lokalu)|nr (domu|lokalu)|kod|poczt|adres|budynk|lokal", re.I)
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -262,6 +265,8 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     review += _third_party_statements(tree, blocks, seen)
     review += rebuild_slash_choices(tree, blocks, seen)
     review += branch_show_if(tree, blocks)
+    review += position_refs(tree, blocks)
+    review += _party_non_address(tree)
     place_controls(tree)
     if tree.case_fee_proof and not PROOF.search(" ".join(blocks.values())):  # R6: a proof upload only when the paper asks to attach it
         tree.case_fee_proof = False
@@ -360,6 +365,75 @@ def rebuild_slash_choices(tree: FieldTree, blocks: dict[str, str], seen: set[str
     return review
 
 
+def position_refs(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
+    """A condition naming a paper position ("w przypadku zaznaczenia D.3.33.1", "jeśli TAK w poz. 35") is show_if on the
+    field with that number: a trailing ".n" is its n-th option, "TAK"/"NIE" the yes/no option. The paper's explicit
+    reference beats the model's guess. Position numbers in descriptions become the referenced fields' labels."""
+    review, fields = [], [f for p in tree.pages for s in p.sections for f in s.fields]
+    by_num = {f.number.strip().rstrip("."): f for f in fields if f.number}
+    def target(ref: str, text: str) -> tuple[FormField, str] | None:
+        parts = [x for x in ref.split(".") if x]
+        nums = [x for x in parts if x.isdigit()]
+        for k in range(len(nums), 0, -1):  # "D.3.33.1": field 33 option 1, else field 1 ...
+            head, tail = nums[:k], nums[k:]
+            for key in (".".join(head), head[-1]):
+                f = by_num.get(key)
+                if not f or f.type not in ("RADIO", "CHECKBOX", "SELECT"):
+                    continue
+                if tail and tail[0].isdigit() and 1 <= int(tail[0]) <= len(f.options):
+                    return f, f.options[int(tail[0]) - 1]
+                yes = re.search(r"\b(tak|nie)\b", text, re.I)
+                if not tail and yes:
+                    opt = next((o for o in f.options if o.strip().lower() == yes[1].lower()), None)
+                    if opt:
+                        return f, opt
+                if not tail and {o.lower() for o in f.options} == {"tak", "nie"} and re.search(r"zaznacz", text, re.I):
+                    return f, next(o for o in f.options if o.lower() == "tak")
+        return None
+    for p in tree.pages:
+        for s in p.sections:
+            for node, text in [(s, src_text(s.src[:1], blocks) + " " + s.title)] + [(f, src_text(f.src, blocks) + " " + (f.description or "")) for f in s.fields]:
+                m = POS_REF.search(text)
+                hit = m and target(m[1], text[m.start():m.end() + 20])
+                if not hit or hit[0] is node:
+                    continue
+                ctl, opt = hit
+                new = ShowIf(field=ctl.key, options=[opt])
+                if node.show_if != new and not (node is not s and s.show_if == new):  # a field inside a section already scoped the same way
+                    review.append({"key": getattr(node, "key", None), "why": f"warunek z papieru („{m[0][:50]}”) → SHOW {ctl.key} = {opt}; sprawdź"})
+                    node.show_if = new
+    labels = {n: f.label for n, f in by_num.items()}
+    for f in fields:
+        for attr in ("description",):
+            val = getattr(f, attr)
+            if not val:
+                continue
+            def words(m):
+                nums = re.findall(r"\d{1,3}", m[2])
+                return ", ".join(f"„{labels[x]}”" for x in nums) if all(x in labels for x in nums) else m[0]
+            setattr(f, attr, POS_LIST.sub(words, val))
+    return review
+
+
+def _party_non_address(tree: FieldTree) -> list[dict]:
+    """A non-address field in the applicant's address part ("czy nieruchomość ma nadany adres", plot numbers) belongs to
+    the subject section it concerns (most shared words), not to the party section."""
+    review = []
+    subject = [s for p in tree.pages for s in p.sections if not s.party and s.person_role != "third_party"]
+    for p in tree.pages:
+        for s in p.sections:
+            if not s.party or not subject:
+                continue
+            for f in [f for f in s.fields if not ADDRESS_PART.search(f.label) and f.type != "TEXT_BLOCK"]:
+                home = max(subject, key=lambda x: len(_stems(x.title) & _stems(f.label + " " + f.source_label)))
+                if not _stems(home.title) & _stems(f.label + " " + f.source_label):
+                    continue
+                s.fields.remove(f)
+                home.fields.append(f)
+                review.append({"key": f.key, "why": f"pole spoza adresu przeniesione z sekcji adresu składającego do „{home.title}”"})
+    return review
+
+
 def branch_show_if(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
     """R2 (EVAL-4): in a section with one choice question, a required field without show_if whose source says
     "w przypadku …" belongs to one branch of that question: 'other' wording ("innej osoby", "nie") -> the
@@ -392,7 +466,7 @@ def place_controls(tree: FieldTree) -> None:
                 if (s.show_if and s.show_if.field == k) or any(f.show_if and f.show_if.field == k for f in s.fields)]
     used = {si.field for c in tree.consents for si in c.show_if}
     for p in tree.pages:
-        for s in list(p.sections):
+        for s in [x for x in p.sections if x.title == "Informacje wstępne"]:  # code-made questions only; the paper's stay put
             moved = False
             for f in [f for f in s.fields if f.type == "RADIO" and {o.lower() for o in f.options} == {"tak", "nie"}]:
                 where = deps(f.key)

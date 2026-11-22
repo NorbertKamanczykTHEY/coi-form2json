@@ -341,3 +341,30 @@ def test_slash_choice_cut_at_the_block_edge_is_reviewed_as_cut():
     t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [f("i", "Imię", src="p1.b1")]}]}]})
     _, review = normalize(t, {"p1.b0": "wynajem/użyczenie*", "p1.b1": "Imię ___"})
     assert any("sprawdź brzmienie" in r["why"] for r in review)
+
+
+def test_position_references_resolve_to_show_if_and_descriptions_name_fields():
+    blocks = {"p1.b0": "33. Rodzaj ☐ 1. jednorodzinna ☐ 2. wielolokalowa", "p1.b1": "35. Kompostownik ☐ TAK ☐ NIE",
+              "p1.b2": "Załącznik A (w przypadku zaznaczenia D.3.33.1)", "p1.b3": "E.2 (jeśli TAK w poz. 35) 52. Liczba ___",
+              "p1.b4": "36. Liczba ___ 38. Opłata ___ 41. Opłata ___ 51. Suma ___"}
+    t = FieldTree.model_validate({"title": "D", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Nieruchomość", "fields": [f("r", "Rodzaj", "RADIO", "p1.b0", options=["Jednorodzinna", "Wielolokalowa"], number="33"),
+                                             f("k", "Kompostownik", "RADIO", "p1.b1", options=["TAK", "NIE"], number="35")]},
+        {"title": "Załączniki", "fields": [f("a", "Załącznik A", "FILE_UPLOADER", "p1.b2", show_if={"field": "r", "options": ["Wielolokalowa"]})]},
+        {"title": "E.2 Opłata z kompostownikiem", "src": ["p1.b3"], "show_if": {"field": "r", "options": ["Jednorodzinna"]}, "fields": [f("l", "Liczba", "NUMBER", "p1.b3")]},
+        {"title": "E.1", "fields": [f("o1", "Opłata za lokale do 45 m²", "NUMBER", "p1.b4", number="38"), f("o2", "Opłata za lokale powyżej 45 m²", "NUMBER", "p1.b4", number="41"),
+                                    f("s", "Suma", "NUMBER", "p1.b4", number="51", description="Suma pozycji 38 i 41")]}]}]})
+    out, review = normalize(t, blocks)
+    secs = out.pages[0].sections
+    assert (secs[1].fields[0].show_if.field, secs[1].fields[0].show_if.options) == ("rodzaj", ["Jednorodzinna"])
+    assert (secs[2].show_if.field, secs[2].show_if.options) == ("kompostownik", ["TAK"])
+    assert secs[3].fields[2].description == "Suma „Opłata za lokale do 45 m²”, „Opłata za lokale powyżej 45 m²”"
+    assert sum("warunek z papieru" in r["why"] for r in review) == 2
+
+
+def test_non_address_field_leaves_the_applicant_address_section():
+    t = FieldTree.model_validate({"title": "D", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Adres zamieszkania", "party": True, "fields": [f("u", "Ulica", src="p1.b0"), f("d", "Numery działek nieruchomości", src="p1.b0")]},
+        {"title": "Dane nieruchomości", "fields": [f("m", "Miejscowość nieruchomości", src="p1.b1")]}]}]})
+    out, _ = normalize(t, {"p1.b0": "Ulica ___ Numery działek ___", "p1.b1": "Miejscowość ___"})
+    assert [x.label for x in out.pages[0].sections[0].fields] == ["Ulica"] and out.pages[0].sections[1].fields[-1].label == "Numery działek nieruchomości"
