@@ -9,6 +9,9 @@ export type ListItem = {
   id: string; title: string; filename: string; created_at: string; updated_at: string | null
   needs_review: number; open_review: number; proposals: number
 }
+// GET /api/v1/dictionaries has no response schema in OpenAPI; origin materials = protected (task materials), catalog/user = ours.
+export type DictInfo = { id: string; name: string; description: string; origin: 'materials' | 'catalog' | 'user'; levels: string[]; protected: boolean; items?: number }
+export type DictItem = { id: string; name: string; parent: string | null; level: number; value?: string; path?: string[] }
 export type Form = components['schemas']['Form']
 // editor.proposals is not described in OpenAPI yet (ADR 0025): {dictionary, fieldIds, changes}.
 export type Proposal = { dictionary: components['schemas']['Proposal']; fieldIds: string[]; changes: Record<string, Record<string, unknown>> }
@@ -84,6 +87,20 @@ export const api = {
     if (res.status === 409 && (await fetch(`/api/v1/dictionaries/${encodeURIComponent(d.id)}`, { headers: auth() })).ok) return
     throw await problem(res)
   },
+  dictionaries: () => call<{ items: DictInfo[] }>('/api/v1/dictionaries', { headers: auth() }).then((r) => r.items),
+  dictionary: (id: string, p: { q?: string; parent?: string; limit?: number; offset?: number }) =>
+    call<{ dictionary: DictInfo; total: number; items: DictItem[] }>(`/api/v1/dictionaries/${encodeURIComponent(id)}?${new URLSearchParams(Object.entries(p).filter(([, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]))}`, { headers: auth() }),
+  newDictionary: (d: { id: string; name: string; items: { id: string; name: string }[] }) =>
+    call<DictInfo>('/api/v1/dictionaries', { method: 'POST', headers: json(), body: JSON.stringify(d) }),
+  renameDictionary: (id: string, name: string) =>
+    call<DictInfo>(`/api/v1/dictionaries/${encodeURIComponent(id)}`, { method: 'PUT', headers: json(), body: JSON.stringify({ name }) }),
+  removeDictionary: (id: string) => call<void>(`/api/v1/dictionaries/${encodeURIComponent(id)}`, { method: 'DELETE', headers: auth() }),
+  addItem: (id: string, it: { id: string; name: string; parent?: string }) =>
+    call<DictItem>(`/api/v1/dictionaries/${encodeURIComponent(id)}/items`, { method: 'POST', headers: json(), body: JSON.stringify(it) }),
+  renameItem: (id: string, iid: string, name: string) =>
+    call<DictItem>(`/api/v1/dictionaries/${encodeURIComponent(id)}/items/${encodeURIComponent(iid)}`, { method: 'PUT', headers: json(), body: JSON.stringify({ name }) }),
+  removeItem: (id: string, iid: string) =>
+    call<void>(`/api/v1/dictionaries/${encodeURIComponent(id)}/items/${encodeURIComponent(iid)}`, { method: 'DELETE', headers: auth() }),
   validate: (form: unknown) =>
     call<{ valid: boolean; errors: { path: string; message: string }[] }>('/api/v1/forms/validate', { method: 'POST', headers: json(), body: JSON.stringify(form) }),
 }

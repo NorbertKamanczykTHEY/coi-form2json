@@ -108,6 +108,19 @@ export function apiMsg(e: unknown, info?: Info | null): Msg {
   return { ...(by[e.status] ?? { title: `Błąd serwera (${e.status})`, why: s, action: 'Spróbuj ponownie za chwilę.' }), original: s }
 }
 
+// Dictionary API errors (backend/coi/dictionaries/api.py): 404 and 409 mean something else than for projects.
+export function dictMsg(e: unknown): Msg {
+  if (!(e instanceof ApiError) || ![404, 409].includes(e.status)) return apiMsg(e)
+  const s = e.message
+  const m: Omit<Msg, 'original'> = e.status === 404 ? { title: 'Nie ma takiego słownika lub pozycji', why: 'Ktoś mógł go właśnie usunąć.', action: 'Wróć do listy słowników i odśwież ją.' }
+    : e.code === 'protected_dictionary' ? { title: 'Słownik z materiałów', why: 'Słowników z materiałów zadania nie można usuwać, bo korzystają z nich formularze.', action: 'Zostaw słownik; możesz zmienić jego pozycje.' }
+    : /already exists/.test(s) ? { title: 'Ta nazwa techniczna jest zajęta', why: 'Słownik albo pozycja o tym identyfikatorze już istnieje.', action: 'Wpisz inną nazwę techniczną albo otwórz istniejący słownik z listy.' }
+    : /has children/.test(s) ? { title: 'Pozycja ma podpozycje', why: 'Nie usuwamy pozycji razem z jej podpozycjami.', action: 'Otwórz podpozycje i usuń je najpierw.' }
+    : /unique/.test(s) ? { title: 'Powtórzone pozycje', why: 'Lista zawiera ten sam identyfikator dwa razy.', action: 'Usuń powtórzone wiersze i zapisz ponownie.' }
+    : { title: 'Nie da się zapisać zmiany', why: s, action: 'Odśwież widok i spróbuj ponownie.' }
+  return { ...m, original: s }
+}
+
 // JSONata problems from lib/condition.ts (check()).
 const COND: Rule[] = [
   [/^Wyrażenie jest puste/, () => ({ title: 'Pusty warunek', why: 'Warunek nie ma treści.', action: 'W zakładce „Graficzny” wybierz pole i odpowiedź albo usuń warunek.' })],

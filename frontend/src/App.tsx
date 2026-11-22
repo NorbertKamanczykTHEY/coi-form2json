@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Braces, CheckCircle2, FileUp, KeyRound, Loader2, XCircle } from 'lucide-react'
+import { ArrowLeft, BookMarked, Braces, CheckCircle2, FileUp, KeyRound, Loader2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { DictionaryList, DictionaryView } from '@/components/Dictionaries'
 import Editor from '@/components/Editor'
 import ImportDialog from '@/components/ImportDialog'
 import JsonDialog from '@/components/JsonDialog'
@@ -13,14 +14,16 @@ import { api, ApiError, token, type Form, type Info, type ListItem } from '@/lib
 import { fresh, useQueue } from '@/lib/queue'
 import { plural } from '@/lib/plural'
 
-// #/ = project list, #/projekt/<id> = editor; a pasted JSON preview is in memory only.
+// #/ = project list, #/projekt/<id> = editor, #/slowniki[/<id>] = dictionaries; a pasted JSON preview is in memory only.
 const route = () => decodeURIComponent(location.hash.match(/^#\/projekt\/(.+)$/)?.[1] ?? '')
+const dictRoute = () => { const m = location.hash.match(/^#\/slowniki(?:\/(.+))?$/); return m ? decodeURIComponent(m[1] ?? '') : null }
 
 export default function App() {
   const [info, setInfo] = useState<Info | null>(null)
   const [items, setItems] = useState<ListItem[] | null>(null)
   const [listError, setListError] = useState('')
   const [formId, setFormId] = useState(route)
+  const [dictId, setDictId] = useState(dictRoute)
   const [preview, setPreview] = useState<{ form: Form; name: string } | null>(null)
   const [dialog, setDialog] = useState<'' | 'import' | 'json' | 'token'>(token.get() ? '' : 'token')
   const [hasToken, setHasToken] = useState(!!token.get())
@@ -42,7 +45,7 @@ export default function App() {
   useEffect(() => { api.info().then(setInfo).catch(() => setInfo(null)) }, [])
   useEffect(refresh, [refresh, hasToken, finished])
   useEffect(() => {
-    const on = () => { setFormId(route()); setPreview(null) }
+    const on = () => { setFormId(route()); setDictId(dictRoute()); setPreview(null) }
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
   }, [])
@@ -63,6 +66,9 @@ export default function App() {
                 <span className="hidden text-xs text-muted-foreground sm:block">z papieru do e-usługi</span>
               </span>
             </button>
+            <Button variant={dictId !== null ? 'secondary' : 'ghost'} size="sm" onClick={() => { location.hash = '/slowniki'; setPreview(null) }} aria-current={dictId !== null ? 'page' : undefined}>
+              <BookMarked /><span className="hidden sm:inline">Słowniki</span>
+            </Button>
             {!token.configured && (
               <Button variant="ghost" size="sm" onClick={() => setDialog('token')} aria-label="Token dostępu" className={hasToken ? '' : 'text-review'}>
                 <KeyRound /><span className="hidden lg:inline">{hasToken ? 'Token' : 'Wklej token'}</span>
@@ -86,6 +92,10 @@ export default function App() {
               </div>
               <Preview key={preview.name + JSON.stringify(preview.form).length} form={preview.form} />
             </div>
+          ) : dictId !== null ? (
+            !hasToken ? <p className="mx-auto w-full max-w-6xl px-4 py-8 text-sm text-muted-foreground sm:px-6">Wklej token dostępu, żeby zobaczyć słowniki.</p>
+              : dictId ? <DictionaryView key={dictId} id={dictId} onBack={() => { location.hash = '/slowniki' }} />
+              : <DictionaryList onOpen={(id) => { location.hash = `/slowniki/${encodeURIComponent(id)}` }} />
           ) : formId ? (
             <Editor key={formId} id={formId} onBack={home} onChanged={refresh} />
           ) : (
