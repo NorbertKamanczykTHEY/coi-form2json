@@ -13,6 +13,6 @@ Data: 2026-11-21 · Status: przyjęta
 - MVP: każdy uwierzytelniony użytkownik widzi wszystko.
 
 ## Konsekwencje
-- [storage.md](../storage.md) i [api-assumptions](../api-assumptions.md) opisują jeszcze `stdlib sqlite3` bez ORM i `DB_PATH`. Kod (`coi/store.py`) używa już SQLAlchemy i `DATABASE_URL`, a `DB_PATH` zostaje aliasem. Dokumenty wymagają aktualizacji.
+- [storage.md](../storage.md) opisuje już SQLAlchemy i `DATABASE_URL` (aktualizacja 2026-11-22); [api-assumptions](../api-assumptions.md) jest dokumentem historycznym.
 - Migracji nie ma (`CREATE TABLE IF NOT EXISTS`). Przejście na inną bazę z danymi wymaga narzędzia migracji, którego nie wybrano.
 - `editor.source` to tekst z pliku. Dane osobowe w tekście wymagałyby retencji lub wyłączenia zapisu ([storage](../storage.md)).

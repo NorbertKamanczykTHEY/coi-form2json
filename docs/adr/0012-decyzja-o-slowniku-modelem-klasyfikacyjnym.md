@@ -4,7 +4,7 @@ Data: 2026-11-21 · Status: proponowana
 
 ## Kontekst
 - Zadanie wymaga powiązania pól ze słownikami (R-I) i propozycji nowego słownika (R-II). Nie mówi, jak podjąć decyzję dla pola.
-- Wcześniejszy projekt ([flow-review](../../../research/2026-11-21-flow-review.md), pkt 4): katalog znanych słowników z aliasami i fuzzy, a przy braku dopasowania LLM-sędzia zwracający `{K1, K2, K3}`. [Generator](../design/generator.md) woła `match(label, source_label, type, options) -> DictMatch | None`.
+- Wcześniejszy projekt ([flow-review](../flow-scenarios.md), pkt 4): katalog znanych słowników z aliasami i fuzzy, a przy braku dopasowania LLM-sędzia zwracający `{K1, K2, K3}`. [Generator](../design/generator.md) woła `match(label, source_label, type, options) -> DictMatch | None`.
 - Wątek słowników nadal wybiera mechanizm.
 
 ## Decyzja

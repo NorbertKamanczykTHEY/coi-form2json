@@ -84,7 +84,7 @@ Wartości są czytane przy każdym wywołaniu, więc zmiana env (np. w testach) 
 
 ## Parsowanie plików (`coi.parsing`)
 
-Jedno wejście: `parse(data, filename, cfg=None, on_event=None) -> ParsedDocument` (kontrakt: `docs/superpowers/specs/2026-11-21-parser-contract-design.md` w repo głównym). Wyjątki: `TooLarge` (413), `UnsupportedType` (415), `ParserEnvironmentError` (500, wina serwera, np. brak Tesseracta albo klucza LLM). `ParsingError` z Kreuzberga oznacza zepsuty plik (422). `on_event(event, payload)` dostaje na żywo `escalation` po każdej próbie VLM i `warning` na końcu.
+Jedno wejście: `parse(data, filename, cfg=None, on_event=None) -> ParsedDocument` (kontrakt: [docs/design/parser-contract.md](../docs/design/parser-contract.md)). Wyjątki: `TooLarge` (413), `UnsupportedType` (415), `ParserEnvironmentError` (500, wina serwera, np. brak Tesseracta albo klucza LLM). `ParsingError` z Kreuzberga oznacza zepsuty plik (422). `on_event(event, payload)` dostaje na żywo `escalation` po każdej próbie VLM i `warning` na końcu.
 
 | Wejście | Ścieżka |
 |---|---|

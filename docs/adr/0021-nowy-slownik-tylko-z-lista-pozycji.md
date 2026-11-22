@@ -4,7 +4,7 @@ Data: 2026-11-21 · Status: przyjęta
 
 ## Kontekst
 - Wymóg R-II (i Słowniki.docx): propozycja nowego słownika z **nazwą, strukturą i zastosowaniem**. Dokumenty nie wymagają listy pozycji i nie zabraniają propozycji bez niej.
-- Reguła „bez listy nie tworzymy” jest więc **naszą decyzją**, nie wymogiem ([flow-review](../../../research/2026-11-21-flow-review.md), pkt 4).
+- Reguła „bez listy nie tworzymy” jest więc **naszą decyzją**, nie wymogiem ([flow-review](../flow-scenarios.md), pkt 4).
 - Przykłady: #9 dyscypliny (lista w dokumencie), #7 rasa psa (lista poza dokumentem, w rozporządzeniu).
 
 ## Decyzja

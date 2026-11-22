@@ -4,7 +4,7 @@ Data: 2026-11-21 · Status: przyjęta
 
 ## Kontekst
 - Reguły techniczne (M4): każde pole ma określoną obligatoryjność. Mentorzy potwierdzili 2026-11-21: **domyślnie required**.
-- Wzorce #1 i #5 mają `validation: []` we wszystkich polach, czyli stoją w sprzeczności z regułą ([flow-review](../../../research/2026-11-21-flow-review.md), U2, P5).
+- Wzorce #1 i #5 mają `validation: []` we wszystkich polach, czyli stoją w sprzeczności z regułą ([flow-review](../flow-scenarios.md), U2, P5).
 - Gwiazdka na papierze nigdy nie oznacza „wymagane”: to „niepotrzebne skreślić” albo przypis (U1).
 
 ## Decyzja

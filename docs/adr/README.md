@@ -3,7 +3,7 @@
 Decyzje projektu w formacie krótkiego Nygarda (kontekst, decyzja, konsekwencje). Kolumna „Źródło” pokazuje, skąd wynika decyzja:
 
 - **SPEC (ID)**: wymóg treści zadania, ID z [requirements.md](../requirements.md) (np. T5, M3, R-II),
-- **MENTORZY**: odpowiedź mentorów z 2026-11-21 ([flow-review](../../../research/2026-11-21-flow-review.md)),
+- **MENTORZY**: odpowiedź mentorów z 2026-11-21 ([flow-review](../flow-scenarios.md)),
 - **ZESPÓŁ**: nasz wybór, bez wymogu w zadaniu.
 
 Gdy decyzja wynika ze specyfikacji tylko częściowo, są dwa źródła, a Kontekst oddziela wymóg od naszego wyboru.

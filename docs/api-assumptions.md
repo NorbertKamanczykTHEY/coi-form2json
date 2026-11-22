@@ -1,6 +1,8 @@
 # API i konfiguracja: założenia (szkic do decyzji)
 
-Status: zaakceptowane (Q11–Q15) · 2026-11-21
+Status: zaakceptowane (Q11–Q15) · 2026-11-21 · **dokument historyczny**
+
+> Aktualny opis API i konfiguracji: [README.md](../README.md#rest-api), zmienne: [README.md](../README.md#konfiguracja). Różnice względem kodu (2026-11-22): `REQUEST_TIMEOUT_S`, `MAX_PAGES` i `PORT` nie istnieją; `LLM_TIMEOUT_S` domyślnie 90 s; `LLM_BASE_URL` domyślnie pusty (adres wynika z `LLM_PROVIDER`); front nie ma pola „wklej token”, token demo jest wbudowany przy buildzie (`VITE_API_TOKEN`); doszły `POST /forms/{id}/regenerate` i endpointy słowników `match`, `from-proposal`; brak kontenera `kreuzberg`.
 
 ## Wymagania z treści zadania (pkt 3.2, 3.3, 5)
 - REST API przyjmuje **jeden plik** (pdf, doc, docx, ods, xlsx, jpg, jpeg, png) i zwraca **JSON gotowy do importu** w Generatorze Formularzy COI.

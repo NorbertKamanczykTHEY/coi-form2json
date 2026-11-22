@@ -1,6 +1,6 @@
 # Wymagania: „COI – Pełna treść zadania konkursowego”
 
-Źródło: `materials/COI - Pełna treść zadania konkursowego.pdf`. Numeracja według dokumentu. Kolumna „Gdzie” wskazuje moduł albo wątek, który za wymaganie odpowiada.
+Źródło: `materials/COI - Pełna treść zadania konkursowego.pdf`. Numeracja według dokumentu. Stan spełnienia z dowodami: [compliance.md](compliance.md). Kolumna „Gdzie” wskazuje moduł albo wątek, który za wymaganie odpowiada.
 
 ## 2. Wyzwanie
 - AI analizuje formularze w różnych formatach i generuje dane w zdefiniowanej postaci ustrukturyzowanej.

@@ -4,7 +4,7 @@ Data: 2026-11-21 · Status: przyjęta
 
 ## Kontekst
 - Zadanie wymaga formatów PDF, DOC, DOCX, ODS, XLSX, JPG, JPEG, PNG (M1), ale nie mówi, jak je czytać. Wybór narzędzi i kontraktu jest nasz.
-- Cel ([spec parsera](../../../docs/superpowers/specs/2026-11-21-parser-contract-design.md)): kolejne kroki nie wiedzą, który parser zadziałał. Wymiana parsera to zmiana konfiguracji.
+- Cel ([spec parsera](../design/parser-contract.md)): kolejne kroki nie wiedzą, który parser zadziałał. Wymiana parsera to zmiana konfiguracji.
 - Błędy rozpoznawania zależą od narzędzia (np. `U` i `Q` zamiast pola wyboru w Tesseract).
 
 ## Decyzja

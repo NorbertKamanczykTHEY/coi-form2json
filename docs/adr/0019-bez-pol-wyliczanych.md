@@ -5,7 +5,7 @@ Data: 2026-11-21 · Status: przyjęta
 ## Kontekst
 - Formularz #8 (część E) i #6 wymagają obliczeń: `liczba × stawka = opłata`, `SUMA poz. 38, 41, 44 i 47 pomniejszona o 50`, `razem m²`.
 - Mentorzy (2026-11-21): JSONata w `states` zwraca **tylko true/false**.
-- Schemat też nie ma wyliczania: `states.type` to SHOW lub READ_ONLY, a `defaultValueType` zna tylko EXTERNAL_SYSTEM ([flow-review](../../../research/2026-11-21-flow-review.md), P2).
+- Schemat też nie ma wyliczania: `states.type` to SHOW lub READ_ONLY, a `defaultValueType` zna tylko EXTERNAL_SYSTEM ([flow-review](../flow-scenarios.md), P2).
 
 ## Decyzja
 - Nie generujemy pól wyliczanych.
