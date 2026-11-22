@@ -1,6 +1,6 @@
 import jsonata from 'jsonata'
 import type { Form } from './api'
-import { tabsOf, type Field } from './form'
+import { tabsOf, walk, type Field } from './form'
 
 // JSONata of `states` (SHOW / READ_ONLY) in the generator's shape (docs/design/generator.md §4):
 // leaf ("Opcja" in tabs['Strona' in title].questions['sekcja' in field.techName].field.repeatingSectionGrid['pole' in field.techName].field.__userAnswer),
@@ -159,7 +159,7 @@ export function describe(query: string, form: Form): string {
   const cs = controllers(form)
   const label = new Map(cs.map((c) => [c.key, c.label]))
   // techName stays out of the text (it is in the tooltip); a page or section renamed since still finds the field by techName
-  const name = (r: Ref) => label.get(refKey(r)) ?? cs.find((c) => c.tech === r.tech)?.label ?? 'usunięte pole'
+  const name = (r: Ref) => label.get(refKey(r)) ?? cs.find((c) => c.tech === r.tech)?.label ?? walk(tabsOf(form).flatMap((t) => t.questions)).find((f) => f.techName === r.tech)?.title ?? 'usunięte pole'
   const parts = m.rows.map((r) => `„${name(r)}” ${r.op === 'in' ? (r.values.length > 1 ? 'to jedno z:' : 'to') : r.values.length > 1 ? 'to żadne z:' : 'to nie'} ${quote(r.values)}`)
   const s = parts.join(m.join === 'and' ? ' i ' : ' lub ')
   return m.negate ? `nie zachodzi: ${s}` : s
