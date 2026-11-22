@@ -683,11 +683,12 @@ def test_r3_applicant_address_section_keeps_channel_epuap_and_ade():
     t = json.loads((FIX / "pattern1.tree.json").read_text())
     t["pages"].append({"title": "Korespondencja", "sections": [{"title": "Korespondencja z urzędem", "party": True, "src": [], "fields": [
         _field("sposob", "Sposób korespondencji", "RADIO", options=["Poczta tradycyjna", "ePUAP", "e-Doręczenia"]),
-        _field("ulica_k", "Ulica", show_if={"field": "sposob", "options": ["Poczta tradycyjna"]}),
+        _field("ulica_k", "Ulica"),  # the applicant's own address: the template asks for it
+        _field("inny_k", "Inny adres korespondencyjny", show_if={"field": "sposob", "options": ["Poczta tradycyjna"]}),
         _field("epuap_k", "Adres skrzynki ePUAP", show_if={"field": "sposob", "options": ["ePUAP"]}),
         _field("ade_k", "Adres do e-Doręczeń", show_if={"field": "sposob", "options": ["e-Doręczenia"]})]}]})
     f = _techs(generate(FieldTree.model_validate(t), SHA)[0])
-    assert {"sposob", "epuap_k", "ade_k"} <= set(f) and "ulica_k" not in f
+    assert {"sposob", "epuap_k", "ade_k", "kraj_inny_k"} <= set(f) and "ulica_k" not in f  # a chosen other address stays
     assert "EPUAP" in f["epuap_k"]["validation"] and "ADE" in f["ade_k"]["validation"]
 
 
@@ -758,3 +759,17 @@ def test_r14_clean_labels(raw, clean):
         assert clean in {q["field"]["title"] for t in form["tabs"] for q in t["questions"]}
     else:
         assert _techs(form)["pole_r14"]["title"] == clean
+
+
+def test_r1_item_number_read_from_the_source_text_and_section_heading_from_its_blocks():
+    t = _with_section("form3", [_field("rodzaj_n", "Rodzaj nieruchomości", "RADIO", options=["Dom jednorodzinny", "Budynek wielolokalowy"], src=["p1.b2"]),
+                                _field("czesc", "Czy część jest niezamieszkała", "RADIO", options=["TAK", "NIE"], src=["p1.b3"]),
+                                _field("kwota_c", "Kwota", "NUMBER", src=["p1.b4"], description="Wypełnić, jeśli zaznaczono TAK w poz. 34.")])
+    t.pages[0].sections.append(type(t.pages[0].sections[0]).model_validate({"title": "Miejsce pojemników", "src": ["p1.b5-p1.b7"],
+                                "fields": [_field("opis_m", "Opis miejsca", "TEXTAREA", src=["p1.b7"])]}))
+    blocks = {"p1.b2": "33. Rodzaj nieruchomości", "p1.b3": "34. Czy część jest niezamieszkała", "p1.b4": "35. Kwota",
+              "p1.b5": "D.2 MIEJSCE", "p1.b6": "(W PRZYPADKU BUDYNKU WIELOLOKALOWEGO)", "p1.b7": "Opis miejsca"}
+    f = _techs(generate(t, SHA, blocks=blocks)[0])
+    assert f["kwota_c"]["states"][0]["query"].startswith('("TAK" in') and "'czesc'" in f["kwota_c"]["states"][0]["query"]
+    sec = next(q["field"] for tb in generate(t, SHA, blocks=blocks)[0]["tabs"] for q in tb["questions"] if q["field"]["title"] == "Miejsce pojemników")
+    assert sec["states"][0]["query"].startswith('("Budynek wielolokalowy" in')

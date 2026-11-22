@@ -25,10 +25,10 @@ X_MASK = re.compile(r"X{8,}|_{8,}")  # "w formacie XXXX…": a mask, not a hint
 ACCOUNT = re.compile(r"rachun|konto|konta", re.I)
 # the template's proxy section asks for these (S12); a subject uploader for them is a duplicate
 # R4: a field asking for a person's or a place's address ("Adres zameldowania", "Adres miejsca …"), not an electronic one
-ADDRESS_LABEL = re.compile(r"^adres\b(?!.*(e-?mail|epuap|elektroniczn|doręcze|skrzynk|www|internet|ip\b))", re.I)
+ADDRESS_LABEL = re.compile(r"^(inny\s+)?adres\b(?!.*(e-?mail|epuap|elektroniczn|doręcze|skrzynk|www|internet|ip\b|\blub\b))", re.I)  # "adres lub opis": free text
 PLACE = re.compile(r"\bmiejsc", re.I)  # "adres miejsca …": one place for the whole request, not per row
 # R3: what a dropped applicant-address section really repeats; channel, ePUAP and ADE stay
-ADDRESS_PART = re.compile(r"\b(ulic\w*|kod\w*\s+poczt\w*|miejscowo\w*|numer\w*\s+(domu|budynku|lokalu|mieszkania)|nr\.?\s+(domu|budynku|lokalu)"
+ADDRESS_PART = re.compile(r"\b(ulic\w*|kod\w*\s+poczt\w*|miejscowo\w*|numer\w*\s+(domu|budynku|lokalu|mieszkania|nieruchomo\w*)|nr\.?\s+(domu|budynku|lokalu)|dział\w*"
                           r"|kraj\w*|gmin\w*|powiat\w*|wojew\w*|poczta)\b", re.I)
 OTHER_FILE = re.compile(r"^inne\b", re.I)  # R9: "Inne (podać jakie)" on the attachment list
 ATTACHMENT = re.compile(r"załącz|dokument", re.I)
@@ -103,7 +103,7 @@ def field(f: FormField, presets: dict) -> list[dict]:
     if OTHER_FILE.match(n["label"]) and (f.type == "FILE_UPLOADER" or ATTACHMENT.search(f"{f.label} {f.source_label}")):
         n |= {"type": "FILE_UPLOADER", "required": False}  # R9: whatever else the applicant wants to attach
         n.pop("options", None)
-    preset = f.preset or ("address" if f.type in ("TEXT_FIELD", "TEXTAREA") and ADDRESS_LABEL.match(n["label"]) else None)
+    preset = f.preset or ("address" if f.type == "TEXT_FIELD" and ADDRESS_LABEL.match(n["label"]) else None)
     p = presets.get(preset) if preset else None
     if p and "fields" in p:  # address: the "Dane" block, keyed after the field, no prefill
         block = json.loads(json.dumps(p["fields"]).replace("{{k}}", f.key))
@@ -121,12 +121,19 @@ def field(f: FormField, presets: dict) -> list[dict]:
     return [n]
 
 
+def _section_cond(n: dict, fields: list[dict]) -> bool:
+    """A preset field depends on a field of its section other than its own block's country choice."""
+    own = {f["key"] for f in fields if f.get("block") == n.get("block")}
+    return any(lf["field"] not in own for lf in _leaves(n.get("show_if")))
+
+
 def entity_duplicates(s: Section) -> set[str]:
     """Keys of a subject section that repeat the applicant entity's template data ("Dane podmiotu", "Adres siedziby"):
     the section holds the entity's seat address, so its address block, name and registry numbers are the entity's."""
-    if s.person_role == "third_party" or not any(f.preset == "address" and SEAT.search(f"{f.key} {f.label} {f.source_label}") for f in s.fields):
+    seat = lambda f: (f.preset == "address" or ADDRESS_LABEL.match(f.label)) and SEAT.search(f"{f.key} {f.label} {f.source_label}")
+    if s.person_role == "third_party" or not any(seat(f) for f in s.fields):
         return set()
-    return {f.key for f in s.fields if (f.preset == "address" and SEAT.search(f"{f.key} {f.label} {f.source_label}"))
+    return {f.key for f in s.fields if seat(f)
             or (f.type == "TEXT_FIELD" and ENTITY_ID.search(f.label))}
 
 
@@ -250,6 +257,13 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
     choices = [(sec, n) for pg in pages for sec in pg["sections"] for n in sec["fields"]
                if n["type"] in ("RADIO", "CHECKBOX", "SELECT") and n.get("options")]
 
+    def number_of(c: dict) -> str:  # FormField.number, else the item number the field's source text starts with ("33. …")
+        if c["meta"].get("number"):
+            return c["meta"]["number"]
+        first = expand(c["meta"].get("src") or [], blocks)[:1]
+        m = re.match(r"\s*([A-Z]?\d+(?:\.\d+)*)[.)]\s", blocks.get(first[0], "") if first else "")
+        return m[1] if m else ""
+
     def find(text: str, node_keys: set[str], section: dict, already: set[str]):
         text = re.sub(r"\b(poz|pkt|nr)\.", r"\1", text, flags=re.I)  # "w poz. 14": the dot does not end the condition
         for m in COND_TEXT.finditer(text):
@@ -257,7 +271,7 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
             pos = POSITION.findall(phrase)
             best, score = None, 0.0
             for sec, c in choices:
-                num = c["meta"].get("number") or ""
+                num = number_of(c)
                 if c["key"] in node_keys or (pos and not any(num == x or num.endswith("." + x) for x in pos)):
                     continue
                 if sec.get("repeating") and sec is not section:
@@ -284,7 +298,10 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
 
     for pg in pages:
         for sec in pg["sections"]:
-            head = " ".join([sec["title"]] + [blocks.get(a, "") for a in expand(sec.get("src", [])[:1], blocks)[:1]])
+            first = set(expand(sec["fields"][0]["meta"].get("src") or [], blocks)) if sec["fields"] else set()
+            own = expand(sec.get("src", []), blocks)
+            heading = own[:own.index(next(a for a in own if a in first))] if first & set(own) else own[:3]
+            head = " ".join([sec["title"]] + [blocks.get(a, "") for a in heading[:40]])  # the section's heading on paper
             keys = {n["key"] for n in sec["fields"]}
             hit = find(head, keys, sec, leaves_of(sec.get("show_if")))
             if hit:
@@ -394,16 +411,15 @@ def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, 
             keep.append(sec)
         p["sections"] = keep
     pages[:] = [p for p in pages if p["sections"]]
-    for p in pages:  # R1 (#8 E.1/E.2): a block next to its conditional twin, itself without SHOW, is the "otherwise" branch
-        secs = p["sections"]
-        for i, sec in enumerate(secs):
-            if sec.get("show_if") or not sec["fields"] or any(f.get("from_preset") for f in sec["fields"]):
-                continue
-            twin = next((x for x in secs[max(i - 1, 0):i + 2] if x is not sec and sig(x) == sig(sec)
-                         and (c := x.get("show_if")) and "field" in c), None)
-            if twin:
-                sec["show_if"] = {"not": copy.deepcopy(twin["show_if"])}
-                notes.append(f"sekcja {sec['title']!r}: te same pola co sąsiednia sekcja warunkowa, więc pokazana w przeciwnym przypadku")
+    secs = [x for p in pages for x in p["sections"]]  # in paper order: a page split must not part the twins
+    for i, sec in enumerate(secs):  # R1 (#8 E.1/E.2): a block next to its conditional twin, itself without SHOW, is the "otherwise" branch
+        if sec.get("show_if") or not sec["fields"] or any(f.get("from_preset") for f in sec["fields"]):
+            continue
+        twin = next((x for x in secs[max(i - 1, 0):i + 2] if x is not sec and sig(x) == sig(sec)
+                     and (c := x.get("show_if")) and "field" in c), None)
+        if twin:
+            sec["show_if"] = {"not": copy.deepcopy(twin["show_if"])}
+            notes.append(f"sekcja {sec['title']!r}: te same pola co sąsiednia sekcja warunkowa, więc pokazana w przeciwnym przypadku")
 
     def ren(c):
         if not c:
@@ -456,8 +472,10 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
                 dup |= kor
             fields = [n for f in s.fields if f.key not in dup for n in field(f, presets)]
             if getattr(s, "party", False):  # R3: the template asks for the applicant's address; channel, ePUAP, ADE stay
-                gone = {n["key"] for n in fields if n.get("from_preset") or (n["type"] in ("TEXT_FIELD", "TEXTAREA", "SELECT")
-                                                                          and ADDRESS_PART.search(n["label"]))}
+                # only the unconditional address is the applicant's own; an address chosen in the section ("inny adres") stays
+                gone = {n["key"] for n in fields if (n.get("from_preset") and not _section_cond(n, fields))
+                        or (not n.get("from_preset") and n["type"] in ("TEXT_FIELD", "TEXTAREA", "SELECT")
+                            and ADDRESS_PART.search(n["label"]) and not n.get("show_if"))}
                 gone |= {n["key"] for n in fields if n.get("show_if") and any(lf["field"] in gone for lf in _leaves(n["show_if"]))}
                 fields = [n for n in fields if n["key"] not in gone]
                 warnings.append(f"sekcja {s.title!r}: adres wnioskodawcy jest w szablonie „Dane”, pominięto pola adresu"
@@ -468,7 +486,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
                 if (m := STATEMENT.match(n["label"])) and not n.get("description"):  # R10: whose statement, what it says
                     said = re.sub(r"\s+", " ", src_text(n["meta"].get("src") or [], blocks or {})).strip()
                     n["description"] = f"Dołącz skan lub zdjęcie oświadczenia podpisanego przez: {m[1]}." + (f" Treść oświadczenia w dokumencie: „{said[:300]}”." if said else "")
-                words = stems(n["label"])
+                words = set(re.findall(r"\w+", n["label"].lower()))  # whole words: "Załącznik A" is not "Załącznik B"
                 if TEMPLATE_FILE.search(f"{n['label']} {n['meta']['source_label']}"):
                     warnings.append(f"pole {n['key']!r}: dokument jest w szablonie (pełnomocnictwo, opłata skarbowa), pominięto")
                 elif (twin := next((o for (w, c), o in files.items() if c == (ctx, json.dumps(n.get("show_if"), sort_keys=True))
