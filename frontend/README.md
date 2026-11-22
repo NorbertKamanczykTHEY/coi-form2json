@@ -4,8 +4,9 @@ Panel urzędnika cyfryzującego formularze:
 
 - **Projekty**: lista formularzy z bazy (`GET /api/v1/forms`) z liczbą nierozstrzygniętych uwag, propozycjami słowników i oznaczeniem „nowe” dla importów z tej karty. Usuwanie z potwierdzeniem (`DELETE /api/v1/forms/{id}`).
 - **Import plików**: kolejka w tle (działa po zamknięciu okna), `IMPORT_CONCURRENCY` plików naraz (`src/config.ts`, domyślnie 2, nadpisuje `VITE_BATCH_CONCURRENCY`). Przed wysłaniem sprawdza rozszerzenie, nazwę i rozmiar z `GET /api/v1/info`. Każdy wiersz rozwija czytelny log zdarzeń SSE (etapy, eskalacje, ostrzeżenia, koszt, czas). Zamknięcie karty w trakcie importu pyta o potwierdzenie.
-- **Edytor projektu**: strony z czerwoną kropką, gdy mają nierozstrzygnięte uwagi (`report.needs_review`), pola wymagające decyzji z czerwoną ramką i powodem. Uwagę rozstrzyga poprawka pola albo „Akceptuję bez zmian”; stan trafia na serwer (`PUT /api/v1/forms/{id}/resolved`), poprawki formularza przez `PUT /api/v1/forms/{id}` z walidacją. Przyjmowanie proponowanych słowników i przełącznik „tylko osobiście” (przebudowa).
-- **Makieta dla obywatela**: render bieżącego JSON-a (kroki, siatka x/y, typy pól, SHOW przez JSONata, sekcje powtarzalne, zgody). **Podgląd JSON** otwiera makietę dowolnego wklejonego lub wczytanego JSON-a COI bez zapisu.
+- **Edytor projektu (jeden, na makiecie)**: po lewej strony formularza z czerwoną kropką, gdy mają nierozstrzygnięte uwagi (`report.needs_review`) albo błędy zapisu, oraz „Cały formularz” (tytuł, uwagi ogólne, proponowane słowniki do przyjęcia, przełącznik „tylko osobiście” z przebudową). Po prawej makieta w trybie **Edycja**: etykiety, podpowiedzi i opcje edytowane w miejscu („Dodaj opcję”), strzałki kolejności, ikona warunku (edytor graficzny lub JSONata), kosz z „Cofnij”, „Dodaj pole” z wyborem typu, „Dodaj sekcję”. Uwaga do pola stoi przy polu z „Akceptuję bez zmian”; poprawka pola też ją rozstrzyga. Jeden zapis: `PUT /api/v1/forms/{id}` (walidacja) i `PUT /api/v1/forms/{id}/resolved`. Błąd walidacji przenosi na stronę pola, przewija do niego i podświetla. „Pobierz JSON” zapisuje bieżący szkic.
+- **Podgląd dla obywatela**: przełącznik **Podgląd** w edytorze renderuje bieżący JSON tak, jak zobaczy go obywatel (kroki, siatka x/y, typy pól, SHOW przez JSONata, sekcje powtarzalne, zgody). **Podgląd JSON** w nagłówku otwiera makietę dowolnego wklejonego lub wczytanego JSON-a COI bez zapisu.
+- **Komunikaty**: każda uwaga i każdy błąd (needs_review, walidacja zapisu, błędy API 400/401/413/415/422/502/504, odrzucenia w kolejce importu, błędy warunku JSONata) mają tytuł, jedno zdanie „dlaczego” i „Co zrobić”. Mapa w `src/lib/messages.ts`: najpierw `code`/`rule` z backendu, potem wzorzec treści; nieznany tekst pokazuje się jako oryginał. Nowy powód w backendzie = nowa reguła tam (test `e2e/messages.spec.ts` pilnuje, że wszystkie powody z `results/*.report.json` mają mapowanie).
 
 Stos: Vite + React + TypeScript + Tailwind 4 + shadcn/ui (Radix), ikony lucide, krój Onest (lokalnie, `@fontsource-variable`). Typy API generuje `openapi-typescript` (`src/api.d.ts`).
 
@@ -30,7 +31,7 @@ npm run build && npm run lint
 E2E_URL=http://localhost:5173 E2E_TOKEN="$(cd ../backend && uv run python -m coi.make_token e2e)" npx playwright test
 # bez LLM: warunki JSONata na results/ (bez przeglądarki) oraz edycja na makiecie, edytor warunku i kolejka importu (mock SSE);
 # preview-editor.spec.ts potrzebuje w bazie projektu ze wzorca results/4-swietlica.coi.json
-npx playwright test e2e/condition.spec.ts
+npx playwright test e2e/condition.spec.ts e2e/messages.spec.ts
 E2E_URL=http://localhost:5173 E2E_TOKEN=... npx playwright test e2e/preview-editor.spec.ts
 API_UPSTREAM=http://localhost:8000 npm run gen:api   # odśwież src/api.d.ts z /openapi.json
 ```

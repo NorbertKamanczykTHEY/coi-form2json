@@ -156,8 +156,11 @@ const quote = (vs: string[]) => vs.map((v) => `„${v}”`).join(' lub ')
 export function describe(query: string, form: Form): string {
   const m = parse(query)
   if (!m) return 'warunek złożony (do edycji jako tekst)'
-  const label = new Map(controllers(form).map((c) => [c.key, c.label]))
-  const parts = m.rows.map((r) => `${label.get(refKey(r)) ?? r.tech} ${r.op === 'in' ? (r.values.length > 1 ? 'to jedno z:' : 'to') : r.values.length > 1 ? 'to żadne z:' : 'to nie'} ${quote(r.values)}`)
+  const cs = controllers(form)
+  const label = new Map(cs.map((c) => [c.key, c.label]))
+  // techName stays out of the text (it is in the tooltip); a page or section renamed since still finds the field by techName
+  const name = (r: Ref) => label.get(refKey(r)) ?? cs.find((c) => c.tech === r.tech)?.label ?? 'usunięte pole'
+  const parts = m.rows.map((r) => `„${name(r)}” ${r.op === 'in' ? (r.values.length > 1 ? 'to jedno z:' : 'to') : r.values.length > 1 ? 'to żadne z:' : 'to nie'} ${quote(r.values)}`)
   const s = parts.join(m.join === 'and' ? ' i ' : ' lub ')
   return m.negate ? `nie zachodzi: ${s}` : s
 }
