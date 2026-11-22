@@ -181,3 +181,26 @@ def test_delete_and_resolved(client, docx):
     assert client.get(f"/api/v1/forms/{fid}", headers=H).status_code == 404
     gone = client.delete(f"/api/v1/forms/{fid}", headers=H)
     assert gone.status_code == 404 and gone.content_type == "application/problem+json"
+
+
+def test_public_convert_without_token(client, docx):
+    r = upload(client, docx, "Bez tokena.docx", headers={"X-No-Auth": "1"})
+    assert r.status_code == 200
+    assert client.post("/api/v1/forms/validate", json=r.json).json == {"valid": True, "errors": []}
+    assert [i["created_by"] for i in client.get("/api/v1/forms", headers=H).json["items"]] == ["anonymous"]
+    assert client.get("/api/v1/forms").status_code == 401  # everything else still needs a JWT
+    sec = client.get("/openapi.json").json["paths"]
+    assert {} in sec["/api/v1/forms"]["post"]["security"] and {} not in sec["/api/v1/forms"]["get"]["security"]
+
+
+@pytest.mark.parametrize("auth", ["Bearer nope", "Basic Zm9vOmJhcg==", f"Bearer {make(SECRET, 'x', hours=-1)}"])
+def test_public_convert_bad_token_is_401(client, docx, auth):
+    assert upload(client, docx, "a.docx", headers={"Authorization": auth}).status_code == 401
+    assert client.post("/api/v1/forms/validate", json={}, headers={"Authorization": auth}).status_code == 401
+
+
+def test_public_convert_off(client, docx, monkeypatch):
+    monkeypatch.setenv("AUTH_PUBLIC_CONVERT", "false")
+    assert upload(client, docx, "a.docx", headers={"X-No-Auth": "1"}).status_code == 401
+    assert client.post("/api/v1/forms/validate", json={}).status_code == 401
+    assert upload(client, docx, "a.docx").status_code == 200  # with a valid token it works

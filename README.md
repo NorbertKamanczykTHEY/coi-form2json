@@ -1,15 +1,34 @@
 # COI Formularze: blankiet → JSON e-usługi
 
-> **Start jedną komendą:** `./run-them-all.sh` (Docker; buduje i uruchamia całość, czeka na healthcheck, wypisuje token JWT)
+> ## Cold start (5 kroków)
 >
-> | | |
-> |---|---|
-> | Frontend | http://localhost:8080 |
-> | **Swagger UI** | **http://localhost:8000/docs** |
-> | OpenAPI 3.1 | http://localhost:8000/openapi.json |
-> | Healthcheck | http://localhost:8000/healthz |
+> 1. **Wymagania:** Docker z Compose v2. Nic więcej (Python i Node są w obrazach).
+> 2. `cp .env.example .env`, a w `.env` wpisz:
+>    - `EDENAI_API_KEY=` klucz Eden AI,
+>    - `JWT_SECRET=` sekret do podpisu tokenów: `openssl rand -hex 32`.
+> 3. `./run-them-all.sh`: buduje obrazy, generuje token JWT (7 dni), uruchamia backend i frontend, czeka na healthcheck i wypisuje linki oraz token.
+> 4. Otwórz:
 >
-> Token wklej w UI (przycisk „Token”) albo w Swaggerze („Authorize”). Stop: `docker compose -p app down`.
+>    | | |
+>    |---|---|
+>    | Frontend | http://localhost:8080 |
+>    | **Swagger UI** | **http://localhost:8000/docs** |
+>    | OpenAPI 3.1 | http://localhost:8000/openapi.json |
+>    | Healthcheck | http://localhost:8000/healthz |
+>
+> 5. **Token do Swaggera** („Authorize”) i curl: skrypt wypisuje go na końcu i zapisuje w `.env` jako `DEMO_API_TOKEN`. Inny token: `docker compose -p app exec -T backend python -m coi.make_token jan.kowalski --hours 24`.
+>
+> Stop: `docker compose -p app down` (dane zostają; `-v` usuwa bazę).
+>
+> **Bez tokena też działa:** `POST /api/v1/forms` (konwersja) i `POST /api/v1/forms/validate` przyjmują żądanie bez nagłówka `Authorization` (zapis jako `created_by=anonymous`; token, jeśli jest, musi być poprawny, inaczej 401):
+>
+> ```bash
+> curl -F file=@blankiet.pdf http://localhost:8000/api/v1/forms > formularz.json
+> ```
+>
+> Pozostałe endpointy (lista, edycja, usuwanie, słowniki) wymagają JWT. Na produkcji ustaw `AUTH_PUBLIC_CONVERT=false`: wtedy wszystko wymaga JWT.
+>
+> **Uwaga, rozwiązanie tymczasowe (do testów):** frontend dostaje ten token z konfiguracji (`/config.js` z nginx, zmienna `DEMO_API_TOKEN`) i nie pyta o logowanie, więc **każdy, kto otworzy stronę, może go odczytać**. Docelowo logowanie przez IdP urzędu (JWKS, [ADR 0015](docs/adr/0015-jwt-tylko-weryfikacja.md)). API przyjmuje każdy poprawny JWT i nie zależy od tokenu frontu.
 
 Usługa REST przyjmuje **jeden plik** z blankietem formularza urzędowego (PDF, DOC, DOCX, ODS, XLSX, JPG, JPEG, PNG) i zwraca **JSON gotowy do importu** w Generatorze Formularzy COI: strony tematyczne, sekcje, pola z walidatorami, słowniki, dane inicjalne i zależności JSONata (`states` SHOW). Frontend pozwala wczytać pliki (także kilka naraz), śledzić postęp, przejrzeć JSON, podgląd e-usługi i raport pól do sprawdzenia.
 
@@ -24,16 +43,7 @@ Przepływ: `parse → extract → generate → validate`. Tekst wyciągamy lokal
 
 ## Szybki start
 
-```bash
-cd app
-cp .env.example .env            # wpisz EDENAI_API_KEY i JWT_SECRET (openssl rand -hex 32)
-docker compose up --build -d     # backend :8000, frontend :8080
-docker compose exec backend python -m coi.make_token demo --hours 720   # token JWT do wklejenia w UI
-```
-
-- Frontend: http://localhost:8080 (przy pierwszym wejściu wklej token z `make_token`; zostaje tylko w karcie przeglądarki, ADR 0015)
-- Swagger UI: http://localhost:8000/docs, OpenAPI 3.1: http://localhost:8000/openapi.json
-- Zatrzymanie: `docker compose down` (dane zostają na wolumenie `data`; `down -v` je usuwa)
+Patrz ramka „Cold start” na górze. Ręcznie, bez skryptu: `docker compose up --build -d` (frontend bez tokenu pyta o wklejenie JWT z `docker compose exec backend python -m coi.make_token demo --hours 720`; zostaje w karcie przeglądarki). Zatrzymanie: `docker compose down` (`down -v` usuwa wolumen `data`).
 
 ## Budowanie obrazów
 
@@ -42,7 +52,7 @@ docker compose exec backend python -m coi.make_token demo --hours 720   # token 
 | backend | `docker build -t coi-backend backend/` | `python:3.14.10-slim-trixie` (build: `ghcr.io/astral-sh/uv:0.11.9`) | `coi` (uid 10001), 8000 |
 | frontend | `docker build -t coi-frontend frontend/` | `node:24.11.1-alpine3.22` → `nginxinc/nginx-unprivileged:1.29.3-alpine3.22` | `nginx` (bez roota), 8080 |
 
-Wersje są przypięte, bez `latest`. Backend stoi na `slim`, nie na Alpine, bo Kreuzberg ma tylko wheele glibc (uzasadnienie: [backend/README.md](backend/README.md#docker)). Frontend wbudowuje token demo z `frontend/.env` przy buildzie (tylko demo, zob. [Tokeny](#tokeny-do-demo)).
+Wersje są przypięte, bez `latest`. Backend stoi na `slim`, nie na Alpine, bo Kreuzberg ma tylko wheele glibc (uzasadnienie: [backend/README.md](backend/README.md#docker)). Token demo nie jest w obrazie frontendu: nginx wystawia go w runtime (zob. [Tokeny](#tokeny-do-demo)).
 
 ## Uruchomienie
 
@@ -59,6 +69,7 @@ Cała konfiguracja backendu jest w pakiecie `backend/coi/config/` (jeden moduł 
 |---|---|---|
 | `MAX_FILE_MB` | `20` | maksymalny rozmiar pliku (413 powyżej) |
 | `MAX_FILENAME_LEN` | `250` | maksymalna długość nazwy pliku (400 powyżej) |
+| `AUTH_PUBLIC_CONVERT` | `true` | `POST /forms` i `/forms/validate` działają bez tokena (`created_by=anonymous`); token, jeśli jest, musi być poprawny. Na produkcji `false` (wszystko wymaga JWT) |
 | `JWT_ALG` | `HS256` | `HS256` (wspólny sekret) albo `RS256` (klucze IdP z JWKS) |
 | `JWT_SECRET` | brak | sekret HS256, co najmniej 32 losowe bajty |
 | `JWT_JWKS_URL` | brak | adres JWKS dla `RS256` |
@@ -139,7 +150,7 @@ docker compose exec -T backend python -m coi.make_token jan.kowalski          # 
 cd backend && uv run python -m coi.make_token demo-frontend --hours 720       # lokalnie
 ```
 
-Token frontendu trafia do bundla JS przy buildzie, więc każdy, kto otworzy stronę, może go odczytać. To wyłącznie demo; na produkcji token przychodzi z logowania w IdP urzędu (`JWT_ALG=RS256`, `JWT_JWKS_URL`).
+**Tymczasowo, do testów (`shortcut:` w kodzie, ADR 0015 dopisek):** `run-them-all.sh` przy każdym starcie generuje token (7 dni), zapisuje go w `.env` (`DEMO_API_TOKEN`, informacyjnie, do curl i Swaggera) i w env kontenera frontu. nginx serwuje go jako `/config.js`, a front nie pokazuje pola „Token”. Bez tokenu w konfiguracji (np. `docker compose up` bez skryptu) zostaje wklejanie. Token nie trafia do obrazu ani do bundla, ale każdy, kto otworzy stronę, może go odczytać. Backend nie zależy od tego mechanizmu: przyjmuje każdy poprawny JWT (Swagger, curl, inni klienci). Na produkcji token przychodzi z logowania w IdP urzędu (`JWT_ALG=RS256`, `JWT_JWKS_URL`), a `/config.js` znika.
 
 ## Dokumentacja
 

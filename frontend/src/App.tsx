@@ -30,7 +30,7 @@ export default function App() {
   const refresh = useCallback(() => {
     if (!token.get()) return
     api.list().then((r) => { setItems(r); setListError('') }).catch((e) => {
-      setListError(e instanceof ApiError && e.status === 401 ? 'Token jest nieważny albo wygasł. Wklej nowy token.' : `Nie udało się wczytać projektów: ${e.message}`)
+      setListError(e instanceof ApiError && e.status === 401 ? (token.configured ? 'Token demo wygasł. Uruchom ponownie ./run-them-all.sh.' : 'Token jest nieważny albo wygasł. Wklej nowy token.') : `Nie udało się wczytać projektów: ${e.message}`)
     })
   }, [])
 
@@ -58,9 +58,11 @@ export default function App() {
                 <span className="hidden text-xs text-muted-foreground sm:block">z papieru do e-usługi</span>
               </span>
             </button>
-            <Button variant="ghost" size="sm" onClick={() => setDialog('token')} aria-label="Token dostępu" className={hasToken ? '' : 'text-review'}>
-              <KeyRound /><span className="hidden lg:inline">{hasToken ? 'Token' : 'Wklej token'}</span>
-            </Button>
+            {!token.configured && (
+              <Button variant="ghost" size="sm" onClick={() => setDialog('token')} aria-label="Token dostępu" className={hasToken ? '' : 'text-review'}>
+                <KeyRound /><span className="hidden lg:inline">{hasToken ? 'Token' : 'Wklej token'}</span>
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => setDialog('json')}><Braces /><span className="hidden sm:inline">Podgląd JSON</span></Button>
             <Button size="sm" onClick={() => setDialog('import')} data-testid="open-import">
               {busy ? <Loader2 className="animate-spin" /> : <FileUp />}

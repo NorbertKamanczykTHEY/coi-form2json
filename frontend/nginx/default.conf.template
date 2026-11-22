@@ -1,4 +1,4 @@
-# Rendered at container start by the image's envsubst step (only $API_UPSTREAM is defined, nginx vars stay).
+# Rendered at container start by the image's envsubst step ($API_UPSTREAM and $DEMO_API_TOKEN, nginx vars stay).
 server {
     listen 8080;
     root /usr/share/nginx/html;
@@ -9,6 +9,12 @@ server {
         proxy_set_header Host $host;
         proxy_buffering off;          # SSE progress events must not be buffered
         proxy_read_timeout 600s;      # long scans walk the whole VLM ladder
+    }
+    # shortcut: demo token for the SPA, rendered from the container env (DEMO_API_TOKEN); IdP login replaces it (ADR 0015, addendum)
+    location = /config.js {
+        default_type application/javascript;
+        add_header Cache-Control "no-store";
+        return 200 'window.__DEMO_TOKEN__="${DEMO_API_TOKEN}";';
     }
     location = /healthz { proxy_pass ${API_UPSTREAM}; }
     location / { try_files $uri /index.html; }
