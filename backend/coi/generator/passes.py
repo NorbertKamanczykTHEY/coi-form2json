@@ -216,6 +216,9 @@ def controller_home(pages, consents, blocks, warnings) -> None:
                     continue
                 homes = {id(x): x for q in pages for x in q["sections"] for g in x["fields"]
                          if any(lf["field"] == key for lf in leaves(g.get("show_if")))}
+                if len(homes) > 1:
+                    spread(p, s, f, list(homes.values()), pages, warnings)
+                    continue
                 if len(homes) != 1 or id(s) in homes:
                     continue
                 target = next(iter(homes.values()))
@@ -225,6 +228,21 @@ def controller_home(pages, consents, blocks, warnings) -> None:
                 warnings.append(f"pole {key!r}: pytanie przeniesione do sekcji {target['title']!r}, którą steruje")
         p["sections"] = [x for x in p["sections"] if x["fields"]]
     pages[:] = [p for p in pages if p["sections"]]
+
+
+def spread(page, s, f, homes, pages, warnings) -> None:
+    """T4 when the steered fields sit in several sections: the question follows the choice that shows those sections (the
+    variant), and with every such section conditional it is shown only when one of them is."""
+    conds = [h.get("show_if") for h in homes]
+    if all(conds) and not f.get("show_if"):
+        f["show_if"] = conds[0] if len({json.dumps(c, sort_keys=True) for c in conds}) == 1 else {"any": conds}
+        warnings.append(f"pole {f['key']!r}: pytanie widoczne tylko wtedy, gdy widać sekcje, którymi steruje")
+    drivers = {lf["field"] for c in conds for lf in leaves(c)}
+    later = [i for i, g in enumerate(s["fields"]) if g["key"] in drivers]
+    if later and s["fields"].index(f) < max(later):
+        s["fields"].remove(f)
+        s["fields"].insert(max(later), f)
+        warnings.append(f"pole {f['key']!r}: pytanie przeniesione za wybór wariantu")
 
 
 PASSES = (split_product, one_position_one_field, third_party_statements, attachments_from_consents, controller_home)

@@ -1,12 +1,14 @@
 """File -> COI form: parse -> extract -> generate. The one seam the API calls."""
+import dataclasses
 import hashlib
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from . import llm
 from .config import Config
 from .extraction.anchors import blocks_of
-from .extraction.extract import extract
+from .extraction.extract import ExtractionError, extract
 from .extraction.tree import FieldTree
 from .generator import generate
 from .parsing import parse
@@ -24,6 +26,8 @@ class Result:
 def convert(data: bytes, filename: str, on_event: OnEvent = lambda *_: None, cfg: Config | None = None, store=None) -> Result:
     """`store` (coi.store.Store) lets the generator match dictionaries; without it fields keep their own options."""
     t0 = time.perf_counter()
+    cfg = cfg or Config.load()
+    cfg = dataclasses.replace(cfg, deadline=time.monotonic() + cfg.request_timeout_s)  # every LLM call of this request shares it
     on_event("stage", {"stage": "parse", "status": "start"})
     doc = parse(data, filename, cfg)
     # shortcut: parse() has no progress hook, so escalations are replayed from the trace after the fact; add a callback to parse() for live events
@@ -35,7 +39,12 @@ def convert(data: bytes, filename: str, on_event: OnEvent = lambda *_: None, cfg
     on_event("stage", {"stage": "parse", "status": "done", "seconds": doc.source.get("seconds"), "parser": doc.source.get("parser")})
 
     on_event("stage", {"stage": "extract", "status": "start"})
-    ex = extract(doc, on_event)
+    try:
+        ex = extract(doc, on_event, cfg=cfg)
+    except ExtractionError:
+        if time.monotonic() >= cfg.deadline - 1:  # no tree at all before the deadline: a timeout, not a bad reply
+            raise llm.DeadlineExceeded() from None
+        raise
     on_event("stage", {"stage": "extract", "status": "done", "cost": ex.cost})
 
     on_event("stage", {"stage": "generate", "status": "start"})

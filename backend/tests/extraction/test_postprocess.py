@@ -254,6 +254,29 @@ def test_q34_statement_signed_by_another_person_becomes_upload_in_their_section(
     assert any("Q34" in r["why"] for r in review)
 
 
+def test_q34_statement_upload_lands_in_the_persons_section_of_its_variant():
+    """Two variants, each with its own person section: the statement of variant B (points 1) and 2) under one heading) is one
+    file in B's person section, never in the shared first section without the variant, nor in A's section."""
+    blocks = {"p1.b0": "Rodzaj wniosku: [ ] najem [ ] użyczenie", "p1.b1": "Czy uczestnik jest pełnoletni? [ ] Tak [ ] Nie",
+              "p1.b2": "A. Dane uczestnika – najem", "p1.b3": "Imię ___", "p1.b4": "B. Dane uczestnika – użyczenie", "p1.b5": "Imię ___",
+              "p1.b6": "B.1 Zgoda w imieniu uczestnika niepełnoletniego", "p1.b7": "1) Wyrażam zgodę na udział.", "p1.b8": "2) Znam regulamin użyczenia.",
+              "p1.b9": "Data Podpis rodzica/opiekuna prawnego"}
+    variant = lambda o: {"field": "rodzaj", "options": [o]}  # noqa: E731
+    age = {"field": "pelnoletni", "options": ["Nie"]}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Rodzaj wniosku", "fields": [f("rodzaj", "Rodzaj wniosku", "RADIO", "p1.b0", options=["Najem", "Użyczenie"]),
+                                               f("pelnoletni", "Czy uczestnik jest pełnoletni", "RADIO", "p1.b1", options=["Tak", "Nie"])]},
+        {"title": "Dane uczestnika", "person_role": "third_party", "show_if": variant("Najem"), "fields": [f("i1", "Imię", src="p1.b3")]},
+        {"title": "Dane uczestnika", "person_role": "third_party", "show_if": variant("Użyczenie"), "fields": [f("i2", "Imię", src="p1.b5")]}]}],
+        "consents": [{"text": "Wyrażam zgodę na udział.", "src": ["p1.b7"], "show_if": [variant("Użyczenie"), age]},
+                     {"text": "Znam regulamin użyczenia.", "src": ["p1.b8"], "show_if": [variant("Użyczenie"), age]}]})
+    out, _ = normalize(t, blocks)
+    secs = out.pages[0].sections
+    ups = [(i, u) for i, s in enumerate(secs) for u in s.fields if u.type == "FILE_UPLOADER"]
+    assert [(i, set(u.src)) for i, u in ups] == [(2, {"p1.b7", "p1.b8"})]  # one file for the signer's block, in B's person section
+    assert ups[0][1].show_if.options == ["Nie"] and secs[2].show_if.options == ["Użyczenie"]  # age on the file, variant from its section
+
+
 def test_q34_statement_the_paper_asks_to_attach_gets_an_upload():
     blocks = {"p1.b0": "Osoba odpowiedzialna ___ (w przypadku innej osoby - zgoda osoby odpowiedzialnej)",
               "p1.b1": "Oświadczam, że* (w przypadku innej osoby, zbiorcze oświadczenie tej osoby załączyć do wniosku)"}

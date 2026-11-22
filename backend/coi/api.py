@@ -14,7 +14,7 @@ from kreuzberg import KreuzbergError
 from marshmallow import INCLUDE
 from marshmallow.validate import Length
 
-from . import pipeline
+from . import llm, pipeline
 from .auth import auth, user
 from .extraction.extract import ExtractionError
 from .generator import validate
@@ -78,6 +78,8 @@ def _convert(data: bytes, name: str, on_event, cfg, store) -> pipeline.Result:
         abort(413, str(e))
     except UnsupportedType as e:
         abort(415, str(e))
+    except llm.DeadlineExceeded:
+        abort(504, f"Conversion took longer than REQUEST_TIMEOUT_S={cfg.request_timeout_s:.0f} s; try again or check the LLM provider")
     except ExtractionError as e:
         abort(502, f"Field extraction failed: {e}")
     except openai.APITimeoutError:

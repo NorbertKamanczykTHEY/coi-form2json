@@ -274,9 +274,11 @@ def _restore_controls(tree: FieldTree, prev: FieldTree) -> FieldTree:
     return tree
 
 
-def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.Provider | None = None) -> ExtractionResult:
+def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.Provider | None = None,
+            cfg: Config | None = None) -> ExtractionResult:
+    """`cfg` carries the request deadline (pipeline.convert); `provider` replaces the configured one (tests)."""
+    provider = provider or llm.provider(cfg or Config.load())
     cfg = config("extraction")
-    provider = provider or llm.provider(Config.load())
     emit = on_event or (lambda *_: None)
     blocks = blocks_of(doc)
     two_stage = len(blocks) > cfg["two_stage_blocks"] or len(_variant_headings(blocks)) > 1
