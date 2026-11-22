@@ -69,9 +69,9 @@ style: |
 # Wrzucasz, sprawdzasz, oglądasz
 
 <div class="trio">
-<div><h3>Wiele plików naraz</h3><img class="shot" src="img/01-import-running.png"/><p>Zamykasz okno, praca trwa dalej, każdy krok widać na liście.</p></div>
-<div><h3>Na czerwono to, co sprawdzić</h3><img class="shot" src="img/04-editor-red-marks.png"/><p>Przy wątpliwym polu widać powód. Zostawiasz je albo poprawiasz.</p></div>
-<div><h3>Tak zobaczy to mieszkaniec</h3><img class="shot" src="img/06-mockup-show.png"/><p>Pola pojawiają się po wyborze odpowiedzi, imię i nazwisko z profilu.</p></div>
+<div><h3>Wiele plików naraz</h3><img class="shot" src="img/clean-import-log.png"/><p>Zamykasz okno, praca trwa dalej, każdy krok widać na liście.</p></div>
+<div><h3>Na czerwono to, co sprawdzić</h3><img class="shot" src="img/clean-editor-note-1.png"/><p>Przy wątpliwym polu widać powód i co zrobić. Zostawiasz je albo poprawiasz.</p></div>
+<div><h3>Tak zobaczy to mieszkaniec</h3><img class="shot" src="img/clean-mockup.png"/><p>Pola pojawiają się po wyborze odpowiedzi, imię i nazwisko z profilu.</p></div>
 </div>
 
 ---
@@ -81,14 +81,14 @@ style: |
 <div class="duo"><div>
 
 ### Poprawki prosto w podglądzie
-<img class="shot" src="img/14-structure-edit.png"/>
-<p>Zmieniasz nazwy, odpowiedzi i pola obowiązkowe. Dodajesz i usuwasz pola.</p>
+<img class="shot" src="img/clean-condition-mark-1.png"/>
+<p>Zmieniasz nazwy, pola obowiązkowe i warunki, opisane zwykłym zdaniem. Dodajesz i usuwasz pola.</p>
 
 </div><div>
 
 ### Kiedy pokazać pole
-<img class="shot" src="img/14-condition-graphic.png" style="object-position: center"/>
-<p>„Pokaż, gdy zaznaczono Tak” ustawiasz kliknięciami. Kraje i gminy wybiera się z gotowych list.</p>
+<img class="shot" src="img/clean-condition-graphic.png" style="object-position: center"/>
+<p>„Pokaż, gdy wnioskujesz w imieniu innej osoby” ustawiasz kliknięciami. Kraje i gminy wybiera się z gotowych list.</p>
 
 </div></div>
 

@@ -110,14 +110,14 @@ Przy modelu w sieci urzędu (`LLM_PROVIDER=local`) koszt API wynosi zero, płaci
 # Intuicyjność: urzędnik widzi, co sprawdzić
 
 <div class="shots">
-<figure><img src="img/01-import-running.png"/>Import kilku plików, log etapów na żywo, błąd zawsze widoczny</figure>
-<figure><img src="img/04-editor-red-marks.png"/>Uwaga do decyzji: powód, „Akceptuję bez zmian” albo poprawka</figure>
-<figure><img src="img/06-mockup-show.png"/>Makieta dla obywatela z działającymi warunkami SHOW</figure>
+<figure><img src="img/clean-import-log.png"/>Import kilku plików w tle, log etapów z czasem i kosztem</figure>
+<figure><img src="img/clean-editor-note-1.png"/>Uwaga do decyzji: powód, „Co zrobić” i „Akceptuję bez zmian”</figure>
+<figure><img src="img/clean-mockup.png"/>Jeden edytor na makiecie: „Podgląd” działa jak e-usługa, „Edycja” zmienia pola</figure>
 </div>
 
 Po poprawce formularz przebudowuje się **bez ponownego LLM**. Zero cichych porażek.
 
-<div class="src">Źródło: app/frontend/e2e/screenshots/, ADR 0014, ADR 0027</div>
+<div class="src">Źródło: app/docs/submission/img/clean-*.png, ADR 0014, ADR 0027</div>
 
 ---
 

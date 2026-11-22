@@ -18,13 +18,15 @@ Jedno wywołanie `POST /api/v1/forms` z plikiem zwraca JSON COI i raport. Przep�
 Frontend „Formularze cyfrowe”:
 - Import kilku plików naraz z postępem każdego etapu na żywo.
 - Lista projektów.
-- Edytor „Pola i uwagi” z czerwonymi znacznikami pól do decyzji („Akceptuję bez zmian” albo poprawka).
-- „Makieta dla obywatela”: podgląd e-usługi z działającymi warunkami SHOW.
+- Jeden edytor na makiecie e-usługi z przełącznikiem „Podgląd / Edycja”. W „Podglądzie” formularz działa jak dla obywatela, z warunkami SHOW. W „Edycji” zmienia się etykiety, opcje, wymagalność, pola i sekcje.
+- Pola do decyzji są zaznaczone na czerwono z powodem i podpowiedzią „Co zrobić:” („Akceptuję bez zmian” albo poprawka).
+- Edytor warunku z zakładkami „Graficzny” i „Tekst”: warunek opisany zdaniem przy polu lub sekcji.
 - Podgląd dowolnego JSON-a, pobieranie JSON-a, przyjmowanie proponowanych słowników.
 
-![Import plików](img/01-import-running.png)
-![Edytor z uwagą do decyzji](img/04-editor-red-marks.png)
-![Makieta dla obywatela](img/06-mockup-show.png)
+![Import plików](img/clean-import-log.png)
+![Uwaga do decyzji z „Co zrobić”](img/clean-editor-note-1.png)
+![Makieta w trybie Podgląd](img/clean-mockup.png)
+![Edytor warunku](img/clean-condition-graphic.png)
 
 Źródła: [README.md](../../README.md), [architecture.md](../architecture.md).
 
@@ -42,7 +44,7 @@ Pełna tabela z dowodami jest w [compliance.md](../compliance.md).
 | II: propozycja nowego słownika | `report.proposed_dictionaries` (#5, #7, #9), przycisk „Przyjmij słownik” w edytorze (`POST /api/v1/dictionaries/from-proposal`) | ✅ |
 | III: zależności i dynamiczne przepływy | EVAL-5: 382 warunki `states` SHOW w JSONata w wynikach, `$repeatingSectionIndex` w sekcjach powtarzalnych. Przejścia między stronami są liniowe, bo schemat nie ma warunków w `flow.links` | 🟡 |
 | IV: frontend do wczytania i przeglądu | Import kilku plików, postęp na żywo, lista projektów, edytor, pobieranie JSON-a | ✅ |
-| V: wizualizacja jako e-usługa | „Makieta dla obywatela” i „Podgląd JSON”: strony, sekcje, sekcje powtarzalne, słowniki, SHOW liczony przez `jsonata` | ✅ |
+| V: wizualizacja jako e-usługa | Makieta w edytorze (tryb „Podgląd”) i „Podgląd JSON”: strony, sekcje, sekcje powtarzalne, słowniki, SHOW liczony przez `jsonata` | ✅ |
 | VI: walidacje i UX | Walidatory z etykiet: REQUIRED, ZIP_CODE, EMAIL, NIP, REGON, PESEL, EPUAP, ADE, SERIAL_NUMBER_ID_CARD; import wsadowy; widok na tablecie. Brak walidatora telefonu (schemat zadania nie ma takiej nazwy) | 🟡 |
 
 ## Architektura w skrócie
