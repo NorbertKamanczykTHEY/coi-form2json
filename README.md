@@ -1,5 +1,7 @@
 # COI Formularze: blankiet → JSON e-usługi
 
+**Prezentacje (PDF):** [pitch – 5 slajdów + demo](docs/submission/pitch.pdf) · [pełna prezentacja – 10 slajdów](docs/submission/prezentacja.pdf) · [opis projektu](docs/submission/opis-projektu.md) · [scenariusz filmu](docs/submission/scenariusz-filmu.md)
+
 > ## Cold start (5 kroków)
 >
 > 1. **Wymagania:** Docker z Compose v2. Nic więcej (Python i Node są w obrazach).
