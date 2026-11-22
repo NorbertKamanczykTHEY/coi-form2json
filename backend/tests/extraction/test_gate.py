@@ -294,3 +294,9 @@ def test_t5_declaration_with_only_an_upload_is_lost_and_t7_caption_and_inne():
     assert "G7" not in codes(g)
     g = with_section({"p1.b5": "☐ o dochodach ☐ inne ___"}, fld("w", "Wybierz", "CHECKBOX", options=["O dochodach", "Inny rodzaj"]))
     assert not g["lost_slots"]
+
+
+
+def test_g3_short_stem_only_for_inne():
+    g = with_section({"p1.b5": "wynajem świetlicy wiejskiej w ___ w terminie od ___ do ___"}, fld("c", "Cel wynajęcia świetlicy", "TEXT_FIELD"))
+    assert g["lost_slots"]  # "świetlicy" in another field's label does not cover the place and the dates

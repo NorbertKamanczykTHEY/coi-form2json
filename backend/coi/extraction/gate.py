@@ -157,8 +157,8 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
             before = blocks[a][prev:m.start()]
             prev = m.end()
             last = _stems(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:]))
-            short = {w[:3] for w in re.findall(r"[^\W\d_]{3,}", before)[-3:]}
-            if last and not (last & words) and not (short & {w[:3] for w in words}) and not SIGN_ONLY.search(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:])):  # the label precedes "___"
+            other = re.search(r"\binn(e|y|a|ego|ej)\W*$", before, re.I)  # "inne ___" is covered by "Inny …" / an option "Inne" (short stem), nothing else
+            if last and not (last & words) and not (other and "inn" in {w[:3] for w in words}) and not SIGN_ONLY.search(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:])):  # the label precedes "___"
                 lost_slots.append(f"{a}: „{before.strip()[-40:]} ___”")
     template = {a for d in tree.dropped if d.reason not in ("rodo", "legal_info") for a in ex(d.src)}
     no_addressee = tree.addressee is None and any(ORGAN.search(t) for a, t in blocks.items() if a in template or a not in cited)
