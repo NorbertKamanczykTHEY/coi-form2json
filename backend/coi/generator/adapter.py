@@ -266,10 +266,11 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
 
     def find(text: str, node_keys: set[str], section: dict, already: set[str]):
         text = re.sub(r"\b(poz|pkt|nr)\.", r"\1", text, flags=re.I)  # "w poz. 14": the dot does not end the condition
+        hits = []
         for m in COND_TEXT.finditer(text):
             phrase = m[1]
             pos = POSITION.findall(phrase)
-            best, score = None, 0.0
+            scores = {}  # (field key, option) -> share of the option's word stems found in the phrase
             for sec, c in choices:
                 num = number_of(c)
                 if c["key"] in node_keys or (pos and not any(num == x or num.endswith("." + x) for x in pos)):
@@ -278,14 +279,15 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
                     continue
                 for o in c["options"]:
                     os_ = stems(o)
-                    if not os_ or (not pos and len(os_) < 2):
-                        continue
-                    sc = len(os_ & stems(phrase)) / len(os_)
-                    if sc > score:
-                        best, score = (c["key"], o), sc
-            if best and score >= 0.75 and best[0] not in already:
-                return best
-        return None
+                    if os_ and (pos or len(os_) >= 2):
+                        scores[(c["key"], o)] = len(os_ & stems(phrase)) / len(os_)
+            if scores and (top := max(scores.items(), key=lambda kv: kv[1]))[1] >= 0.75 and top[0][0] not in already:
+                # "jednorodzinnym / wielolokalowym" in one phrase: every option of that field the phrase names
+                hits += [(k, o) for (k, o), sc in scores.items() if k == top[0][0] and sc >= 0.75]
+        if not hits:
+            return None
+        same = [o for k, o in hits if k == hits[0][0]]  # "A (w przypadku X) lub B (w przypadku Y)": any of them
+        return hits[0][0], list(dict.fromkeys(same))
 
     def leaves_of(c):
         if not c:
@@ -305,7 +307,7 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
             keys = {n["key"] for n in sec["fields"]}
             hit = find(head, keys, sec, leaves_of(sec.get("show_if")))
             if hit:
-                sec["show_if"] = both(sec.get("show_if"), {"field": hit[0], "in": [hit[1]]})
+                sec["show_if"] = both(sec.get("show_if"), {"field": hit[0], "in": hit[1]})
                 warnings.append(f"sekcja {sec['title']!r}: warunek z treści dokumentu → SHOW na {hit[0]!r} = {hit[1]!r}")
             elif ONLY_IF.search(head) and not sec.get("show_if"):
                 for n in sec["fields"]:
@@ -317,7 +319,7 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
                 text = f"{n.get('description') or ''} {src_text(n['meta'].get('src') or [], blocks)}"
                 hit = find(text, {n["key"]}, sec, leaves_of(n.get("show_if")) | leaves_of(sec.get("show_if")))
                 if hit:
-                    n["show_if"] = both(n.get("show_if"), {"field": hit[0], "in": [hit[1]]})
+                    n["show_if"] = both(n.get("show_if"), {"field": hit[0], "in": hit[1]})
                     warnings.append(f"pole {n['key']!r}: warunek z treści dokumentu → SHOW na {hit[0]!r} = {hit[1]!r}")
                 elif ONLY_IF.search(text) and n.get("required", True) and not n.get("show_if") and not sec.get("show_if"):
                     n["required"] = False
@@ -384,6 +386,12 @@ def sig(sec: dict):
     return tuple((f["label"], f["type"], tuple(f.get("options") or ()), f.get("required", True)) for f in sec["fields"])
 
 
+def alike(a: dict, b: dict) -> bool:
+    """The same table in two versions: as many fields, at least 80% of them equal by label and type (the sum's wording may differ)."""
+    x, y = sig(a), sig(b)
+    return len(x) == len(y) > 1 and sum(p[:2] == q[:2] for p, q in zip(x, y)) >= 0.8 * len(x)
+
+
 def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, list[str]]:
     """G12: a block repeated for each variant (same fields, SHOW on different options of one field) becomes one section with
     SHOW on all those options. Returns the key aliases (dropped twin -> kept field) applied to every condition."""
@@ -415,7 +423,7 @@ def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, 
     for i, sec in enumerate(secs):  # R1 (#8 E.1/E.2): a block next to its conditional twin, itself without SHOW, is the "otherwise" branch
         if sec.get("show_if") or not sec["fields"] or any(f.get("from_preset") for f in sec["fields"]):
             continue
-        twin = next((x for x in secs[max(i - 1, 0):i + 2] if x is not sec and sig(x) == sig(sec)
+        twin = next((x for x in secs[max(i - 1, 0):i + 2] if x is not sec and alike(x, sec)
                      and (c := x.get("show_if")) and "field" in c), None)
         if twin:
             sec["show_if"] = {"not": copy.deepcopy(twin["show_if"])}

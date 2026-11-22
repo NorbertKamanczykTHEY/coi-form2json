@@ -773,3 +773,20 @@ def test_r1_item_number_read_from_the_source_text_and_section_heading_from_its_b
     assert f["kwota_c"]["states"][0]["query"].startswith('("TAK" in') and "'czesc'" in f["kwota_c"]["states"][0]["query"]
     sec = next(q["field"] for tb in generate(t, SHA, blocks=blocks)[0]["tabs"] for q in tb["questions"] if q["field"]["title"] == "Miejsce pojemników")
     assert sec["states"][0]["query"].startswith('("Budynek wielolokalowy" in')
+
+
+def test_r1_otherwise_branch_tolerates_a_differently_worded_sum_and_phrase_names_several_options():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    rows = lambda k, total: [_field(f"l_{k}", "Liczba osób", "NUMBER", src=[f"p2.{k}1"]), _field(f"k_{k}", "Kwota", "NUMBER", src=[f"p2.{k}2"]),
+                             _field(f"z_{k}", "Zwolnienie", "NUMBER", src=[f"p2.{k}3"]), _field(f"lz_{k}", "Liczba zwolnionych", "NUMBER", src=[f"p2.{k}4"]),
+                             _field(f"s_{k}", total, "NUMBER", src=[f"p2.{k}5"])]
+    t["pages"].append({"title": "Opłata", "sections": [
+        {"title": "Wybór", "src": [], "fields": [_field("typ", "Typ budynku", "RADIO", options=["Budynek jednorodzinny", "Budynek wielolokalowy", "Lokal użytkowy"]),
+                                                  _field("zal", "Załącznik", "FILE_UPLOADER", description="Dołącz w przypadku budynku jednorodzinnego lub budynku wielolokalowego.")]},
+        {"title": "Tabela", "src": [], "fields": rows("a", "Suma opłat")},
+        {"title": "Tabela z ulgą", "src": [], "show_if": {"field": "typ", "options": ["Lokal użytkowy"]}, "fields": rows("b", "Suma opłat po zwolnieniu")}]})
+    form = generate(FieldTree.model_validate(t), SHA)[0]
+    sec = _sections(form, "Opłata")
+    assert sec["Tabela"]["states"][0]["query"].startswith('$not("Lokal użytkowy" in')
+    q = _techs(form)["zal"]["states"][0]["query"]
+    assert '"Budynek jednorodzinny" in' in q and '"Budynek wielolokalowy" in' in q and "Lokal" not in q
