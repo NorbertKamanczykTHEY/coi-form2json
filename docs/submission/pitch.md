@@ -30,6 +30,11 @@ style: |
   section.hero h1 { font-size: 64px; }
   .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 64px; color: #0b4f8a; font-weight: 700; margin: 24px 0; }
   .links { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 30px; line-height: 1.7; }
+  .trio { display: flex; gap: 22px; }
+  .trio > div { flex: 1; }
+  .trio h3 { color: #0b4f8a; font-size: 23px; margin: 0 0 8px; }
+  .trio .shot { height: 300px; }
+  .trio p { font-size: 19px; margin: 10px 0 0; line-height: 1.35; }
 ---
 
 <!-- _class: hero -->
@@ -37,148 +42,75 @@ style: |
 
 # Blankiet → e-usługa
 
-<p class="lead">Wrzucasz papierowy formularz, a w niecałą minutę dostajesz e-usługę gotową do importu w Generatorze Formularzy COI.</p>
+<p class="lead">Urzędy przepisują papierowe wnioski do e-usług ręcznie, pole po polu.<br/>U nas wrzucasz plik i zwykle w niecałą minutę masz gotową e-usługę.</p>
 
 ---
 
-# Problem
-
-<div class="duo"><div>
-
-- Urzędy trzymają **wnioski na papierze**: w Wordzie, PDF-ach i skanach
-- Każdy trzeba **ręcznie** przepisać do Generatora Formularzy: strony, pola, walidatory, słowniki, warunki
-- Formularz #9 (stypendium) to **trzy wnioski w jednym**
-
-</div><div>
-
-<img class="shot" src="img/03-list-new.png"/>
-<p>Z nami: lista formularzy przeniesionych z papieru i liczba uwag do decyzji przy każdym</p>
-
-</div></div>
-
----
-
-# Rozwiązanie: jeden plik → JSON e-usługi
+# Jak to działa
 
 <div class="flow">
-<div class="box"><b>📄</b>PDF · DOC(X) · ODS · XLSX · JPG · PNG</div>
+<div class="box"><b>📄</b>Word, PDF, Excel albo zdjęcie</div>
 <div class="arrow">→</div>
-<div class="box"><b>parse</b>tekst lokalnie, OCR</div>
+<div class="box"><b>Czytamy</b>tekst na miejscu, bez wysyłania pliku</div>
 <div class="arrow">→</div>
-<div class="box"><b>extract</b>LLM + bramka jakości</div>
+<div class="box"><b>Rozpoznajemy</b>pola wniosku z pomocą AI</div>
 <div class="arrow">→</div>
-<div class="box"><b>generate</b>bez LLM, szablony COI</div>
+<div class="box"><b>Budujemy</b>formularz według wzorców COI</div>
 <div class="arrow">→</div>
-<div class="box"><b>validate</b>schemat + reguły</div>
+<div class="box"><b>Sprawdzamy</b>z zasadami COI</div>
 <div class="arrow">→</div>
-<div class="end">JSON COI<br/>+ raport</div>
+<div class="end" style="white-space:nowrap">Gotowa<br/>e-usługa</div>
 </div>
 
-<p class="lead" style="margin-top:40px">Jedno REST API, dwa kontenery Docker, frontend dla urzędnika.</p>
+<p class="lead" style="margin-top:40px">Urzędnik dostaje gotowy formularz i krótką listę rzeczy do sprawdzenia.</p>
 
 ---
 
-# Import i uwagi do decyzji
+# Wrzucasz, sprawdzasz, oglądasz
 
-<div class="duo"><div>
-
-### Import wielu plików w tle
-<img class="shot" src="img/01-import-running.png"/>
-<p>Wrzucasz kilka plików, zamykasz okno, a import trwa dalej z logiem każdego etapu.</p>
-
-</div><div>
-
-### Czerwone uwagi do decyzji
-<img class="shot" src="img/04-editor-red-marks.png"/>
-<p>Pole, którego bramka nie jest pewna, ma powód i przycisk „Akceptuję bez zmian”.</p>
-
-</div></div>
+<div class="trio">
+<div><h3>Wiele plików naraz</h3><img class="shot" src="img/01-import-running.png"/><p>Zamykasz okno, praca trwa dalej, każdy krok widać na liście.</p></div>
+<div><h3>Na czerwono to, co sprawdzić</h3><img class="shot" src="img/04-editor-red-marks.png"/><p>Przy wątpliwym polu widać powód. Zostawiasz je albo poprawiasz.</p></div>
+<div><h3>Tak zobaczy to mieszkaniec</h3><img class="shot" src="img/06-mockup-show.png"/><p>Pola pojawiają się po wyborze odpowiedzi, imię i nazwisko z profilu.</p></div>
+</div>
 
 ---
 
-# Makieta i edycja
+# Poprawiasz bez programisty
 
 <div class="duo"><div>
 
-### Makieta dla obywatela
-<img class="shot" src="img/06-mockup-show.png"/>
-<p>E-usługa wygląda tak jak po imporcie, z działającymi warunkami pokazywania pól.</p>
-
-</div><div>
-
-### Edycja na makiecie
+### Poprawki prosto w podglądzie
 <img class="shot" src="img/14-structure-edit.png"/>
-<p>Etykiety, opcje, wymagalność, dodawanie i usuwanie pól i sekcji z cofaniem.</p>
+<p>Zmieniasz nazwy, odpowiedzi i pola obowiązkowe. Dodajesz i usuwasz pola.</p>
 
-</div></div>
+</div><div>
 
----
-
-# Warunki i słowniki
-
-<div class="duo"><div>
-
-### Edytor warunków JSONata
+### Kiedy pokazać pole
 <img class="shot" src="img/14-condition-graphic.png" style="object-position: center"/>
-<p>Konstruktor graficzny ⇄ tekst JSONata, sprawdzane na bieżąco i opisane słowami.</p>
-
-</div><div>
-
-### Słowniki i dane inicjalne
-<img class="shot" src="img/06-mockup-show.png" style="object-position: 0 85%"/>
-<p>Kraje, TERYT i gminy z katalogu, dane z profilu (<code>MLPZ.*</code>), nowy słownik jako propozycja.</p>
+<p>„Pokaż, gdy zaznaczono Tak” ustawiasz kliknięciami. Kraje i gminy wybiera się z gotowych list.</p>
 
 </div></div>
 
 ---
 
-# Silnik i wdrożenie
+# Szybko i tanio
 
-<div class="duo"><div>
+<div class="duo" style="gap:40px; font-size:24px"><div style="flex:1.3">
 
-### Drabina modeli z bramką jakości
-<div class="card">
-<div class="step">Kreuzberg / Tesseract: lokalnie, 0 zł</div>
-<div class="step gate">bramka jakości odrzuca? ↓</div>
-<div class="step">mistral-small → naprawa</div>
-<div class="step gate">nadal źle? ↓</div>
-<div class="step">mistral-large → naprawa</div>
-</div>
-<p>Droższy model tylko wtedy, gdy kod odrzuci tańszy wynik: <b>~2,4 centa</b> na formularz, #9 w <b>~40 s</b>.</p>
+- Tekst czytamy na miejscu, za darmo.
+- AI tylko, gdy trzeba: najpierw mały, tani model, większy dopiero po pomyłce.
+- Długi wniosek czytamy po stronach naraz: deklaracja śmieciowa z 3 min do 43 s.
+- Pełny test (11 wniosków × 3) kosztował 81 centów.
+- Może działać w sieci urzędu, bez wysyłania danych.
 
-</div><div>
-
-### Air gap i prompty w plikach
-<div class="card">
-
-```bash
-LLM_PROVIDER=local
-LLM_BASE_URL=http://vllm.urzad:8000/v1
-```
-
-```text
-coi/prompts/field_extraction.md
-coi/prompts/vision_page.md
-coi/parsing/ladder.json
-```
-
-</div>
-<p>Lokalny model bez ruchu wychodzącego, a reguły urzędu dopisuje się w plikach <code>.md</code>.</p>
-
+</div><div class="nums" style="flex:1; flex-direction:column; gap:12px; margin-top:0">
+<div><span class="big">~10 gr</span>za formularz (2,4 centa)</div>
+<div><span class="big">$0.27</span>za 11 formularzy</div>
+<div><span class="big">~40 s</span>na duży wniosek</div>
 </div></div>
 
----
-
-# Liczby
-
-<div class="nums">
-<div><span class="big">22 → 12</span>rozbieżności krytycznych<br/>EVAL-3 → EVAL-5</div>
-<div><span class="big">33/33</span>poprawnych JSON-ów<br/>(11 plików × 3 przebiegi)</div>
-<div><span class="big">~40 s</span>#9 stypendium<br/>(mediana)</div>
-<div><span class="big">$0.27</span>komplet 11 formularzy</div>
-</div>
-
-<div class="src">Źródło: app/results/eval-5/README.md, app/results/README.md</div>
+<div class="src">Źródło: app/results/eval-5/README.md ($0.2660, test $0.8071, czasy 42.8 s i 39.7 s), app/docs/architecture.md (#8 w EVAL-3: 184.5 s; drabina modeli). 1 USD ≈ 4 zł.</div>
 
 ---
 
@@ -190,6 +122,6 @@ coi/parsing/ladder.json
 <div class="mono">./run-them-all.sh</div>
 
 <div class="links">
-Frontend&nbsp;&nbsp;http://localhost:8080<br/>
-Swagger&nbsp;&nbsp;&nbsp;http://localhost:8000/docs
+Aplikacja&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://localhost:8080<br/>
+Dokumentacja&nbsp;&nbsp;&nbsp;http://localhost:8000/docs
 </div>

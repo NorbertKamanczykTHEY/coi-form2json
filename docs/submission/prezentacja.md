@@ -67,30 +67,26 @@ REST API · edytor z uwagami do decyzji · makieta dla obywatela · Docker · tr
 
 ---
 
-# Drabina eskalacji z bramką jakości
+# Koszt: ile i jak go zbiliśmy
 
-<div class="cols"><div>
+<div class="cols"><div style="flex:1.4">
 
-**Parsowanie strony**
-1. Kreuzberg / Tesseract (lokalnie, 0 zł)
-2. ministral-8b → 14b → mistral-small → mistral-large
-
-Tesseract jest **świadkiem**: VLM, który zmyśla tekst, przegrywa porównanie pokrycia słów.
+1. **Tekst czytamy lokalnie, za darmo:** Kreuzberg (Word, PDF), Tesseract (skany), własny odczyt XML arkuszy
+2. **Model tylko, gdy trzeba:** wołamy go dopiero wtedy, gdy kod odrzuci tańszy wynik
+3. **Najpierw mały i tani model:** ministral-8b przy skanach, mistral-small przy polach; większy dopiero po porażce
+4. **Długi wniosek po stronach, równolegle:** #8 ze 184.5 s (EVAL-3) do 42.8 s (EVAL-5, mediana)
 
 </div><div>
 
-**Ekstrakcja pól**
-1. mistral-small
-2. runda naprawy z listą zarzutów
-3. mistral-large + naprawa
+<span class="big">$0.27</span><br/>komplet 11 formularzy, ok. 2,4 centa na formularz
 
-Bramka: schemat Pydantic, kotwice, pokrycie bloków `☐`/`___`, poprawność `show_if`, ugruntowanie etykiet.
+<span class="big">$0.81</span><br/>pełny test EVAL-5: 11 plików × 3 przebiegi
 
 </div></div>
 
-Droższy model startuje **tylko**, gdy kod odrzuci wynik. Timeout liczy się jako nieudany szczebel, a nie błąd żądania.
+Przy modelu w sieci urzędu (`LLM_PROVIDER=local`) koszt API wynosi zero, płaci się tylko za GPU.
 
-<div class="src">Źródło: app/docs/architecture.md (Drabina eskalacji i bramki), ADR 0007, 0008</div>
+<div class="src">Źródło: app/docs/architecture.md (Drabina eskalacji, Koszt na formularz), app/backend/coi/parsing/pipeline.py (sheet-xml), app/results/eval-5/README.md ($0.2660, $0.8071)</div>
 
 ---
 
