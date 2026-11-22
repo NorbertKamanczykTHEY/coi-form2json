@@ -37,11 +37,13 @@ const json = () => ({ ...auth(), 'Content-Type': 'application/json' })
 
 export class ApiError extends Error {
   status: number
-  errors: { path?: string; message?: string }[]
-  constructor(status: number, message: string, errors: { path?: string; message?: string }[] = []) {
+  errors: { path?: string; message?: string; rule?: string }[]
+  code?: string
+  constructor(status: number, message: string, errors: { path?: string; message?: string; rule?: string }[] = [], code?: string) {
     super(message)
     this.status = status
     this.errors = errors
+    this.code = code
   }
 }
 
@@ -51,7 +53,7 @@ export async function problem(res: Response): Promise<ApiError> {
   try {
     const p = JSON.parse(t)
     const detail = typeof p.detail === 'string' ? p.detail : p.detail ? JSON.stringify(p.detail) : p.title
-    return new ApiError(res.status, detail || `HTTP ${res.status}`, Array.isArray(p.errors) ? p.errors : [])
+    return new ApiError(res.status, detail || `HTTP ${res.status}`, Array.isArray(p.errors) ? p.errors : [], typeof p.code === 'string' ? p.code : undefined)
   } catch {
     return new ApiError(res.status, `HTTP ${res.status}${t ? `: ${t.slice(0, 200)}` : ''}`)
   }

@@ -17,8 +17,7 @@ async function projectId(page: Page) {
   return items.find((i) => /świetlic/i.test(i.title))!.id
 }
 async function openMockup(page: Page, id: string, mode: 'view' | 'edit') {
-  await page.goto(`/#/projekt/${id}`)
-  await page.getByRole('tab', { name: 'Makieta dla obywatela' }).click()
+  await page.goto(`/#/projekt/${id}`) // the editor opens on the first page, in edit mode
   await page.getByTestId(`mode-${mode}`).click()
   return page.getByTestId('preview')
 }
@@ -33,7 +32,7 @@ test('label edited on the mockup is saved and survives a reload', async ({ page 
   await page.getByTestId('save').click()
   await expect(page.getByText('Zapisano zmiany')).toBeVisible()
   await page.reload()
-  await page.getByRole('tab', { name: 'Makieta dla obywatela' }).click()
+  await page.getByTestId('mode-view').click()
   await expect(page.getByTestId('preview').getByText(name)).toBeVisible()
   await page.getByTestId('mode-edit').click()
   await expect(page.getByTestId('label-input').first()).toHaveValue(name)
@@ -123,9 +122,52 @@ test('broken text blocks saving', async ({ page }) => {
   await expect(dlg.getByTestId('not-graphical')).toBeVisible()
   await dlg.getByRole('tab', { name: 'Tekst' }).click()
   await txt.fill(good.slice(0, -5))
-  await shot(page, '14-condition-error')
+  await shot(page, '15-condition-error')
   await dlg.getByRole('button', { name: 'Anuluj' }).click()
   await expect(dlg).toBeHidden()
+})
+
+test('one editor: review notes with a suggested action, accept, red dots per page', async ({ page }) => {
+  const id = await projectId(page)
+  await page.goto(`/#/projekt/${id}`)
+  await expect(page.getByTestId('preview')).toHaveAttribute('data-mode', 'edit')
+  await expect(page.getByRole('tab', { name: 'Pola i uwagi' })).toHaveCount(0) // no second editor
+  const flagged = page.locator('[data-testid=page-link]:not([data-open="0"])')
+  if (await flagged.count()) await flagged.last().click()
+  const note = page.getByTestId('review-open').first()
+  if (await note.count()) {
+    await expect(note.getByTestId('notice')).toContainText('Co zrobić:')
+    await note.scrollIntoViewIfNeeded()
+  }
+  await shot(page, '15-editor')
+  await page.getByTestId('page-link').first().click()
+  await expect(page.getByLabel('Tytuł formularza')).toBeVisible()
+  await shot(page, '15-editor-overview')
+})
+
+test('save error names the field, explains it and jumps to it', async ({ page }) => {
+  const id = await projectId(page)
+  await page.goto(`/#/projekt/${id}`)
+  await step(page, 1)
+  // delete the radio that "Imię" depends on: the server rejects the dangling condition (R6)
+  await page.getByTestId('preview').getByRole('button', { name: /^Usuń: Osoba odpowiedzialna/ }).click()
+  await page.getByTestId('save').click()
+  const box = page.getByTestId('save-errors')
+  await expect(box).toBeVisible()
+  await expect(box).toContainText('Warunek wskazuje usunięte pole')
+  await expect(box).toContainText('Co zrobić:')
+  await expect(page.getByTestId('save-error-field').first()).toBeInViewport()
+  await shot(page, '15-save-error')
+})
+
+test('rejected upload says what to do', async ({ page }) => {
+  await page.goto('/#/')
+  await page.getByTestId('open-import').click()
+  await page.getByTestId('import-input').setInputFiles({ name: 'notatki.txt', mimeType: 'text/plain', buffer: Buffer.from('x') })
+  const row = page.getByTestId('queue-row')
+  await expect(row).toHaveAttribute('data-status', 'rejected')
+  await expect(row).toContainText('Wczytaj plik')
+  await shot(page, '15-import-rejected')
 })
 
 test('import keeps running with the dialog closed; the menu shows its state and reopens the same queue', async ({ page }) => {

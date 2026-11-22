@@ -1,3 +1,4 @@
+import { conditionMsg } from '@/lib/messages'
 import { useMemo, useState } from 'react'
 import { CircleAlert, CircleCheck, GitBranch, Plus, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -140,8 +141,9 @@ export default function ConditionDialog({ form, owner, state, onSave, onRemove, 
           {ok
             ? <p className="flex items-start gap-2 text-ok"><CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden /><span><span className="font-medium">Poprawne.</span> {STATE_LABEL[type]}: {describe(text, form)}</span></p>
             : <ul className="space-y-1 text-destructive" data-testid="cond-errors">
-                {problems.map((p, i) => <li key={i} className="flex items-start gap-2"><CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-                  <span>{p.message}{p.position != null && <span className="text-muted-foreground"> (znak {p.position})</span>}</span></li>)}
+                {problems.map((p, i) => { const m = conditionMsg(p.message); return <li key={i} className="flex items-start gap-2"><CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+                  <span><span className="font-medium">{m.title}{p.position != null && <span className="font-normal text-muted-foreground"> (znak {p.position})</span>}:</span> {m.why} <span className="text-foreground">{m.action}</span>
+                    {m.original !== m.why && <span className="block text-xs text-muted-foreground">{p.message}</span>}</span></li> })}
               </ul>}
         </div>
 

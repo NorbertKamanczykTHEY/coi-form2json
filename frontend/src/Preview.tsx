@@ -19,10 +19,11 @@ import { cn } from '@/lib/utils'
 // Citizen's view of a COI form (R-V), rendered from the current JSON. Answers live here only; nothing is sent to the API.
 export type Review = Map<string, string> // field id -> reason, shown as a red mark
 type Answer = string | string[]
-// Given by the editor: the mockup gets a "Podgląd / Edycja" switch, and edits go to the same draft as "Pola i uwagi".
+// Given by the editor (the only one): the mockup gets a "Podgląd / Edycja" switch; notes renders review points and save errors of a field.
 export type Editing = {
   change: (fn: (form: Form) => void, o?: { fieldId?: string; undo?: string }) => void
   condition: (fieldId: string, index: number | null) => void
+  notes: (fieldId: string) => React.ReactNode
 }
 
 // Visible after SHOW; a SECTION/REPEATING_SECTION with nothing visible inside is hidden too (with its title).
@@ -44,12 +45,16 @@ function instances(qs: Q[] = [], copies: Record<string, number>, suffix = '', in
   return out
 }
 
-export default function Preview({ form, review = new Map(), editing }: { form: Form; review?: Review; editing?: Editing }) {
+export default function Preview({ form, review = new Map(), editing, page, onPage }: {
+  form: Form; review?: Review; editing?: Editing; page?: string; onPage?: (id: string) => void
+}) {
   const tabs = tabsOf(form)
-  const [mode, setMode] = useState<'view' | 'edit'>('view')
+  const [mode, setMode] = useState<'view' | 'edit'>(editing ? 'edit' : 'view')
   const ed = mode === 'edit' ? editing : undefined
   const [locked, setLocked] = useState<Set<string>>(new Set())
-  const [tabId, setTabId] = useState('')
+  const [ownTab, setOwnTab] = useState('')
+  const tabId = page ?? ownTab // the editor's page list drives the steps when given
+  const setTabId = onPage ?? setOwnTab
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [copies, setCopies] = useState<Record<string, number>>({})
   const [hidden, setHidden] = useState<Set<string>>(new Set())
@@ -93,7 +98,7 @@ export default function Preview({ form, review = new Map(), editing }: { form: F
     <div className="bg-tray px-3 py-6 sm:px-6 sm:py-10" data-testid="preview" data-mode={mode}>
       {editing && (
         <div className="mx-auto mb-4 flex max-w-3xl flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground">{ed ? 'Edytujesz na makiecie: zmiany trafiają do tego samego JSON-a co „Pola i uwagi”.' : 'Makieta działa jak dla obywatela.'}</p>
+          <p className="text-sm text-muted-foreground">{ed ? 'Edytujesz formularz: kliknij etykietę, opcję albo ikonę przy polu.' : 'Makieta działa jak dla obywatela.'}</p>
           <div role="group" aria-label="Tryb makiety" className="inline-flex rounded-lg border bg-card p-0.5 shadow-xs">
             {([['view', 'Podgląd', Eye], ['edit', 'Edycja', PenLine]] as const).map(([m, label, Icon]) => (
               <Button key={m} size="sm" variant={mode === m ? 'default' : 'ghost'} aria-pressed={mode === m} onClick={() => setMode(m)} data-testid={`mode-${m}`}><Icon />{label}</Button>
@@ -127,7 +132,10 @@ export default function Preview({ form, review = new Map(), editing }: { form: F
         </header>
         {tab ? (
           <div className="px-5 py-6 sm:px-8">
-            <h3 className="mb-5 text-lg font-semibold">{tab.title}</h3>
+            {ed
+              ? <Input aria-label="Tytuł strony" value={tab.title} className="mb-5 h-10 text-lg font-semibold" data-testid="page-title"
+                  onChange={(e) => ed.change((c) => { tabsOf(c).find((t) => t.id === tab.id)!.title = e.target.value })} />
+              : <h3 className="mb-5 text-lg font-semibold">{tab.title}</h3>}
             <Grid qs={tab.questions} ctx={ctx} suffix="" />
             {ed && (
               <Button variant="outline" className="mt-5 w-full border-dashed" data-testid="add-section"
@@ -203,6 +211,7 @@ function Field({ f, ctx, suffix }: { f: F; ctx: Ctx; suffix: string }) {
       return (
         <fieldset className={cn('rounded-lg border bg-muted/30 p-4', ring(ctx, f), ctx.ed && 'border-dashed border-primary/40')} data-section={f.id}>
           {ctx.ed ? <legend className="w-full px-1"><SectionHead f={f} ctx={ctx} ed={ctx.ed} /></legend> : <legend className="px-1 font-semibold">{f.title}</legend>}
+          {ctx.ed && <Notes f={f} ed={ctx.ed} />}
           {mark}
           {hint && !ctx.ed && <p className="mb-3 text-sm text-muted-foreground">{hint}</p>}
           <Grid qs={f.repeatingSectionGrid ?? []} ctx={ctx} suffix={suffix} />
@@ -279,6 +288,7 @@ function Repeating({ f, ctx }: { f: F; ctx: Ctx }) {
   return (
     <fieldset className={cn('space-y-4 rounded-lg border bg-muted/30 p-4', ring(ctx, f), ctx.ed && 'border-dashed border-primary/40')} data-section={f.id}>
       {ctx.ed ? <legend className="w-full px-1"><SectionHead f={f} ctx={ctx} ed={ctx.ed} /></legend> : <legend className="px-1 font-semibold">{f.title}</legend>}
+      {ctx.ed && <Notes f={f} ed={ctx.ed} />}
       {ctx.onCondition && <ConditionMark form={ctx.form} f={f} onEdit={(i) => ctx.onCondition!(f.id, i)} />}
       {Array.from({ length: copies }, (_, i) => (
         <div key={i} className={i ? 'border-t border-dashed pt-4' : ''}>
@@ -326,6 +336,7 @@ function SectionHead({ f, ctx, ed }: { f: F; ctx: Ctx; ed: Editing }) {
     </div>
   )
 }
+const Notes = ({ f, ed }: { f: F; ed: Editing }) => ed.notes(f.id)
 
 const NEW_TYPES = ['TEXT_FIELD', 'TEXTAREA', 'NUMBER', 'DATEPICKER', 'RADIO', 'CHECKBOX', 'SELECT', 'FILE_UPLOADER', 'TEXT_BLOCK']
 function AddField({ section, ctx, ed }: { section: F; ctx: Ctx; ed: Editing }) {
@@ -376,6 +387,7 @@ function EditField({ f, ctx, ed }: { f: F; ctx: Ctx; ed: Editing }) {
         <Textarea aria-label="Podpowiedź pod polem" rows={1} placeholder="Podpowiedź pod polem (opcjonalnie)" className="mt-2 min-h-8 text-xs"
           value={text(f.description)} onChange={(e) => setField(ed, f.id, (x) => { x.description = e.target.value })} />
       )}
+      <Notes f={f} ed={ed} />
     </div>
   )
 }

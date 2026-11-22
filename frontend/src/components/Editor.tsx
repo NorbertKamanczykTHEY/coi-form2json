@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, BookMarked, Check, ChevronDown, CircleAlert, Download, Loader2, RotateCcw, Save } from 'lucide-react'
+import { ArrowLeft, BookMarked, Check, CircleAlert, Download, Loader2, RotateCcw, Save } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -9,30 +9,42 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
-import ConditionDialog, { ConditionMark } from '@/components/ConditionDialog'
+import ConditionDialog from '@/components/ConditionDialog'
+import Notice, { toastError } from '@/components/Notice'
 import Preview, { type Editing, type Review } from '@/Preview'
 import { api, ApiError, type Envelope, type Form, type Proposal } from '@/lib/api'
-import { accepted, applyProposal, fieldsOf, isRequired, points, setRequired, tabsOf, text, TYPE_LABEL, walk, type Field, type Point, type Q } from '@/lib/form'
+import { accepted, applyProposal, fieldsOf, points, tabsOf, walk, type Field, type Point, type Q } from '@/lib/form'
+import { apiMsg, reviewMsg, validationMsg, type Msg } from '@/lib/messages'
 import { cn } from '@/lib/utils'
 import { plural } from '@/lib/plural'
 
 const OVERVIEW = '__form'
+type SaveError = { m: Msg; fieldId?: string }
+
+// Field id at a validator JSON pointer (/tabs/0/questions/2/field/...): the deepest object on the path that is a field.
+function fieldAt(form: Form, path = '') {
+  let o: unknown = form
+  let id: string | undefined
+  for (const k of path.split('/').filter(Boolean)) {
+    o = (o as Record<string, unknown> | undefined)?.[k]
+    if (o && typeof o === 'object' && 'techName' in o && 'type' in o) id = (o as Field).id
+  }
+  return id
+}
 
 export default function Editor({ id, onBack, onChanged }: { id: string; onBack: () => void; onChanged: () => void }) {
   const [env, setEnv] = useState<Envelope | null>(null)
-  const [loadError, setLoadError] = useState('')
+  const [loadError, setLoadError] = useState<Msg | null>(null)
   const [draft, setDraft] = useState<Form | null>(null)
   const [resolved, setResolved] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
-  const [errors, setErrors] = useState<{ path?: string; message?: string }[]>([])
-  const [page, setPage] = useState(OVERVIEW)
+  const [errors, setErrors] = useState<SaveError[]>([])
+  const [page, setPage] = useState('')
   const [leave, setLeave] = useState(false)
   const [cond, setCond] = useState<{ fieldId: string; index: number | null } | null>(null)
 
   const load = (e: Envelope) => { setEnv(e); setDraft(e.form); setResolved(e.editor?.resolved ?? []); setErrors([]) }
-  useEffect(() => { api.get(id).then(load).catch((e) => setLoadError(e instanceof Error ? e.message : String(e))) }, [id])
+  useEffect(() => { api.get(id).then(load).catch((e) => setLoadError(apiMsg(e))) }, [id])
 
   const formDirty = useMemo(() => !!env && !!draft && JSON.stringify(env.form) !== JSON.stringify(draft), [env, draft])
   const resolvedDirty = !!env && JSON.stringify(env.editor?.resolved ?? []) !== JSON.stringify(resolved)
@@ -49,26 +61,25 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
   const byField = new Map<string, Point[]>()
   for (const p of pts) if (p.fieldId) byField.set(p.fieldId, [...(byField.get(p.fieldId) ?? []), p])
 
-  if (loadError) return <Shell onBack={onBack}><p role="alert" className="text-sm text-destructive">Nie udało się wczytać projektu: {loadError}</p></Shell>
+  if (loadError) return <Shell onBack={onBack}><div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-4"><Notice m={loadError} /></div></Shell>
   if (!env || !draft) return <Shell onBack={onBack}><p className="text-sm text-muted-foreground" aria-live="polite">Wczytuję projekt…</p></Shell>
 
   const tabs = tabsOf(draft)
-  const openOn = (qs: Q[]) => walk(qs).reduce((n, f) => n + (byField.get(f.id) ?? []).filter((p) => !done.has(p.key)).length, 0)
+  const cur = page || tabs[0]?.id || OVERVIEW
+  const openOn = (qs: Q[]) => walk(qs).reduce((n, f) => n + (byField.get(f.id) ?? []).filter((p) => !done.has(p.key)).length + errors.filter((e) => e.fieldId === f.id).length, 0)
   const general = pts.filter((p) => !p.fieldId)
   const proposals = env.editor?.proposals ?? []
   const pendingProposals = proposals.filter((p) => !accepted(draft, p))
   const overviewOpen = general.filter((p) => !done.has(p.key)).length + pendingProposals.length
 
   const edit = (fn: (f: Form) => void) => setDraft((d) => { const c = structuredClone(d!); fn(c); return c })
-  // a correction of the field settles its review points
+  // a correction of the field settles its review points and clears its save errors
   const settle = (fid: string) => {
     const keys = (byField.get(fid) ?? []).map((p) => p.key).filter((k) => !done.has(k))
     if (keys.length) setResolved((r) => [...new Set([...r, ...keys])])
+    setErrors((l) => (l.some((e) => e.fieldId === fid) ? l.filter((e) => e.fieldId !== fid) : l))
   }
-  const editField = (fid: string, fn: (f: Field) => void) => {
-    edit((c) => { const f = fieldsOf(c).find((x) => x.id === fid); if (f) fn(f) })
-    settle(fid)
-  }
+  const toggle = (keys: string[], on: boolean) => setResolved((r) => (on ? [...new Set([...r, ...keys])] : r.filter((k) => !keys.includes(k))))
   const editing: Editing = {
     change: (fn, o = {}) => {
       const prev = draft
@@ -77,11 +88,34 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
       if (o.undo) toast(o.undo, { action: { label: 'Cofnij', onClick: () => setDraft(prev) } })
     },
     condition: (fieldId, index) => setCond({ fieldId, index }),
+    notes: (fid) => {
+      const fp = byField.get(fid) ?? []
+      const fe = errors.filter((e) => e.fieldId === fid)
+      if (!fp.length && !fe.length) return null
+      return <div className="mt-2 space-y-2">
+        {fe.map((e, i) => <div key={i} className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2" data-testid="save-error-field"><Notice m={e.m} /></div>)}
+        {fp.length > 0 && <Points items={fp} done={done} toggle={toggle} />}
+      </div>
+    },
   }
   const condField = cond ? fieldsOf(draft).find((f) => f.id === cond.fieldId) : undefined
-  const setStates = (fn: (s: NonNullable<Field['states']>) => void) =>
-    editField(cond!.fieldId, (f) => { f.states = [...(f.states ?? [])]; fn(f.states) })
-  const toggle = (keys: string[], on: boolean) => setResolved((r) => (on ? [...new Set([...r, ...keys])] : r.filter((k) => !keys.includes(k))))
+  const setStates = (fn: (s: NonNullable<Field['states']>) => void) => {
+    edit((c) => { const f = fieldsOf(c).find((x) => x.id === cond!.fieldId); if (f) { f.states = [...(f.states ?? [])]; fn(f.states) } })
+    settle(cond!.fieldId)
+  }
+
+  // Jump to a field: open its page, scroll to it and flash it.
+  const jump = (fid: string) => {
+    const t = tabs.find((x) => walk(x.questions).some((f) => f.id === fid))
+    if (t) setPage(t.id)
+    setTimeout(() => {
+      const el = document.querySelector<HTMLElement>(`[data-field="${fid}"], [data-section="${fid}"]`)
+      if (!el) return
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      el.classList.add('ring-2', 'ring-destructive')
+      setTimeout(() => el.classList.remove('ring-2', 'ring-destructive'), 2500)
+    }, 60)
+  }
 
   async function save(form = draft!, keys = resolved) {
     setSaving(true)
@@ -97,8 +131,13 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
       onChanged()
       return true
     } catch (e) {
-      if (e instanceof ApiError && e.errors.length) setErrors(e.errors)
-      toast.error(e instanceof ApiError && e.status === 422 ? 'Formularz ma błędy, nie zapisano. Popraw je i zapisz ponownie.' : `Nie zapisano: ${e instanceof Error ? e.message : e}`)
+      if (e instanceof ApiError && e.errors.length) {
+        const list = e.errors.map((x) => ({ m: validationMsg(x), fieldId: fieldAt(form, x.path) }))
+        setErrors(list)
+        const first = list.find((x) => x.fieldId)
+        if (first) jump(first.fieldId!)
+      }
+      toastError(apiMsg(e))
       return false
     } finally {
       setSaving(false)
@@ -112,7 +151,7 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
       setDraft(next)
       if (await save(next)) toast.success(`Słownik „${p.dictionary.name}” przyjęty`)
     } catch (e) {
-      toast.error(`Słownik nie został utworzony: ${e instanceof Error ? e.message : e}`)
+      toastError(apiMsg(e))
     }
   }
 
@@ -124,9 +163,9 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
     URL.revokeObjectURL(a.href)
   }
 
-  const review: Review = new Map(open.filter((p) => p.fieldId).map((p) => [p.fieldId!, p.why]))
-  const current = tabs.find((t) => t.id === page)
+  const review: Review = new Map(open.filter((p) => p.fieldId).map((p) => { const m = reviewMsg(p.why); return [p.fieldId!, `${m.title}. ${m.action}`] }))
   const title = (draft as { title?: string }).title ?? ''
+  const fieldTitle = new Map(fieldsOf(draft).map((f) => [f.id, f.title || f.techName]))
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -146,53 +185,38 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
         </div>
       </div>
 
-      <Tabs defaultValue="edit" className="mx-auto w-full max-w-7xl flex-1 gap-0 px-4 pt-4 sm:px-6">
-        <TabsList>
-          <TabsTrigger value="edit">Pola i uwagi</TabsTrigger>
-          <TabsTrigger value="preview">Makieta dla obywatela</TabsTrigger>
-        </TabsList>
-
+      <div className="mx-auto w-full max-w-7xl flex-1 px-4 pt-4 sm:px-6">
         {errors.length > 0 && (
-          <div role="alert" className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm">
-            <p className="font-medium text-destructive">Zmiany nie zostały zapisane. Popraw te miejsca:</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5">{errors.slice(0, 12).map((e, i) => <li key={i}><code className="text-xs">{e.path}</code> {e.message}</li>)}</ul>
+          <div role="alert" className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm" data-testid="save-errors">
+            <p className="font-medium text-destructive">Zmiany nie zostały zapisane. Popraw {plural(errors.length, 'to miejsce', 'te miejsca', 'tych miejsc')}:</p>
+            <ul className="mt-2 space-y-2">{errors.slice(0, 12).map((e, i) => (
+              <li key={i} className="flex flex-wrap items-start gap-3 rounded-md bg-card px-3 py-2">
+                <Notice m={e.m} className="flex-1" />
+                {e.fieldId && <Button size="xs" variant="outline" onClick={() => jump(e.fieldId!)}>Pokaż pole „{fieldTitle.get(e.fieldId)}”</Button>}
+              </li>
+            ))}</ul>
           </div>
         )}
 
-        <TabsContent value="edit" className="grid gap-6 py-4 md:grid-cols-[15rem_minmax(0,1fr)]">
+        <div className="grid gap-6 pb-4 md:grid-cols-[15rem_minmax(0,1fr)]">
           <nav aria-label="Strony formularza" className="md:sticky md:top-32 md:self-start">
             <ul className="flex gap-1 overflow-x-auto md:flex-col">
-              <PageLink active={page === OVERVIEW} onClick={() => setPage(OVERVIEW)} label="Cały formularz" open={overviewOpen} />
-              {tabs.map((t) => <PageLink key={t.id} active={page === t.id} onClick={() => setPage(t.id)} label={t.title} open={openOn(t.questions)} />)}
+              <PageLink active={cur === OVERVIEW} onClick={() => setPage(OVERVIEW)} label="Cały formularz" open={overviewOpen} />
+              {tabs.map((t) => <PageLink key={t.id} active={cur === t.id} onClick={() => setPage(t.id)} label={t.title} open={openOn(t.questions)} />)}
             </ul>
           </nav>
 
-          <div className="min-w-0 space-y-4">
-            {page === OVERVIEW || !current ? (
+          <div className="min-w-0">
+            {cur === OVERVIEW ? (
               <Overview title={title} onTitle={(v) => edit((c) => { (c as { title?: string }).title = v })}
                 general={general} done={done} toggle={toggle} proposals={proposals} draft={draft} onAccept={acceptProposal}
                 env={env} dirty={dirty} onRegenerated={(e) => { load(e); onChanged(); toast.success('Formularz przebudowany') }} />
             ) : (
-              <>
-                <div>
-                  <Label htmlFor="page-title" className="text-xs text-muted-foreground">Tytuł strony</Label>
-                  <Input id="page-title" value={current.title} className="mt-1 h-10 text-base font-semibold"
-                    onChange={(e) => edit((c) => { tabsOf(c).find((t) => t.id === current.id)!.title = e.target.value })} />
-                </div>
-                <ul className="space-y-2">
-                  {current.questions.slice().sort((a, b) => a.y - b.y || a.x - b.x).map((q) => (
-                    <FieldRow key={q.field.id} f={q.field} depth={0} byField={byField} done={done} toggle={toggle} editField={editField} form={draft} onCondition={editing.condition} />
-                  ))}
-                </ul>
-              </>
+              <div className="-mx-4 sm:mx-0 sm:overflow-hidden sm:rounded-xl"><Preview form={draft} review={review} editing={editing} page={cur} onPage={setPage} /></div>
             )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="preview" className="-mx-4 py-4 sm:-mx-6">
-          <Preview form={draft} review={review} editing={editing} />
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
 
       {cond && condField && (
         <ConditionDialog form={draft} owner={condField} state={cond.index == null ? null : condField.states?.[cond.index] ?? null} onClose={() => setCond(null)}
@@ -244,7 +268,7 @@ function Points({ items, done, toggle }: { items: Point[]; done: Set<string>; to
         {items.map((p, i) => (
           <li key={i} className="flex gap-2">
             {isOpen ? <CircleAlert className="mt-0.5 size-4 shrink-0 text-review" aria-hidden /> : <Check className="mt-0.5 size-4 shrink-0 text-ok" aria-hidden />}
-            <span>{p.why}{p.fails.map((f, j) => <span key={j} className="mt-0.5 block text-xs text-muted-foreground">{f}</span>)}</span>
+            <Notice m={reviewMsg(p.why)}>{p.fails.map((f, j) => <span key={j} className="mt-0.5 block text-xs text-muted-foreground">{f}</span>)}</Notice>
           </li>
         ))}
       </ul>
@@ -256,82 +280,6 @@ function Points({ items, done, toggle }: { items: Point[]; done: Set<string>; to
               <Button size="xs" variant="ghost" onClick={() => toggle(keys, false)}><RotateCcw />Cofnij</Button></>}
       </div>
     </div>
-  )
-}
-
-function FieldRow({ f, depth, byField, done, toggle, editField, form, onCondition }: {
-  f: Field; depth: number; byField: Map<string, Point[]>; done: Set<string>; toggle: (keys: string[], on: boolean) => void
-  editField: (id: string, fn: (f: Field) => void) => void; form: Form; onCondition: (fieldId: string, index: number | null) => void
-}) {
-  const pts = byField.get(f.id) ?? []
-  const isOpen = pts.some((p) => !done.has(p.key))
-  const [expanded, setExpanded] = useState(false)
-  const children = f.repeatingSectionGrid?.slice().sort((a, b) => a.y - b.y || a.x - b.x) ?? []
-  const container = f.type === 'SECTION' || f.type === 'REPEATING_SECTION'
-  const choice = (f.type === 'RADIO' || f.type === 'CHECKBOX' || f.type === 'SELECT') && !f.dictionaryName
-  const panel = `field-${f.id}`
-
-  return (
-    <li data-testid="field-row" data-review={isOpen ? 'open' : pts.length ? 'done' : 'none'}>
-      <div className={cn('rounded-lg border bg-card', isOpen && 'border-review ring-1 ring-review', container && 'bg-muted/40')}>
-        <button type="button" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded} aria-controls={panel}
-          className="flex w-full items-center gap-3 px-3 py-2.5 text-left">
-          <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', !expanded && '-rotate-90')} aria-hidden />
-          <span className="min-w-0 flex-1">
-            <span className={cn('block truncate text-sm', container ? 'font-semibold' : 'font-medium')}>
-              {f.title || <span className="text-muted-foreground italic">bez etykiety</span>}{isRequired(f) && <span className="text-destructive" aria-label="wymagane"> *</span>}
-            </span>
-            <span className="block truncate text-xs text-muted-foreground">
-              {TYPE_LABEL[f.type] ?? f.type}{f.dictionaryName ? `, słownik ${f.dictionaryName}` : ''}{f.states?.some((s) => s.type === 'SHOW') ? ', pokazywane warunkowo' : ''}
-            </span>
-          </span>
-          {isOpen && <CircleAlert className="size-5 shrink-0 text-review" aria-label="Wymaga decyzji" />}
-          {!isOpen && pts.length > 0 && <Check className="size-5 shrink-0 text-ok" aria-label="Uwaga rozstrzygnięta" />}
-        </button>
-        {f.states?.some((s) => s.query) && <div className="px-3"><ConditionMark form={form} f={f} onEdit={(i) => onCondition(f.id, i)} /></div>}
-        {pts.length > 0 && <div className="px-3 pb-3"><Points items={pts} done={done} toggle={toggle} /></div>}
-        {expanded && (
-          <div id={panel} className="grid gap-3 border-t px-3 py-3 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <Label htmlFor={`${panel}-t`}>Etykieta</Label>
-              <Input id={`${panel}-t`} className="mt-1" value={f.title ?? ''} onChange={(e) => editField(f.id, (x) => { x.title = e.target.value })} />
-            </div>
-            {!container && f.type !== 'TEXT_BLOCK' && <>
-              <div className="sm:col-span-2">
-                <Label htmlFor={`${panel}-d`}>Podpowiedź pod polem</Label>
-                <Textarea id={`${panel}-d`} rows={2} className="mt-1" value={text(f.description)} onChange={(e) => editField(f.id, (x) => { x.description = e.target.value })} />
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <Switch checked={isRequired(f)} onCheckedChange={(v) => editField(f.id, (x) => setRequired(x, v))} />Pole wymagane
-              </label>
-              <p className="text-xs text-muted-foreground sm:text-right">Nazwa techniczna: <code>{f.techName}</code></p>
-              {!f.states?.length && <Button size="xs" variant="outline" className="justify-self-start" onClick={() => onCondition(f.id, null)}>Dodaj warunek</Button>}
-            </>}
-            {f.type === 'TEXT_BLOCK' && (
-              <div className="sm:col-span-2">
-                <Label htmlFor={`${panel}-d`}>Treść</Label>
-                <Textarea id={`${panel}-d`} rows={3} className="mt-1" value={text(f.description)} onChange={(e) => editField(f.id, (x) => { x.description = e.target.value })} />
-              </div>
-            )}
-            {choice && (
-              <div className="sm:col-span-2">
-                <Label htmlFor={`${panel}-o`}>Opcje (jedna w wierszu)</Label>
-                <Textarea id={`${panel}-o`} rows={Math.min(8, (f.options?.length ?? 0) + 1)} className="mt-1" value={(f.options ?? []).map((o) => o.name).join('\n')}
-                  onChange={(e) => editField(f.id, (x) => {
-                    const old = x.options ?? []
-                    x.options = e.target.value.split('\n').map((name, i) => ({ id: old[i]?.id ?? crypto.randomUUID(), name }))
-                  })} />
-              </div>
-            )}
-          </div>
-        )}
-        {children.length > 0 && (
-          <ul className="space-y-2 px-3 pb-3">
-            {children.map((q) => <FieldRow key={q.field.id} f={q.field} depth={depth + 1} byField={byField} done={done} toggle={toggle} editField={editField} form={form} onCondition={onCondition} />)}
-          </ul>
-        )}
-      </div>
-    </li>
   )
 }
 
@@ -396,7 +344,7 @@ function SelfOnly({ env, dirty, onDone }: { env: Envelope; dirty: boolean; onDon
   async function go() {
     setBusy(true)
     try { onDone(await api.regenerate(env.id, !s!.value)); setAsk(false) } catch (e) {
-      toast.error(e instanceof ApiError && e.status === 409 ? 'Ten projekt powstał przed tą funkcją. Zaimportuj plik ponownie, żeby go przebudować.' : `Nie przebudowano: ${e instanceof Error ? e.message : e}`)
+      toastError(apiMsg(e))
     } finally { setBusy(false) }
   }
   return (

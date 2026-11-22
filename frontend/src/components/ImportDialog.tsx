@@ -86,7 +86,7 @@ function StatusIcon({ s }: { s: Job['status'] }) {
 
 function Row({ job: j, onOpenForm }: { job: Job; onOpenForm: (id: string) => void }) {
   const last = [...j.log].reverse().find((e) => e.kind === 'stage') as Extract<LogEntry, { kind: 'stage' }> | undefined
-  const sub = j.status === 'rejected' ? j.reason
+  const sub = j.status === 'rejected' ? `${j.reason?.title}. ${j.reason?.action}`
     : j.status === 'done' ? `Gotowe w ${secs(((j.ended ?? 0) - (j.started ?? 0)) / 1000)}`
     : j.status === 'running' ? (last ? `${STAGE[last.stage] ?? last.stage}${last.status === 'start' ? '…' : ''}` : 'Wysyłanie…')
     : 'W kolejce'

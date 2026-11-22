@@ -75,7 +75,7 @@ test('clerk flow', async ({ page }) => {
   const name = (await pageLink.locator('span').first().textContent())!
   const openBefore = Number(await pageLink.getAttribute('data-open'))
   await pageLink.click()
-  await expect(page.locator('[data-review=open]').first()).toBeVisible()
+  await expect(page.getByTestId('review-open').first()).toBeVisible()
   await shot(page, '04-editor-red-marks')
 
   // resolve one point and save; the count (and the dot when it was the last one) stays gone after a reload
@@ -93,7 +93,8 @@ test('clerk flow', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 900 })
 
   // citizen mockup of the edited form
-  await page.getByRole('tab', { name: 'Makieta dla obywatela' }).click()
+  await page.getByTestId('page-link').nth(1).click()
+  await page.getByTestId('mode-view').click()
   await expect(page.getByTestId('preview')).toBeVisible()
   const projectShow = await showChangesSomething(page)
   await shot(page, '06-mockup-show')
