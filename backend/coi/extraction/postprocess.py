@@ -42,6 +42,9 @@ SECTION_NUMBER = re.compile(r"^\W*([A-Z](?:\.\d{1,2})*|[IVX]{1,4})[.)]?\s+[^\W\d
 # Q34: who signs a statement on paper; the applicant's own captions are excluded ("Podpis i pieczątka wnioskodawcy", "(czytelny podpis wnioskodawcy)")
 SIGNER = re.compile(r"podpis\w*\s+(?!i\b|wnioskodaw|składając|pełnomocnik|osoby (?:upoważnion|reprezentując)|czytel)([^\W\d_][^\W\d_/ ]+(?:\s*/\s*[^\W\d_]+)*(?:\s+[^\W\d_]{4,})?)", re.I)
 STATEMENT_OF = re.compile(r"(?:zgod\w*|oświadczeni\w*)\s+(osoby\s+[^\W\d_]{4,}|tej osoby)", re.I)  # "zgoda osoby odpowiedzialnej"
+PROOF = re.compile(r"(dołącz|załącz)\w*.{0,100}(dow[oó]d|potwierdzeni|kopi)\w*.{0,40}(opłat|zapłat|wpłat|uiszcz)|(dow[oó]d|potwierdzeni)\w*.{0,40}(opłat|zapłat|wpłat|uiszcz)\w*.{0,100}(dołącz|załącz)", re.I | re.S)
+CONSISTENT = re.compile(r"\b(jest|są) spójn|brak niespójno|nie stwierdzono niespójno|zgodn\w* z treści", re.I)
+OTHER_BRANCH = re.compile(r"\binn\w+|\bnie\b|\bbrak\b", re.I)
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -171,10 +174,13 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                 seen.add(k)
                 rename.setdefault(f.key, k)  # duplicate LLM keys: show_if points at the first one
                 new_key[id(f)] = k
+    controls = {si.field for p in tree.pages for s in p.sections for si in [s.show_if, *(f.show_if for f in s.fields)] if si} \
+        | {si.field for c in tree.consents for si in c.show_if}
     for p in tree.pages:
         for s in p.sections:
             keep = []
             for f in s.fields:
+                orig = f.key
                 text = src_text(f.src, blocks) + " " + src_text(s.src, blocks)
                 if not re.search(r"[^\W\d_]{2,}", f.source_label):  # "2) ___": no words in the source
                     if f.type == "FILE_UPLOADER" or (f.src and all(EMPTY_ITEM.match(blocks.get(a, "")) for a in f.src)):
@@ -223,7 +229,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
                 if f.description:
                     f.description_source = "document" if grounded(f.description, text) else "ai"
                     f.description = _useful_description(f)
-                if CONDITIONAL.search(seg) and not (f.show_if or s.show_if or f.optional_evidence):
+                if CONDITIONAL.search(seg) and not (f.show_if or s.show_if or f.optional_evidence or orig in controls):
                     review.append({"key": f.key, "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"})
                 if f.doubt:
                     review.append({"key": f.key, "why": f.doubt})  # R7: stays required, flagged
@@ -253,6 +259,11 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     review += relink_show_if(tree)
     review += rebuild_lost_controls(tree, blocks)
     review += _third_party_statements(tree, blocks, seen)
+    review += branch_show_if(tree, blocks)
+    place_controls(tree)
+    if tree.case_fee_proof and not PROOF.search(" ".join(blocks.values())):  # R6: a proof upload only when the paper asks to attach it
+        tree.case_fee_proof = False
+    tree.issues = [i for i in tree.issues if not CONSISTENT.search(i)]  # R15: a warning only for a found inconsistency
     review += _consents(tree)
     if tree.case_fee and re.search(r"pełnomocn", tree.case_fee, re.I) and all(re.search(r"pełnomocn", blocks.get(a, ""), re.I) for a in expand(tree.case_fee_src, blocks) or ["-"]):
         tree.case_fee, tree.case_fee_src, tree.case_fee_proof = None, [], False  # the proxy's 17 zł is in the template, not a case fee
@@ -315,6 +326,59 @@ def relink_show_if(tree: FieldTree) -> list[dict]:
     return review
 
 
+def branch_show_if(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
+    """R2 (EVAL-4): in a section with one choice question, a required field without show_if whose source says
+    "w przypadku …" belongs to one branch of that question: 'other' wording ("innej osoby", "nie") -> the
+    other / "Nie" option, otherwise the first option. The gate used to only report it."""
+    review = []
+    for p in tree.pages:
+        for s in p.sections:
+            radios = [f for f in s.fields if f.type == "RADIO" and len(f.options) >= 2]
+            if len(radios) != 1 or s.show_if:
+                continue
+            ctl = radios[0]
+            for f in s.fields[s.fields.index(ctl) + 1:]:
+                text = src_text(f.src, blocks)
+                if f.show_if or f.optional_evidence or not CONDITIONAL.search(text):
+                    continue
+                cond = text[CONDITIONAL.search(text).start():][:120]
+                other = [o for o in ctl.options if re.match(r"\W*(inn|nie\b|brak)", o, re.I)]
+                pick = (other or ctl.options[-1:]) if OTHER_BRANCH.search(cond) else [o for o in ctl.options if o not in other][:1]
+                if pick:
+                    f.show_if = ShowIf(field=ctl.key, options=pick[:1])
+                    review.append({"key": f.key, "why": f"warunek z treści („{cond[:60]}…”) dodany jako SHOW na „{ctl.label}” = {pick[0]}; sprawdź"})
+    return review
+
+
+def place_controls(tree: FieldTree) -> None:
+    """R2 (EVAL-4): a yes/no control question stands right before the first section that depends on it, not on the first
+    page before the choice of application kind; a code-made one nothing depends on is removed."""
+    def deps(k):
+        return [(p, i, s) for p in tree.pages for i, s in enumerate(p.sections)
+                if (s.show_if and s.show_if.field == k) or any(f.show_if and f.show_if.field == k for f in s.fields)]
+    used = {si.field for c in tree.consents for si in c.show_if}
+    for p in tree.pages:
+        for s in list(p.sections):
+            moved = False
+            for f in [f for f in s.fields if f.type == "RADIO" and {o.lower() for o in f.options} == {"tak", "nie"}]:
+                where = deps(f.key)
+                if not where and f.key not in used and s.title == "Informacje wstępne":
+                    s.fields.remove(f)  # a rebuilt / skeleton question nothing asks for
+                    moved = True
+                    continue
+                tp, ti, ts = where[0] if where else (None, None, None)
+                if not where or ts is s or (tp is p and ti == p.sections.index(s) + 1):
+                    continue  # already in place: in its dependents' section or right before it
+                s.fields.remove(f)
+                moved = True
+                if ts.show_if:  # the dependent section is hidden by this (or another) question: the question gets its own section
+                    tp.sections.insert(ti, Section(title=f.label, fields=[f], show_if=ts.show_if if ts.show_if.field != f.key else None))
+                else:
+                    ts.fields.insert(0, f)
+            if moved and not s.fields:
+                p.sections.remove(s)
+
+
 def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[str]) -> list[dict]:
     """Q34 (user decision): the logged-in applicant never accepts consents for another person. A statement signed on paper
     by someone else ("Podpis kandydata", "Podpis rodzica/opiekuna prawnego") becomes a FILE_UPLOADER "Oświadczenie <kogo>"
@@ -326,7 +390,7 @@ def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[s
     def home(heading: str, who: str) -> Section:  # the person's section: the paper's heading names them best, then the signer
         h, w = _stems(heading), _stems(who)
         return max(sections, key=lambda s: (len(_stems(s.title) & h), len(_stems(s.title) & w), s.person_role == "third_party"))
-    def upload(who: str, src: list[str], conds: list[ShowIf], heading: str) -> None:
+    def upload(who: str, src: list[str], conds: list[ShowIf], heading: str, says: str = "") -> None:
         sec = home(heading, who)
         label = "Oświadczenie " + re.sub(r"\s*/\s*", " lub ", who.strip()).lower()
         rest = [c for c in conds if not (sec.show_if and c.field == sec.show_if.field)]  # the section already scopes that question
@@ -334,14 +398,18 @@ def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[s
         if len(rest) > 1:
             review.append({"key": None, "why": f"„{label}”: kilka warunków zgody, zostaje ostatni ({cond.field})"})
         twin = next((f for f in sec.fields if f.type == "FILE_UPLOADER" and f.label == label and f.show_if == cond), None)
+        what = f"Plik z oświadczeniem podpisanym przez {who.strip().replace('/', ' lub ')}" + (f": {says.strip()}" if says.strip() else ".")
         if twin:  # the paper's 1), 2) statements of one signer are one file
             twin.src = list(dict.fromkeys(twin.src + src))
+            if says.strip() and says.strip() not in (twin.description or ""):
+                twin.description = (twin.description or what).rstrip(".") + " " + says.strip()
             return
         key = slug(label)
         while key in seen:
             key += "_2"
         seen.add(key)
-        sec.fields.append(FormField(key=key, label=label, source_label=label, type="FILE_UPLOADER", show_if=cond, src=src))
+        sec.fields.append(FormField(key=key, label=label, source_label=heading.strip()[:200] or label, type="FILE_UPLOADER", show_if=cond, src=src,
+                                    description=what[:400], description_source="document"))  # the label is code-made, the source is the paper's heading
     keep = []
     for c in tree.consents:
         anchors = [a for a in expand(c.src, blocks) if a in blocks]
@@ -356,7 +424,7 @@ def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[s
             heading = ""
         else:  # the consent's own heading; when src starts at its "1) …" text, the block above it
             heading = blocks[order[start]] if not re.match(r"^\s*\d{1,2}\)", blocks[order[start]]) or not start else blocks[order[start - 1]]  # "1) …" is text, "5.1. Zgoda …" a heading
-        upload(cap[1], c.src, list(c.show_if), heading)
+        upload(cap[1], c.src, list(c.show_if), heading, c.text)
     if len(keep) < len(tree.consents):
         review.append({"key": None, "why": f"{len(tree.consents) - len(keep)} zgód innej osoby niż wnioskodawca zamieniono na pliki „Oświadczenie …” (Q34)"})
     tree.consents = keep

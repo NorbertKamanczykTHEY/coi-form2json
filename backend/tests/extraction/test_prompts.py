@@ -53,3 +53,11 @@ def test_queue_rules_in_prompts_and_schema():
     for t in (main, page):
         assert "„Oświadczenie <kogo>”" in t and "nigdy jedno pole CHECKBOX" in t and "`number`" in t
     assert "pełnoletniej i w imieniu niepełnoletniej" in main and "`issues`" in skel and '"number"' in schema
+
+
+def test_eval4_rules_in_prompts():
+    main, skel, page, _ = list(texts())
+    for t in (main, page):
+        assert "iloczynem" in t and "bez polecenia „zaznacz jedną”" in t and "znacznika przypisu" in t and "poz. X" in t
+    for t in (main, skel):
+        assert "„zapłać przed złożeniem wniosku” to za mało" in t and "nie wpisuj, że dokument jest spójny" in t

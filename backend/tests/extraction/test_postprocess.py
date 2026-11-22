@@ -279,3 +279,45 @@ def test_lost_yes_no_control_is_rebuilt_before_its_section():
     secs = out.pages[0].sections
     assert [s.title for s in secs][1:] != ["Adres do korespondencji"] and secs[1].fields[0].options == ["Tak", "Nie"]
     assert secs[2].show_if.field == secs[1].fields[0].key and any("odtworzone" in r["why"] for r in review)
+
+
+def test_r2_branch_field_gets_show_if_on_the_other_option_and_control_is_not_flagged():
+    blocks = {"p1.b0": "Osoba odpowiedzialna: wnioskodawca, w przypadku innej osoby niż wnioskodawca ___",
+              "p1.b1": "w przypadku innej osoby niż wnioskodawca oświadczenie tej osoby załączyć"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Osoba odpowiedzialna", "person_role": "third_party", "fields": [
+            f("kto", "Czy osoba odpowiedzialna to wnioskodawca", "RADIO", "p1.b0", options=["Tak", "Nie"]),
+            f("imie", "Imię i nazwisko osoby odpowiedzialnej", src="p1.b0"), f("plik", "Oświadczenie", "FILE_UPLOADER", "p1.b1")]}]}]})
+    out, review = normalize(t, blocks)
+    fs = {x.key: x for x in out.pages[0].sections[0].fields}
+    assert fs["imie_i_nazwisko_osoby_odpowiedzialnej"].show_if.options == ["Nie"] and fs["oswiadczenie"].show_if.options == ["Nie"]
+    assert not any(r["key"] == "czy_osoba_odpowiedzialna_to_wnioskodawca" and "warunk" in r["why"] for r in review)
+
+
+def test_r2_yes_no_control_moves_to_its_section_and_an_unused_intro_one_goes():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Informacje wstępne", "fields": [f("pel", "Czy kandydat jest pełnoletni", "RADIO", "p1.b0", options=["Tak", "Nie"]),
+                                                   f("pod", "Czy podopieczny jest pełnoletni", "RADIO", "p1.b0", options=["Tak", "Nie"])]},
+        {"title": "Rodzaj", "fields": [f("r", "Rodzaj wniosku", "RADIO", "p1.b0", options=["A", "B"])]},
+        {"title": "Kandydat", "fields": [f("i", "Imię", src="p1.b1"), f("z", "Oświadczenie rodzica", "FILE_UPLOADER", "p1.b1", show_if={"field": "pel", "options": ["Nie"]})]}]}]})
+    out, _ = normalize(t, {"p1.b0": "Czy ☐ Tak ☐ Nie", "p1.b1": "Imię ___"})
+    secs = out.pages[0].sections
+    assert [s.title for s in secs] == ["Rodzaj", "Kandydat"] and secs[1].fields[0].key == "czy_kandydat_jest_pelnoletni"
+
+
+def test_r6_proof_only_when_the_paper_asks_and_r15_no_consistency_warning():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [], "case_fee": "17 zł, konto 12 3", "case_fee_src": ["p1.b0"],
+                                  "case_fee_proof": True, "issues": ["Tytuł jest spójny z treścią.", "Administrator danych to inny urząd niż adresat."]})
+    out, _ = normalize(t, {"p1.b0": "Opłata 17 zł, konto 12 3, płatna przed złożeniem wniosku."})
+    assert not out.case_fee_proof and out.issues == ["Administrator danych to inny urząd niż adresat."]
+    out, _ = normalize(t, {"p1.b0": "Opłata 17 zł, konto 12 3. Do wniosku należy dołączyć dowód uiszczenia opłaty."})
+    assert out.case_fee_proof
+
+
+def test_q34_upload_is_grounded_in_its_heading_and_describes_the_statement():
+    blocks = {"p1.b0": "Dane uczestnika: Imię ___", "p1.b1": "Zgoda uczestnika", "p1.b2": "1) Znam regulamin.", "p1.b3": "Data Podpis uczestnika"}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Dane uczestnika", "person_role": "third_party", "fields": [f("imie", "Imię", src="p1.b0")]}]}],
+        "consents": [{"text": "Znam regulamin.", "src": ["p1.b1-p1.b3"]}]})
+    up = normalize(t, blocks)[0].pages[0].sections[0].fields[-1]
+    assert up.source_label == "Zgoda uczestnika" and "uczestnika" in up.description and "Znam regulamin" in up.description

@@ -251,3 +251,17 @@ def test_g20_choice_in_a_title_block_still_needs_radio():
     t = tree()
     t.dropped.append(Drop(reason="title", src=["p1.b5"]))
     assert "G20" in codes(gate(t, BLOCKS | blocks))
+
+
+def test_r10_g7_accepts_a_label_from_the_fields_own_option_or_header_block():
+    blocks = {"p1.b5": "25. Okoliczności: ☐ 1. pierwsza deklaracja - data zdarzenia powodującego powstanie obowiązku:"}
+    g = with_section(blocks, fld("d", "data zdarzenia powodującego powstanie obowiązku", "DATEPICKER"))
+    assert "G7" not in codes(g)
+
+
+def test_r12_product_of_choices_is_two_radios():
+    blocks = {"p1.b5": "proszę o zezwolenie na hodowanie/utrzymywanie* psa rasowego/mieszańca*"}
+    opts = ["Hodowanie rasowego", "Hodowanie mieszańca", "Utrzymywanie rasowego", "Utrzymywanie mieszańca"]
+    assert "G28" in codes(with_section(blocks, fld("r", "Rodzaj", "RADIO", options=opts)))
+    assert "G28" not in codes(with_section(blocks, fld("a", "Czynność", "RADIO", options=["Hodowanie", "Utrzymywanie"]),
+                                           fld("b", "Rodzaj psa", "RADIO", options=["Rasowy", "Mieszaniec"])))

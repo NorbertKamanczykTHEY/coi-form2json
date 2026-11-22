@@ -74,6 +74,9 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         lab = norm(FILL.sub(" ", f.source_label))
         # G7: an input field needs its label next to a place to fill; words only from a title or running text are no basis
         hay = doc if f.type in ("TEXT_BLOCK", "FILE_UPLOADER", "RADIO", "CHECKBOX", "SELECT") or not any_marks else ground
+        # R10 (EVAL-4): the field's own blocks count too (option text "1. … - data zdarzenia:", table column headers,
+        # a type the code converted); a title block never does
+        hay += " " + norm(FILL.sub(" ", " ".join(blocks[a] for a in ex(f.src) if a in blocks and a not in titles)))
         m = SequenceMatcher(None, lab, hay, autojunk=False).find_longest_match(0, len(lab), 0, len(hay)) if lab and hay else None
         if f.type != "TEXT_BLOCK" and lab and (not m or m.size / len(lab) < 0.7):
             ungrounded.append(f.key)
@@ -275,4 +278,16 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
                and not re.search(r"zgod|osob|wykonawc|opiekun|pełnomocn|właściciel", f.label + " " + f.source_label, re.I)]  # someone else's phone stays
     if contact:
         fails.append(f"G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: {contact[:5]}")
+    # R12 (EVAL-4): options that are the product of two choices ("Hodowanie charta", "Utrzymywanie charta", "Hodowanie
+    # mieszańca", …) are two RADIO fields
+    product = []
+    for _, _, f in all_fields(tree):
+        if f.type != "RADIO" or len(f.options) < 4:
+            continue
+        heads = {o.split()[0].lower() for o in f.options if o.split()}
+        tails = {" ".join(o.split()[1:]).lower() for o in f.options if o.split()}
+        if len(heads) >= 2 and len(tails) >= 2 and len(f.options) == len(heads) * len(tails):
+            product.append(f.key)
+    if product:
+        fails.append(f"G28: opcje RADIO to iloczyn kilku wyborów; każda oś (np. rodzaj czynności, rodzaj obiektu) to osobne RADIO: {product[:5]}")
     return fails
