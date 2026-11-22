@@ -1,27 +1,18 @@
 import jsonata from 'jsonata'
 import { useEffect, useState } from 'react'
+import { Check, ChevronLeft, ChevronRight, CircleAlert, Info, Plus, Upload } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { dictionaryItems, type Form } from '@/lib/api'
+import { isRequired, tabsOf, text, walk, type Field as F, type Q, type Tab } from '@/lib/form'
+import { cn } from '@/lib/utils'
 
-// Read-only render of a COI form (R-V). Answers live here only; nothing is sent to the API.
-type Q = { x: number; y: number; rows: number; cols: number; field: F }
-type F = {
-  id: string; type: string; techName?: string; title?: string; description?: string; tooltipMessage?: string
-  options?: { id: string; name: string }[]; validation?: unknown[]; dictionaryName?: string; readOnly?: boolean
-  defaultValue?: Answer; repeatingSectionGrid?: Q[]; states?: { type: string; query: string }[]
-  consentSectionConfig?: { consents?: { description?: string }[]; required?: boolean }
-}
-type Tab = { id: string; title: string; type: string; questions: Q[] }
-export type Review = Map<string, string> // field id or techName -> reason
+// Citizen's view of a COI form (R-V), rendered from the current JSON. Answers live here only; nothing is sent to the API.
+export type Review = Map<string, string> // field id -> reason, shown as a red mark
 type Answer = string | string[]
-
-// HTML from the form (descriptions, consents) shown as plain text: it comes from an LLM, so no innerHTML.
-const text = (html?: string) => (html ? new DOMParser().parseFromString(html, 'text/html').body.textContent?.trim() ?? '' : '')
-// validation is a list in the schema, but reference #1 has `{}` in places
-const required = (f: F) => Array.isArray(f.validation) && f.validation.some((v) => v === 'REQUIRED' || (v as { type?: string })?.type === 'REQUIRED')
-
-function walk(qs: Q[] = [], out: F[] = []): F[] {
-  for (const q of qs) { out.push(q.field); walk(q.field.repeatingSectionGrid, out) }
-  return out
-}
 
 // Visible after SHOW; a SECTION/REPEATING_SECTION with nothing visible inside is hidden too (with its title).
 function shown(f: F, suffix: string, hidden: Set<string>): boolean {
@@ -42,19 +33,8 @@ function instances(qs: Q[] = [], copies: Record<string, number>, suffix = '', in
   return out
 }
 
-// shortcut: top-level items only (max 500, the API limit), one request per dictionary name per page load.
-const dictCache = new Map<string, Promise<string[] | null>>()
-function dictionary(name: string) {
-  if (!dictCache.has(name)) {
-    dictCache.set(name, fetch(`/api/v1/dictionaries/${encodeURIComponent(name)}?limit=500`, {
-      headers: { Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN ?? ''}` },
-    }).then((r) => (r.ok ? r.json() : null)).then((d) => d?.items?.map((i: { name: string }) => i.name) ?? null).catch(() => null))
-  }
-  return dictCache.get(name)!
-}
-
-export default function Preview({ form, review }: { form: { tabs?: unknown }; review: Review }) {
-  const tabs = (form.tabs ?? []) as Tab[]
+export default function Preview({ form, review = new Map() }: { form: Form; review?: Review }) {
+  const tabs = tabsOf(form)
   const [tabId, setTabId] = useState('')
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [copies, setCopies] = useState<Record<string, number>>({})
@@ -70,7 +50,7 @@ export default function Preview({ form, review }: { form: { tabs?: unknown }; re
       f.__userAnswer = f.type !== 'REPEATING_SECTION' ? answer(f, '')
         : Array.from({ length: copies[f.id] ?? 1 }, (_, i) => walk(f.repeatingSectionGrid).map((c) => ({ fieldTechName: c.techName, answers: answer(c, i ? `#${i}` : '') })))
     }
-    const all = ((form.tabs ?? []) as Tab[]).flatMap((t) => instances(t.questions, copies))
+    const all = tabsOf(form).flatMap((t) => instances(t.questions, copies))
     Promise.all(all.filter(({ f }) => f.states?.some((s) => s.type === 'SHOW')).map(async ({ f, suffix, index }) => {
       const shows = f.states!.filter((s) => s.type === 'SHOW')
       // a field with several SHOW states is shown when any of them holds; a broken query never hides a field
@@ -83,32 +63,52 @@ export default function Preview({ form, review }: { form: { tabs?: unknown }; re
   // Pages with nothing visible drop out of the steps; if the current one drops out, stay on the nearest earlier page.
   const visible = tabs.filter((t) => t.questions.some((q) => shown(q.field, '', hidden)))
   const at = tabs.findIndex((t) => t.id === tabId)
-  const step = Math.max(0, visible.findIndex((t) => t.id === tabId) >= 0 ? visible.findIndex((t) => t.id === tabId)
-    : visible.filter((t) => tabs.indexOf(t) < at).length - 1)
+  const found = visible.findIndex((t) => t.id === tabId)
+  const step = Math.max(0, found >= 0 ? found : visible.filter((t) => tabs.indexOf(t) < at).length - 1)
   const setStep = (i: number) => setTabId(visible[i].id)
   const tab = visible[step]
-  if (!tab) return <p className="text-sm">Formularz nie ma widocznych stron.</p>
-  const set = (id: string, v: Answer) => setAnswers((a) => ({ ...a, [id]: v }))
-  const ctx: Ctx = { answers, set, hidden, review, copies, setCopies: (id, n) => setCopies((c) => ({ ...c, [id]: n })) }
+  const ctx: Ctx = { answers, set: (id, v) => setAnswers((a) => ({ ...a, [id]: v })), hidden, review, copies, setCopies: (id, n) => setCopies((c) => ({ ...c, [id]: n })) }
+  const title = (form as { title?: string }).title
 
   return (
-    <div className="space-y-4 rounded border border-slate-200 p-4">
-      <ol className="flex flex-wrap gap-2 text-sm">
-        {visible.map((t, i) => (
-          <li key={t.id}>
-            <button type="button" onClick={() => setStep(i)} aria-current={i === step ? 'step' : undefined}
-              className={`rounded-full border px-3 py-1 ${i === step ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}>
-              {i + 1}. {t.title}
-            </button>
-          </li>
-        ))}
-      </ol>
-      <h3 className="text-lg font-semibold">{tab.title}</h3>
-      <Grid qs={tab.questions} ctx={ctx} suffix="" />
-      <div className="flex justify-between">
-        <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded border px-3 py-1 disabled:opacity-40">Wstecz</button>
-        <button type="button" disabled={step === visible.length - 1} onClick={() => setStep(step + 1)} className="rounded border px-3 py-1 disabled:opacity-40">Dalej</button>
-      </div>
+    <div className="bg-tray px-3 py-6 sm:px-6 sm:py-10" data-testid="preview">
+      <article className="mx-auto max-w-3xl overflow-hidden rounded-xl bg-card shadow-[0_1px_2px_rgb(27_39_51/0.06),0_8px_24px_-12px_rgb(27_39_51/0.18)]">
+        <header className="border-b px-5 pt-5 pb-4 sm:px-8 sm:pt-7">
+          <p className="text-sm text-muted-foreground">Wniosek elektroniczny</p>
+          <h2 className="mt-1 text-xl leading-snug font-semibold text-balance sm:text-2xl">{title || 'Formularz bez tytułu'}</h2>
+          {visible.length > 0 && (
+            <ol className="mt-5 flex gap-1 overflow-x-auto pb-1" aria-label="Kroki wniosku">
+              {visible.map((t, i) => (
+                <li key={t.id} className="min-w-28 flex-1">
+                  <button type="button" onClick={() => setStep(i)} aria-current={i === step ? 'step' : undefined}
+                    className="group w-full text-left">
+                    <span className={cn('block h-1 rounded-full transition-colors', i < step ? 'bg-primary/60' : i === step ? 'bg-primary' : 'bg-border')} />
+                    <span className={cn('mt-2 flex items-center gap-1.5 text-xs', i === step ? 'font-medium text-foreground' : 'text-muted-foreground group-hover:text-foreground')}>
+                      <span className={cn('grid size-5 shrink-0 place-items-center rounded-full text-[0.7rem] tabular-nums',
+                        i < step ? 'bg-primary/15 text-primary' : i === step ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
+                        {i < step ? <Check className="size-3" /> : i + 1}
+                      </span>
+                      <span className="line-clamp-2">{t.title}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          )}
+        </header>
+        {tab ? (
+          <div className="px-5 py-6 sm:px-8">
+            <h3 className="mb-5 text-lg font-semibold">{tab.title}</h3>
+            <Grid qs={tab.questions} ctx={ctx} suffix="" />
+            <div className="mt-8 flex justify-between border-t pt-5">
+              <Button variant="outline" disabled={step === 0} onClick={() => setStep(step - 1)}><ChevronLeft />Wstecz</Button>
+              {step < visible.length - 1
+                ? <Button onClick={() => setStep(step + 1)}>Dalej<ChevronRight /></Button>
+                : <Button disabled title="Makieta: wniosku nie można wysłać">Wyślij wniosek</Button>}
+            </div>
+          </div>
+        ) : <p className="px-8 py-10 text-sm text-muted-foreground">Formularz nie ma widocznych stron.</p>}
+      </article>
     </div>
   )
 }
@@ -118,14 +118,14 @@ type Ctx = {
   copies: Record<string, number>; setCopies: (id: string, n: number) => void
 }
 
-// Layout by x/cols on a grid as wide as the widest row (3 in the reference forms).
+// Layout by x/cols on a grid as wide as the widest row (3 in the reference forms); one column on narrow screens.
 function Grid({ qs, ctx, suffix }: { qs: Q[]; ctx: Ctx; suffix: string }) {
   const width = Math.max(1, ...qs.map((q) => q.x + q.cols))
   return (
-    <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}>
+    <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))]" style={{ '--cols': width } as React.CSSProperties}>
       {/* rows flow in y, x order instead of fixed y, so hidden fields leave no gaps */}
       {qs.filter((q) => shown(q.field, suffix, ctx.hidden)).sort((a, b) => a.y - b.y || a.x - b.x).map((q) => (
-        <div key={q.field.id} style={{ gridColumn: `${q.x + 1} / span ${q.cols}` }}>
+        <div key={q.field.id} className="min-w-0 sm:[grid-column:var(--col)]" style={{ '--col': `${q.x + 1} / span ${q.cols}` } as React.CSSProperties}>
           <Field f={q.field} ctx={ctx} suffix={suffix} />
         </div>
       ))}
@@ -133,87 +133,103 @@ function Grid({ qs, ctx, suffix }: { qs: Q[]; ctx: Ctx; suffix: string }) {
   )
 }
 
-function Label({ f, ctx, htmlFor }: { f: F; ctx: Ctx; htmlFor?: string }) {
-  const why = ctx.review.get(f.id) ?? (f.techName ? ctx.review.get(f.techName) : undefined)
+function Label({ f, ctx, htmlFor, as = 'label' }: { f: F; ctx: Ctx; htmlFor?: string; as?: 'label' | 'span' }) {
+  const why = ctx.review.get(f.id)
+  const Tag = as
   return (
-    <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium">
-      {f.title}
-      {required(f) && <span className="text-red-700" title="pole wymagane"> *</span>}
-      {why && <span className="ml-1 cursor-help text-amber-600" title={`do przejrzenia: ${why}`} aria-label={`do przejrzenia: ${why}`}>⚑</span>}
-      {f.tooltipMessage && <span className="ml-1 cursor-help text-slate-400" title={f.tooltipMessage}>ⓘ</span>}
-    </label>
+    <Tag htmlFor={as === 'label' ? htmlFor : undefined} className="mb-1.5 flex items-start gap-1 text-sm font-medium">
+      <span>{f.title}{isRequired(f) && <span className="text-destructive" aria-label="pole wymagane"> *</span>}</span>
+      {why && (
+        <Tooltip><TooltipTrigger asChild><CircleAlert className="mt-0.5 size-4 shrink-0 text-review" aria-label={`Uwaga do decyzji: ${why}`} /></TooltipTrigger>
+          <TooltipContent className="max-w-xs">{why}</TooltipContent></Tooltip>
+      )}
+      {f.tooltipMessage && (
+        <Tooltip><TooltipTrigger asChild><Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-label={f.tooltipMessage} /></TooltipTrigger>
+          <TooltipContent className="max-w-xs">{f.tooltipMessage}</TooltipContent></Tooltip>
+      )}
+    </Tag>
   )
 }
 
-const input = 'w-full rounded border border-slate-300 px-2 py-1.5 text-sm disabled:bg-slate-100'
+const ring = (ctx: Ctx, f: F) => (ctx.review.has(f.id) ? 'rounded-md outline-2 outline-offset-4 outline-review/60 outline-dashed' : '')
 
 function Field({ f, ctx, suffix }: { f: F; ctx: Ctx; suffix: string }) {
   const key = f.id + suffix // answers of repeated copies are kept apart
   const value = ctx.answers[key] ?? f.defaultValue ?? ''
   const one = Array.isArray(value) ? value[0] ?? '' : value // defaultValue may be a list, e.g. ["Polska"]
   const hint = text(f.description)
-  const common = { id: key, disabled: f.readOnly, className: input }
+  const common = { id: key, disabled: f.readOnly }
+  const help = hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+  const wrap = (body: React.ReactNode) => <div className={ring(ctx, f)} data-field={f.id}>{body}</div>
   switch (f.type) {
     case 'SECTION':
       return (
-        <fieldset className="rounded border border-slate-200 p-3">
+        <fieldset className={cn('rounded-lg border bg-muted/30 p-4', ring(ctx, f))}>
           <legend className="px-1 font-semibold">{f.title}</legend>
-          {hint && <p className="mb-2 text-sm text-slate-600">{hint}</p>}
+          {hint && <p className="mb-3 text-sm text-muted-foreground">{hint}</p>}
           <Grid qs={f.repeatingSectionGrid ?? []} ctx={ctx} suffix={suffix} />
         </fieldset>
       )
     case 'REPEATING_SECTION':
       return <Repeating f={f} ctx={ctx} />
     case 'TEXT_BLOCK':
-      return <p className="text-sm text-slate-700">{hint || f.title}</p>
+      return wrap(<p className="rounded-md border-l-2 border-primary/40 bg-accent/40 px-3 py-2 text-sm">{hint || f.title}</p>)
     case 'CONSENT_SECTION':
-      return (
+      return wrap(
         <div className="space-y-2">
-          <Label f={f} ctx={ctx} />
+          <Label f={f} ctx={ctx} as="span" />
           {(f.consentSectionConfig?.consents ?? []).map((c, i) => (
-            <label key={i} className="flex gap-2 text-sm"><input type="checkbox" />{text(c.description)}</label>
+            <label key={i} className="flex items-start gap-2.5 text-sm"><Checkbox className="mt-0.5" />{text(c.description)}</label>
           ))}
-        </div>
+        </div>,
       )
     case 'TEXTAREA':
-      return <div><Label f={f} ctx={ctx} htmlFor={key} /><textarea {...common} rows={3} value={one} onChange={(e) => ctx.set(key, e.target.value)} /></div>
+      return wrap(<><Label f={f} ctx={ctx} htmlFor={key} /><Textarea {...common} rows={3} value={one} onChange={(e) => ctx.set(key, e.target.value)} />{help}</>)
     case 'DATEPICKER':
-      return <div><Label f={f} ctx={ctx} htmlFor={key} /><input {...common} type="date" value={one} onChange={(e) => ctx.set(key, e.target.value)} /></div>
+      return wrap(<><Label f={f} ctx={ctx} htmlFor={key} /><Input {...common} type="date" value={one} onChange={(e) => ctx.set(key, e.target.value)} />{help}</>)
     case 'NUMBER':
-      return <div><Label f={f} ctx={ctx} htmlFor={key} /><input {...common} type="number" value={one} onChange={(e) => ctx.set(key, e.target.value)} /></div>
+      return wrap(<><Label f={f} ctx={ctx} htmlFor={key} /><Input {...common} type="number" inputMode="decimal" value={one} onChange={(e) => ctx.set(key, e.target.value)} />{help}</>)
     case 'FILE_UPLOADER':
-      return <div><Label f={f} ctx={ctx} htmlFor={key} /><input {...common} type="file" /></div>
+      return wrap(
+        <><Label f={f} ctx={ctx} htmlFor={key} />
+          <label htmlFor={key} className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-input px-3 py-3 text-sm text-muted-foreground hover:bg-muted/50">
+            <Upload className="size-4" />Dodaj plik<input {...common} type="file" className="sr-only" />
+          </label>{help}</>,
+      )
     case 'SELECT':
-      return <div><Label f={f} ctx={ctx} htmlFor={key} /><Select f={f} id={key} value={one} onChange={(v) => ctx.set(key, v)} /></div>
+      return wrap(<><Label f={f} ctx={ctx} htmlFor={key} /><Select f={f} id={key} value={one} onChange={(v) => ctx.set(key, v)} />{help}</>)
     case 'RADIO':
     case 'CHECKBOX': {
       const multi = f.type === 'CHECKBOX'
       const chosen = ([] as string[]).concat(value || [])
-      return (
+      return wrap(
         <fieldset>
-          <legend><Label f={f} ctx={ctx} /></legend>
-          {(f.options ?? []).map((o) => (
-            <label key={o.id} className="mr-4 inline-flex items-center gap-1 text-sm">
-              <input type={multi ? 'checkbox' : 'radio'} name={key} disabled={f.readOnly} checked={chosen.includes(o.name)}
-                onChange={(e) => ctx.set(key, multi ? (e.target.checked ? [...chosen, o.name] : chosen.filter((c) => c !== o.name)) : o.name)} />
-              {o.name}
-            </label>
-          ))}
-        </fieldset>
+          <legend className="contents"><Label f={f} ctx={ctx} as="span" /></legend>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {(f.options ?? []).map((o) => (
+              <label key={o.id} className="inline-flex items-center gap-2 text-sm">
+                <input type={multi ? 'checkbox' : 'radio'} name={key} disabled={f.readOnly} checked={chosen.includes(o.name)} className="size-4 accent-primary"
+                  onChange={(e) => ctx.set(key, multi ? (e.target.checked ? [...chosen, o.name] : chosen.filter((c) => c !== o.name)) : o.name)} />
+                {o.name}
+              </label>
+            ))}
+          </div>{help}
+        </fieldset>,
       )
     }
     default: // TEXT_FIELD and anything unknown
-      return <div><Label f={f} ctx={ctx} htmlFor={key} /><input {...common} value={one} onChange={(e) => ctx.set(key, e.target.value)} />{f.type !== 'TEXT_FIELD' && <p className="text-xs text-slate-500">typ {f.type}</p>}</div>
+      return wrap(<><Label f={f} ctx={ctx} htmlFor={key} /><Input {...common} value={one} onChange={(e) => ctx.set(key, e.target.value)} />{help}</>)
   }
 }
 
+const selectCls = 'h-9 w-full rounded-md border border-input bg-card px-2.5 text-sm disabled:opacity-60'
 function Select({ f, id, value, onChange }: { f: F; id: string; value: string; onChange: (v: string) => void }) {
   const [items, setItems] = useState<string[] | null | undefined>(f.dictionaryName ? undefined : (f.options ?? []).map((o) => o.name))
-  useEffect(() => { if (f.dictionaryName) dictionary(f.dictionaryName).then(setItems) }, [f.dictionaryName])
-  const placeholder = items === undefined ? 'wczytuję słownik…' : items === null ? `słownik ${f.dictionaryName} niedostępny` : 'wybierz'
+  useEffect(() => { if (f.dictionaryName) dictionaryItems(f.dictionaryName).then(setItems) }, [f.dictionaryName])
+  const placeholder = items === undefined ? 'Wczytuję słownik…' : items === null ? `Słownik ${f.dictionaryName} jest niedostępny` : 'Wybierz'
   return (
-    <select id={id} disabled={f.readOnly} value={value} onChange={(e) => onChange(e.target.value)} className={input}>
-      <option value="">— {placeholder} —</option>
+    <select id={id} disabled={f.readOnly} value={value} onChange={(e) => onChange(e.target.value)} className={selectCls}>
+      <option value="">{placeholder}</option>
       {(items ?? []).map((n, i) => <option key={i} value={n}>{n}</option>)}
     </select>
   )
@@ -222,15 +238,18 @@ function Select({ f, id, value, onChange }: { f: F; id: string; value: string; o
 function Repeating({ f, ctx }: { f: F; ctx: Ctx }) {
   const copies = ctx.copies[f.id] ?? 1
   return (
-    <fieldset className="space-y-3 rounded border border-slate-200 p-3">
+    <fieldset className={cn('space-y-4 rounded-lg border bg-muted/30 p-4', ring(ctx, f))}>
       <legend className="px-1 font-semibold">{f.title}</legend>
       {Array.from({ length: copies }, (_, i) => (
-        <div key={i} className={i ? 'border-t border-dashed border-slate-300 pt-3' : ''}>
-          {copies > 1 && <p className="mb-2 text-xs text-slate-500">#{i + 1}</p>}
+        <div key={i} className={i ? 'border-t border-dashed pt-4' : ''}>
+          {copies > 1 && <p className="mb-2 text-xs font-medium text-muted-foreground">Pozycja {i + 1}</p>}
           <Grid qs={f.repeatingSectionGrid ?? []} ctx={ctx} suffix={i ? `#${i}` : ''} />
         </div>
       ))}
-      <button type="button" onClick={() => ctx.setCopies(f.id, copies + 1)} className="rounded border px-3 py-1 text-sm">+ dodaj</button>
+      <div className="flex gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={() => ctx.setCopies(f.id, copies + 1)}><Plus />Dodaj kolejną</Button>
+        {copies > 1 && <Button type="button" variant="ghost" size="sm" onClick={() => ctx.setCopies(f.id, copies - 1)}>Usuń ostatnią</Button>}
+      </div>
     </fieldset>
   )
 }

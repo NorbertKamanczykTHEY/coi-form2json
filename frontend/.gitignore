@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Playwright
+e2e/screenshots
+test-results
+playwright-report
