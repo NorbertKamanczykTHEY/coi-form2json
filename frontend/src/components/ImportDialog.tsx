@@ -7,6 +7,7 @@ import type { Info } from '@/lib/api'
 import { clearFinished, enqueue, useQueue, type Job, type LogEntry } from '@/lib/queue'
 import { IMPORT_CONCURRENCY } from '@/config'
 import { cn } from '@/lib/utils'
+import { plural } from '@/lib/plural'
 
 const STAGE: Record<string, string> = { parse: 'Odczyt dokumentu', extract: 'Rozpoznanie pól', generate: 'Budowa formularza' }
 const num = (v: number, d: number) => v.toLocaleString('pl-PL', { maximumFractionDigits: d, minimumFractionDigits: d })
@@ -49,7 +50,7 @@ export default function ImportDialog({ open, onOpenChange, info, onOpenForm }: {
           {l && (
             <p className="max-w-md text-xs text-muted-foreground">
               {l.extensions.map((e) => e.toUpperCase()).join(', ')}, do {l.max_file_mb} MB, nazwa do {l.max_filename_len} znaków.
-              Naraz przetwarzane są {IMPORT_CONCURRENCY} pliki.
+              Kolejka przetwarza naraz {plural(IMPORT_CONCURRENCY, 'plik', 'pliki', 'plików')}.
             </p>
           )}
         </div>
@@ -123,7 +124,7 @@ function Entry({ e, t0 }: { e: LogEntry; t0: number }) {
   )
   switch (e.kind) {
     case 'stage': {
-      const extra = [e.parser && `parser ${e.parser}`, secs(e.seconds), e.fields != null && `${e.fields} pól`, money(e.cost)].filter(Boolean).join(', ')
+      const extra = [e.parser && `parser ${e.parser}`, secs(e.seconds), e.fields != null && plural(e.fields, 'pole', 'pola', 'pól'), money(e.cost)].filter(Boolean).join(', ')
       return row(e.status === 'done' ? <CheckCircle2 className="size-3.5 text-ok" /> : <CircleDashed className="size-3.5 text-muted-foreground" />,
         <><span className="font-medium">{STAGE[e.stage] ?? e.stage}</span> {e.status === 'done' ? 'zakończony' : 'rozpoczęty'}{extra && <span className="text-muted-foreground"> ({extra})</span>}</>)
     }
@@ -135,7 +136,7 @@ function Entry({ e, t0 }: { e: LogEntry; t0: number }) {
       return row(<AlertTriangle className="size-3.5 text-amber-600" />, <span className="break-words">{e.message}</span>, 'text-amber-900')
     case 'result':
       return row(<CheckCircle2 className="size-3.5 text-ok" />,
-        <><span className="font-medium">Projekt zapisany</span> <span className="text-muted-foreground">({[e.review ? `${e.review} uwag do decyzji` : 'bez uwag', secs(e.seconds), money(e.cost)].filter(Boolean).join(', ')})</span></>)
+        <><span className="font-medium">Projekt zapisany</span> <span className="text-muted-foreground">({[e.review ? `${plural(e.review, 'uwaga', 'uwagi', 'uwag')} do decyzji` : 'bez uwag', secs(e.seconds), money(e.cost)].filter(Boolean).join(', ')})</span></>)
     case 'error':
       return row(<XCircle className="size-3.5 text-destructive" />, <span className="break-words">{e.message}</span>, 'text-destructive')
   }

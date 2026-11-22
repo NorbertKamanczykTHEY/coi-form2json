@@ -15,6 +15,7 @@ import Preview, { type Review } from '@/Preview'
 import { api, ApiError, type Envelope, type Form, type Proposal } from '@/lib/api'
 import { accepted, applyProposal, fieldsOf, isRequired, points, setRequired, tabsOf, text, TYPE_LABEL, walk, type Field, type Point, type Q } from '@/lib/form'
 import { cn } from '@/lib/utils'
+import { plural } from '@/lib/plural'
 
 const OVERVIEW = '__form'
 
@@ -118,7 +119,7 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg leading-tight font-semibold" title={title}>{title || 'Formularz bez tytułu'}</h1>
             <p className="truncate text-xs text-muted-foreground">
-              {open.length ? <span className="font-medium text-review" data-testid="open-count">{open.length} uwag do decyzji</span> : <span className="text-ok">Wszystkie uwagi rozstrzygnięte</span>}
+              {open.length ? <span className="font-medium text-review" data-testid="open-count">{plural(open.length, 'uwaga', 'uwagi', 'uwag')} do decyzji</span> : <span className="text-ok">Wszystkie uwagi rozstrzygnięte</span>}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={download}><Download />Pobierz JSON</Button>
@@ -204,7 +205,7 @@ function PageLink({ active, onClick, label, open }: { active: boolean; onClick: 
           active ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
         <span className="min-w-0 flex-1 truncate">{label}</span>
         {open > 0 && <span className="flex items-center gap-1 text-xs font-medium text-review tabular-nums" data-testid="red-dot">
-          <span className="size-2 rounded-full bg-review" aria-hidden />{open}<span className="sr-only"> nierozstrzygniętych uwag</span>
+          <span className="size-2 rounded-full bg-review" aria-hidden /><span aria-hidden>{open}</span><span className="sr-only">{plural(open, 'nierozstrzygnięta uwaga', 'nierozstrzygnięte uwagi', 'nierozstrzygniętych uwag')}</span>
         </span>}
       </button>
     </li>
@@ -341,7 +342,7 @@ function Overview({ title, onTitle, general, done, toggle, proposals, draft, onA
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{p.dictionary.name} <code className="text-xs text-muted-foreground">{p.dictionary.id}</code></p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {p.dictionary.items.length} pozycji: {p.dictionary.items.slice(0, 6).map((i) => (i as { name?: string }).name).join(', ')}{p.dictionary.items.length > 6 ? '…' : ''}
+                    {plural(p.dictionary.items.length, 'pozycja', 'pozycje', 'pozycji')}: {p.dictionary.items.slice(0, 6).map((i) => (i as { name?: string }).name).join(', ')}{p.dictionary.items.length > 6 ? '…' : ''}
                   </p>
                   <p className="mt-1 text-sm">Pola: {p.fieldIds.map((fid) => byId.get(fid)?.title ?? fid).join(', ')}</p>
                 </div>

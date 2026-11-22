@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { IMPORT_CONCURRENCY } from '@/config'
 import { auth, problem, type Envelope, type Info } from './api'
+import { plural } from './plural'
 
 // Import queue: lives outside React so it keeps running when the import dialog is closed.
 export type LogEntry =
@@ -40,7 +41,7 @@ export function check(f: File, info: Info | null): string | null {
   const l = info.limits
   const ext = f.name.includes('.') ? f.name.split('.').pop()!.toLowerCase() : ''
   if (!l.extensions.includes(ext)) return `Nieobsługiwany typ pliku${ext ? ` .${ext}` : ''}. Dozwolone: ${l.extensions.join(', ')}.`
-  if (f.name.length > l.max_filename_len) return `Nazwa pliku ma ${f.name.length} znaków, limit to ${l.max_filename_len}.`
+  if (f.name.length > l.max_filename_len) return `Nazwa pliku ma ${plural(f.name.length, 'znak', 'znaki', 'znaków')}, limit to ${l.max_filename_len}.`
   const bad = [...new Set([...l.forbidden_filename_chars].filter((c) => f.name.includes(c)))]
   if (bad.length) return `Nazwa zawiera niedozwolone znaki: ${bad.join(' ')}`
   if (f.size > l.max_file_mb * 2 ** 20) return `Plik ma ${(f.size / 2 ** 20).toFixed(1)} MB, limit to ${l.max_file_mb} MB.`

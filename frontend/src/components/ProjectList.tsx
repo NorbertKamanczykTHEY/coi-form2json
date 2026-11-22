@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { api, type ListItem } from '@/lib/api'
+import { plural } from '@/lib/plural'
 
 const date = new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
@@ -85,14 +86,14 @@ export default function ProjectList({ items, fresh, error, onOpen, onImport, onC
                   <TableCell>
                     {f.open_review > 0
                       ? <span className="inline-flex items-center gap-1.5 rounded-full bg-review-soft px-2.5 py-0.5 text-sm font-medium text-review tabular-nums">
-                          <CircleAlert className="size-3.5" aria-hidden />{f.open_review}<span className="sr-only"> nierozwiązanych</span>
+                          <CircleAlert className="size-3.5" aria-hidden /><span aria-hidden>{f.open_review}</span><span className="sr-only">{plural(f.open_review, 'nierozstrzygnięta uwaga', 'nierozstrzygnięte uwagi', 'nierozstrzygniętych uwag')}</span>
                           {f.needs_review > f.open_review && <span className="font-normal opacity-75">/ {f.needs_review}</span>}
                         </span>
-                      : <span className="text-sm text-ok">{f.needs_review ? 'Wszystkie rozwiązane' : 'Brak uwag'}</span>}
+                      : <span className="text-sm text-ok">{f.needs_review ? 'Wszystkie rozstrzygnięte' : 'Brak uwag'}</span>}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     {f.proposals > 0
-                      ? <span className="inline-flex items-center gap-1.5 text-sm"><BookMarked className="size-3.5 text-primary" aria-hidden />{f.proposals} {f.proposals === 1 ? 'propozycja' : 'propozycje'}</span>
+                      ? <span className="inline-flex items-center gap-1.5 text-sm"><BookMarked className="size-3.5 text-primary" aria-hidden />{plural(f.proposals, 'propozycja', 'propozycje', 'propozycji')}</span>
                       : <span className="text-sm text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="pr-3 text-right">
