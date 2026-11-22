@@ -24,6 +24,7 @@ for _ in $(seq 1 90); do
   echo -n "."; sleep 2
 done
 echo
+[[ "$status" == "healthy " ]] || { echo "Kontenery nie są zdrowe: docker compose -p app ps / logs" >&2; exit 1; }
 
 cat <<EOF
 

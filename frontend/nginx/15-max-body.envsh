@@ -1,0 +1,3 @@
+# Sourced by the nginx image's entrypoint before the template step: MAX_FILE_MB (same variable as the backend) -> MAX_BODY_KB.
+# nginx allows 1 MB more than the backend, so a file just over the limit gets the backend's problem+json 413, not nginx's.
+export MAX_BODY_KB=$(awk -v m="${MAX_FILE_MB:-20}" 'BEGIN { x = (m + 1) * 1024; printf "%d", (x == int(x)) ? x : int(x) + 1 }')

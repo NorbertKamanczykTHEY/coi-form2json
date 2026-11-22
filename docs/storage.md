@@ -30,7 +30,7 @@ Typ `JSON` to w SQLite tekst, a w PostgreSQL natywny `JSON`.
 Indeks `ix_forms_created_at` służy liście, która zwraca najnowsze formularze na górze.
 
 ## Czego nie zapisujemy
-- **Przesłanego pliku.** Plik istnieje tylko w pamięci na czas żądania (`InMemoryRequest` trzyma upload w RAM, a nie w pliku tymczasowym Werkzeuga). Parser może na chwilę zapisać PDF w katalogu tymczasowym, żeby wyrenderować strony, i usuwa go po zakończeniu żądania.
+- **Przesłanego pliku.** Backend trzyma upload tylko w pamięci na czas żądania (`InMemoryRequest` w RAM, a nie w pliku tymczasowym Werkzeuga). Poza backendem: nginx frontu może na czas żądania buforować ciało w `/tmp/client_temp` i usuwa je po żądaniu. Parser może na chwilę zapisać PDF w katalogu tymczasowym, żeby wyrenderować strony (Tesseract: `page.png`, `out.txt`, `out.tsv` w `/tmp/tmp*`), i usuwa go po zakończeniu żądania.
 - Tokenów JWT ani kluczy LLM.
 
 ## Uwaga o `editor.source`

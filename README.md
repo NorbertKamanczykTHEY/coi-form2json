@@ -84,14 +84,19 @@ Cała konfiguracja backendu jest w pakiecie `backend/coi/config/` (jeden moduł 
 | `LLM_TIMEOUT_S` | `90` | limit jednego wywołania (połączenie: 10 s); timeout = nieudany szczebel drabiny |
 | `REQUEST_TIMEOUT_S` | `300` | limit całej konwersji: po nim żadne wywołanie LLM nie startuje; najlepsze drzewo idzie z `needs_review`, a bez drzewa `504 llm_timeout` |
 | `LADDER_PATH` | `coi/parsing/ladder.json` (local: `ladder.local.json`) | drabina modeli VLM i progi bramki skanów |
+| `RENDER_FONT` | DejaVu Sans / Arial | plik TTF z polskimi znakami do renderu zastępczego ODS/XLSX |
 | `TESSDATA_PREFIX` | wbudowana ścieżka Tesseracta | katalog z modelem `pol` |
 | `EXTRACTION_LADDER` | `mistral/mistral-small-2603,mistral/mistral-large-2512` | szczeble modeli ekstrakcji pól, po przecinku |
 | `EXTRACTION_MAX_TOKENS` | `24000` | limit odpowiedzi modelu ekstrakcji |
 | `EXTRACTION_TWO_STAGE_BLOCKS` | `150` | od tylu bloków ekstrakcja dwuetapowa (szkielet, potem strony) |
-| `EXTRACTION_WORKERS` | `4` | równoległe wywołania stron w etapie drugim |
+| `EXTRACTION_WORKERS` | `6` | równoległe wywołania stron w etapie drugim (na szczebel) |
+| `EXTRACTION_PARALLEL_RUNGS` | `1` | tylko ekstrakcja dwuetapowa: pierwsze przebiegi wszystkich szczebli startują razem (czas ściany to najwolniejszy szczebel, nie suma; kosztuje też przebieg mocniejszego szczebla, gdy słabszy przechodzi). `0` wyłącza |
+| `EXTRACTION_REPAIR_BUDGET_S` | `20` | po tylu sekundach nie startuje już żadna runda naprawcza (naprawa długiego drzewa trwa 60–75 s) |
 | `DICT_MATCH_THRESHOLD` | `0.8` | próg dopasowania pola do istniejącego słownika |
 | `GENERATOR_PREFILL_IDENTITY` | `MLPZ` | źródło danych „Twoje dane”: `MLPZ` albo `PESEL` |
 | Frontend `API_UPSTREAM` | `http://backend:8000` | runtime, szablon nginx |
+| Frontend `MAX_FILE_MB` | `20` (compose bierze z `.env`) | runtime: limit ciała żądania w nginx to `MAX_FILE_MB` + 1 MB; powyżej nginx zwraca 413 `problem+json` (`file_too_large`) |
+| Frontend `DEMO_API_TOKEN` | brak | runtime, **tymczasowo do testów**: token serwowany jako `/config.js`; `run-them-all.sh` ustawia go przy każdym starcie |
 | Frontend `VITE_BATCH_CONCURRENCY` | `2` | build, ile plików kolejka importu wysyła naraz |
 
 Prompty, drabiny modeli i szablony stron są plikami, nie kodem: [Dostosowanie bez zmiany kodu](docs/architecture.md#dostosowanie-bez-zmiany-kodu).
@@ -102,25 +107,25 @@ Prompty, drabiny modeli i szablony stron są plikami, nie kodem: [Dostosowanie b
 
 ## REST API
 
-Wszystko pod `/api/v1` wymaga `Authorization: Bearer <JWT>`, poza `/api/v1/info`. Backend tylko weryfikuje token (HS256 albo RS256 z JWKS IdP urzędu), nie ma endpointu logowania; token musi mieć `sub` i `exp` ([ADR 0015](docs/adr/0015-jwt-tylko-weryfikacja.md)). Pełny, generowany z kodu opis: **`/docs`** (Swagger UI).
+Wszystko pod `/api/v1` wymaga `Authorization: Bearer <JWT>`, poza `/api/v1/info` oraz `POST /api/v1/forms` i `POST /api/v1/forms/validate`, które działają też bez tokena, dopóki `AUTH_PUBLIC_CONVERT=true` (domyślnie; wysłany token musi być poprawny). Backend tylko weryfikuje token (HS256 albo RS256 z JWKS IdP urzędu), nie ma endpointu logowania; token musi mieć `sub` i `exp` ([ADR 0015](docs/adr/0015-jwt-tylko-weryfikacja.md)). Pełny, generowany z kodu opis: **`/docs`** (Swagger UI).
 
 | Metoda i ścieżka | Co robi | Kody |
 |---|---|---|
-| `POST /api/v1/forms` | multipart, pole `file`, **jeden** plik → czysty JSON COI (id w `Location`). `?report=true` → `{id, form, report}`, `?editor=true` dokłada `editor`. `Accept: text/event-stream` → SSE | 200, 400, 401, 413, 415, 422, 502, 504 |
+| `POST /api/v1/forms` | multipart, pole `file`, **jeden** plik → czysty JSON COI (id w `Location`). `?report=true` → `{id, form, report}`, `?editor=true` dokłada `editor`. `Accept: text/event-stream` → SSE. Token opcjonalny (`AUTH_PUBLIC_CONVERT`) | 200, 400, 401, 413, 415, 422, 502, 504 |
 | `GET /api/v1/forms` | lista zapisanych formularzy (metadane) | 200, 401 |
 | `GET /api/v1/forms/{id}` | jeden formularz, te same `?report` i `?editor` | 200, 401, 404 |
 | `PUT /api/v1/forms/{id}` | zapis poprawionego JSON-a (po walidacji) | 200, 400, 401, 404, 422 |
 | `POST /api/v1/forms/{id}/regenerate` | odbudowa z zapisanego `FieldTree` z poprawkami edytora, bez LLM | 200, 401, 404, 409 |
-| `POST /api/v1/forms/validate` | `{valid, errors[{path, message, rule}]}`: schemat JSON zadania, reguły R1–R6, unikalne `techName`, odwołania JSONata | 200, 400, 401 |
+| `POST /api/v1/forms/validate` | `{valid, errors[{path, message, rule}]}`: schemat JSON zadania, reguły R1–R6, unikalne `techName`, odwołania JSONata. Token opcjonalny (`AUTH_PUBLIC_CONVERT`) | 200, 400, 401 |
 | `GET/POST /api/v1/dictionaries`, `GET/PUT/DELETE /api/v1/dictionaries/{id}`, `…/{id}/items[/{iid}]` | katalog słowników i ich pozycje; słowniki z materiałów są chronione (409) | 200, 201, 204, 401, 404, 409 |
 | `POST /api/v1/dictionaries/match` | który słownik pasuje do pola (ta sama funkcja co w generatorze) | 200, 401 |
 | `POST /api/v1/dictionaries/from-proposal` | przyjęcie propozycji z `report.proposed_dictionaries` | 201, 401, 409 |
 | `GET /api/v1/info` | wersja, limity, szczeble modeli (bez tokena) | 200 |
-| `GET /healthz` | żywotność (bez tokena) | 200 |
+| `GET /healthz` (alias `GET /health`) | żywotność (bez tokena) | 200 |
 
-W drzewie roboczym są też (jeszcze niezacommitowane) `DELETE /api/v1/forms/{id}` i `PUT /api/v1/forms/{id}/resolved`.
+`DELETE /api/v1/forms/{id}` i `PUT /api/v1/forms/{id}/resolved` (lista rozstrzygniętych uwag) też wymagają tokena.
 
-**Walidacja pliku:** rozszerzenie z listy i typ z magic bytes muszą się zgadzać (415). Nazwa: 1–250 znaków, bez `; : > < / \ | ' * % $` (400). Rozmiar ponad `MAX_FILE_MB` → 413. Plik jest tylko w pamięci na czas żądania; w bazie zostaje wynik, nazwa i sha256 pliku ([storage.md](docs/storage.md)).
+**Walidacja pliku:** rozszerzenie z listy i typ z magic bytes muszą się zgadzać (415). Nazwa: 1–250 znaków, bez `; : > < / \ | ' * % $` (400; `\` sprawdzany w surowym nagłówku `Content-Disposition`, bo Werkzeug gubi go przy parsowaniu). Rozmiar ponad `MAX_FILE_MB` → 413. Backend trzyma plik tylko w pamięci na czas żądania (bez zapisu na dysk). Poza nim: nginx frontu może na czas żądania buforować ciało w `/tmp/client_temp`, a Tesseract zapisuje obrazy stron w katalogu tymczasowym; oba znikają po żądaniu. W bazie zostaje wynik (JSON formularza), `report`, `editor` (w tym `editor.source`: tekst wyciągnięty z pliku, bez samego pliku), nazwa pliku i jego sha256 ([storage.md](docs/storage.md)).
 
 **Błędy:** RFC 9457 `application/problem+json` `{type, title, status, detail, code}`, przy walidacji także `errors` ([ADR 0016](docs/adr/0016-bledy-rfc-9457-openapi-batch-we-froncie.md)).
 

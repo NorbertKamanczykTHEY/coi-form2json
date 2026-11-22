@@ -141,7 +141,9 @@ def create_form(query_data, files_data):
         abort(400, "Send exactly one file in the field `file`")
     f = request.files["file"]
     name = f.filename or ""
-    if not name or len(name) > c["MAX_FILENAME_LEN"] or set(name) & set(FORBIDDEN):
+    # Werkzeug drops a lone backslash while parsing (filename="a\b.pdf" -> "ab.pdf", what browsers send), so look at the raw header too
+    raw = f.headers.get("Content-Disposition", "")
+    if not name or len(name) > c["MAX_FILENAME_LEN"] or set(name) & set(FORBIDDEN) or "\\" in raw:
         abort(400, f"Invalid file name: 1-{c['MAX_FILENAME_LEN']} characters, none of {FORBIDDEN}", extra_data={"code": "invalid_filename"})
     data = f.read()
     cfg, store, uid = c["COI"], c["STORE"], user(public=True)

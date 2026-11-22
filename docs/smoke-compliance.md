@@ -71,6 +71,15 @@ Skrót: **PASS** spełnione, **FAIL** niespełnione, **PASS\*** spełnione, ale 
 | R8 | `README.md` ("czeka na healthcheck"), `docs/compliance.md` | healthchecki jako cecha stosu | są tylko w `docker-compose.yml`; `docker run` samego obrazu nie ma `HEALTHCHECK` (`Config.Healthcheck=nil`). Front sprawdza tylko `/` nginx, nie łączność z backendem |
 | R9 | `README.md` tabela API | "Wszystko pod `/api/v1` wymaga tokena, poza `/api/v1/info`" | zgodne (potwierdzone na 14 trasach); w tabeli brakuje aliasu `GET /health` (działa, 200) |
 
+## Status napraw (2026-11-22)
+
+- **F1 naprawione.** `coi/api.py` sprawdza też surowy nagłówek `Content-Disposition` (`FileStorage.headers`); `filename="a\b.pdf"` → 400 `invalid_filename`. Test: `test_400_raw_backslash_in_filename`.
+- **F2 naprawione.** `client_max_body_size` w nginx wynika z `MAX_FILE_MB` (+1 MB) w runtime (`frontend/nginx/15-max-body.envsh`, zmienna `MAX_FILE_MB` kontenera frontu, w compose z `.env`); 413 z nginx ma postać `application/problem+json` z `code: file_too_large`.
+- **F3 / R1–R3 naprawione.** `EXTRACTION_WORKERS=6`; dopisane `EXTRACTION_PARALLEL_RUNGS`, `EXTRACTION_REPAIR_BUDGET_S`, `RENDER_FONT` (README) i zmienne frontu `MAX_FILE_MB`, `DEMO_API_TOKEN`. Lista zmiennych z kodu `coi/config` i `coi/__init__.py` sprawdzona skryptem. `TERYT_DOWODOWY`, `TERYT_4G_DOWODOWY` to nazwy słowników, a `ENV_FILE` stała w kodzie, nie zmienne środowiskowe, więc nie trafiają do tabeli.
+- **R4, R5 naprawione.** README, `docs/storage.md` i `docs/compliance.md` (T8): backend trzyma plik w RAM; bufor nginx i pliki tymczasowe Tesseracta są kasowane po żądaniu; w bazie zostają wynik, `report`, `editor` (z `editor.source`), nazwa i sha256.
+- **R6 naprawione.** README i compliance.md opisują token demo wstrzykiwany w runtime (`/config.js`), tymczasowo, do testów (ADR 0015, dopisek).
+- **R7, R8, R9 naprawione.** compliance.md (T10, P3) wymienia `ghcr.io/astral-sh/uv` i zakres healthchecków; README ma alias `GET /health`.
+
 ## Obserwacje poza wymaganiami
 
 - Przy tym samym pliku `.docx` (#3) jeden z 16 przebiegów zwrócił inny `title` ("…o użytkach rolnych i gospodarstwie rolnym"), reszta "Wniosek o wydanie zaświadczenia": zmienność modelu, wynik nadal `valid: true`.
