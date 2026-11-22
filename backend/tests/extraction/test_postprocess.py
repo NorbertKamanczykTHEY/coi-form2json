@@ -368,3 +368,20 @@ def test_non_address_field_leaves_the_applicant_address_section():
         {"title": "Dane nieruchomości", "fields": [f("m", "Miejscowość nieruchomości", src="p1.b1")]}]}]})
     out, _ = normalize(t, {"p1.b0": "Ulica ___ Numery działek ___", "p1.b1": "Miejscowość ___"})
     assert [x.label for x in out.pages[0].sections[0].fields] == ["Ulica"] and out.pages[0].sections[1].fields[-1].label == "Numery działek nieruchomości"
+
+
+def test_attachment_condition_found_by_its_letter_and_position_by_printed_number():
+    blocks = {"p1.b0": "33. Rodzaj ☐ 1. jednorodzinna ☐ 2. wielolokalowa", "p1.b1": "35. Kompostownik ☐ TAK ☐ NIE",
+              "p1.b2": "wypełnić załącznik: A (w przypadku zaznaczenia D.3.33.1) lub B (w przypadku zaznaczenia D.3.33.2)",
+              "p1.b3": "G. 1. Załącznik A 2. Załącznik B", "p1.b4": "E.2 (jeśli TAK w poz. 35) Liczba ___"}
+    t = FieldTree.model_validate({"title": "D", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Nieruchomość", "src": ["p1.b2"], "fields": [f("r", "Rodzaj", "RADIO", "p1.b0", options=["Jednorodzinna", "Wielolokalowa"]),
+                                                               f("k", "Kompostownik", "RADIO", "p1.b1", options=["TAK", "NIE"])]},
+        {"title": "Załączniki", "fields": [f("qa", "Czy dołączasz załącznik A", "RADIO", "p1.b3", options=["TAK", "NIE"]),
+                                           f("a", "Załącznik A", "FILE_UPLOADER", "p1.b3", show_if={"field": "qa", "options": ["TAK"]}),
+                                           f("b", "Załącznik B", "FILE_UPLOADER", "p1.b3")]},
+        {"title": "Opłata z kompostownikiem", "src": ["p1.b4"], "fields": [f("l", "Liczba", "NUMBER", "p1.b4")]}]}]})
+    secs = normalize(t, blocks)[0].pages[0].sections
+    assert secs[0].show_if is None  # the shared sentence holds two conditions: not the section's own
+    assert [(x.label, x.show_if.options) for x in secs[1].fields] == [("Załącznik A", ["Jednorodzinna"]), ("Załącznik B", ["Wielolokalowa"])]
+    assert (secs[2].show_if.field, secs[2].show_if.options) == ("kompostownik", ["TAK"])

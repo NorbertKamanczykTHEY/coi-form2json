@@ -371,13 +371,17 @@ def position_refs(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
     reference beats the model's guess. Position numbers in descriptions become the referenced fields' labels."""
     review, fields = [], [f for p in tree.pages for s in p.sections for f in s.fields]
     by_num = {f.number.strip().rstrip("."): f for f in fields if f.number}
+    def by_block(num: str) -> FormField | None:  # no number on the field: the choice field citing the block that prints "35."
+        at = {a for a, t in blocks.items() if re.search(rf"(^|\s){re.escape(num)}\.\s+[^\W\d_]", t)}
+        hits = [f for f in fields if f.type in ("RADIO", "CHECKBOX", "SELECT") and at & set(expand(f.src, blocks))]
+        return hits[0] if len(hits) == 1 else None
     def target(ref: str, text: str) -> tuple[FormField, str] | None:
         parts = [x for x in ref.split(".") if x]
         nums = [x for x in parts if x.isdigit()]
         for k in range(len(nums), 0, -1):  # "D.3.33.1": field 33 option 1, else field 1 ...
             head, tail = nums[:k], nums[k:]
             for key in (".".join(head), head[-1]):
-                f = by_num.get(key)
+                f = by_num.get(key) or by_block(key)
                 if not f or f.type not in ("RADIO", "CHECKBOX", "SELECT"):
                     continue
                 if tail and tail[0].isdigit() and 1 <= int(tail[0]) <= len(f.options):
@@ -393,6 +397,11 @@ def position_refs(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
     for p in tree.pages:
         for s in p.sections:
             for node, text in [(s, src_text(s.src[:1], blocks) + " " + s.title)] + [(f, src_text(f.src, blocks) + " " + (f.description or "")) for f in s.fields]:
+                if isinstance(node, FormField) and node.type == "FILE_UPLOADER" and (tail := node.label.split()[-1:]):  # "A (w przypadku zaznaczenia …)"
+                    own = re.search(rf"(?<![\w.]){re.escape(tail[0])}\s*\(((?:w przypadku|je[żz]eli|je[śs]li)[^)]*)\)", " ".join(blocks.values()))
+                    text = own[1] if own else text
+                if len({x[1] for x in POS_REF.finditer(text)}) > 1:
+                    continue  # one sentence with the conditions of several nodes ("A (… 33.1) lub B (… 33.2)"): not this node's own
                 m = POS_REF.search(text)
                 hit = m and target(m[1], text[m.start():m.end() + 20])
                 if not hit or hit[0] is node:
@@ -402,6 +411,10 @@ def position_refs(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
                 if node.show_if != new and not (node is not s and s.show_if == new):  # a field inside a section already scoped the same way
                     review.append({"key": getattr(node, "key", None), "why": f"warunek z papieru („{m[0][:50]}”) → SHOW {ctl.key} = {opt}; sprawdź"})
                     node.show_if = new
+    used = {si.field for p in tree.pages for x in p.sections for si in [x.show_if, *(f.show_if for f in x.fields)] if si}
+    for p in tree.pages:  # a "czy dołączasz …?" question nothing depends on any more is gone (the upload has the paper's condition)
+        for x in p.sections:
+            x.fields = [f for f in x.fields if not (f.type == "RADIO" and f.key not in used and re.search(r"\bczy\b.{0,20}(dołącz|załącz)", f.label, re.I))]
     labels = {n: f.label for n, f in by_num.items()}
     for f in fields:
         for attr in ("description",):
@@ -425,8 +438,9 @@ def _party_non_address(tree: FieldTree) -> list[dict]:
             if not s.party or not subject:
                 continue
             for f in [f for f in s.fields if not ADDRESS_PART.search(f.label) and f.type != "TEXT_BLOCK"]:
-                home = max(subject, key=lambda x: len(_stems(x.title) & _stems(f.label + " " + f.source_label)))
-                if not _stems(home.title) & _stems(f.label + " " + f.source_label):
+                words = _stems(f.label + " " + f.source_label) - _stems(s.title)  # a word naming the party itself ("klubu") is no reason
+                home = max(subject, key=lambda x: len(_stems(x.title) & words))
+                if not _stems(home.title) & words:
                     continue
                 s.fields.remove(f)
                 home.fields.append(f)
