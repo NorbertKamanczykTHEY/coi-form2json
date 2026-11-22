@@ -64,8 +64,13 @@ class Store:
             return f.id
 
     def list_forms(self) -> list[dict]:
+        """Metadata plus counts for the project list: review items, the ones still open (editor.resolved), dictionary proposals."""
+        def counts(f: Form) -> dict:
+            items, done = (f.report or {}).get("needs_review") or [], set((f.editor or {}).get("resolved") or [])
+            return {"needs_review": len(items), "open_review": sum((i.get("field_id") or i.get("key")) not in done for i in items),
+                    "proposals": len((f.editor or {}).get("proposals") or [])}
         with self.session() as s:
-            return [f.to_dict(*Form.META) for f in s.scalars(select(Form).order_by(Form.created_at.desc()))]
+            return [f.to_dict(*Form.META) | counts(f) for f in s.scalars(select(Form).order_by(Form.created_at.desc()))]
 
     def get_form(self, fid: str) -> dict | None:
         with self.session() as s:
@@ -76,6 +81,21 @@ class Store:
         with self.session() as s:
             f = s.get(Form, fid)
             f.form, f.report, f.editor, f.title, f.updated_by, f.updated_at = form, report, editor, form.get("title", ""), user, _now()
+
+    def delete_form(self, fid: str) -> bool:
+        with self.session() as s:
+            if (f := s.get(Form, fid)) is None:
+                return False
+            s.delete(f)
+        return True
+
+    def set_resolved(self, fid: str, resolved: list[str], user: str) -> bool:
+        """editor.resolved: review keys the clerk fixed or accepted (report.needs_review[].field_id, else .key)."""
+        with self.session() as s:
+            if (f := s.get(Form, fid)) is None:
+                return False
+            f.editor, f.updated_by, f.updated_at = (f.editor or {}) | {"resolved": resolved}, user, _now()
+        return True
 
     def update_form(self, fid: str, form: dict, user: str) -> bool:
         with self.session() as s:

@@ -157,3 +157,27 @@ def test_regenerate_without_llm(client, docx):
     gone = client.post(f"/api/v1/forms/{old}/regenerate", json={"applicant_self_only": True}, headers=H)
     assert gone.status_code == 409 and gone.json["code"] == "no_stored_tree"
     assert "/api/v1/forms/{form_id}/regenerate" in client.get("/openapi.json").json["paths"]
+
+
+def test_delete_and_resolved(client, docx):
+    fid = upload(client, docx, "w.docx", "?report=true").json["id"]
+    item = client.get("/api/v1/forms", headers=H).json["items"][0]
+    assert item["open_review"] == item["needs_review"] and "proposals" in item
+    r = client.put(f"/api/v1/forms/{fid}/resolved", json={"resolved": ["a", "b", "a"]}, headers=H)
+    assert r.status_code == 200 and r.json == {"resolved": ["a", "b"]}
+    assert client.get(f"/api/v1/forms/{fid}?editor=true", headers=H).json["editor"]["resolved"] == ["a", "b"]
+    store = client.application.config["STORE"]
+    two = store.add_form(filename="r", sha256="0" * 64, user="t", form={"title": "r"}, editor={},
+                         report={"needs_review": [{"key": "k1", "field_id": "f1"}, {"key": "k2", "field_id": None}, {"key": "k3"}]})
+    store.set_resolved(two, ["f1", "k2"], "t")
+    row = next(i for i in client.get("/api/v1/forms", headers=H).json["items"] if i["id"] == two)
+    assert (row["needs_review"], row["open_review"]) == (3, 1)
+    assert client.put(f"/api/v1/forms/{fid}/resolved", json={"resolved": [""]}, headers=H).status_code == 400
+    assert client.put(f"/api/v1/forms/{fid}/resolved", json={}, headers=H).status_code == 400
+    assert client.put("/api/v1/forms/missing/resolved", json={"resolved": []}, headers=H).status_code == 404
+    assert client.delete(f"/api/v1/forms/{fid}").status_code == 401
+    r = client.delete(f"/api/v1/forms/{fid}", headers=H)
+    assert r.status_code == 204 and not r.data
+    assert client.get(f"/api/v1/forms/{fid}", headers=H).status_code == 404
+    gone = client.delete(f"/api/v1/forms/{fid}", headers=H)
+    assert gone.status_code == 404 and gone.content_type == "application/problem+json"

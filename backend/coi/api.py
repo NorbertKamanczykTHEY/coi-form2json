@@ -8,10 +8,11 @@ from http import HTTPStatus
 
 import openai
 from apiflask import APIBlueprint, HTTPError, Schema, abort
-from apiflask.fields import Boolean, File, Raw
+from apiflask.fields import Boolean, File, List, Raw, String
 from flask import Response, current_app, request
 from kreuzberg import KreuzbergError
 from marshmallow import INCLUDE
+from marshmallow.validate import Length
 
 from . import pipeline
 from .auth import auth, user
@@ -178,6 +179,34 @@ def put_form(form_id, json_data):
         abort(422, "Form JSON is invalid", extra_data={"code": "invalid_form", "errors": errors})
     store.update_form(form_id, json_data, user())
     return json_data
+
+
+@bp.delete("/forms/<form_id>")
+@bp.auth_required(auth)
+@bp.output({}, status_code=204)
+@bp.doc(summary="Delete a stored form", responses={204: "Deleted", 404: "Not found"})
+def delete_form(form_id):
+    if not current_app.config["STORE"].delete_form(form_id):
+        abort(404, "Form not found")
+    return ""
+
+
+class Resolved(Schema):
+    resolved = List(String(validate=Length(1, 300)), required=True,
+                    metadata={"description": "Review keys the clerk fixed or accepted: report.needs_review[].field_id, else .key. Replaces the list."})
+
+
+@bp.put("/forms/<form_id>/resolved")
+@bp.auth_required(auth)
+@bp.input(Resolved, location="json")
+@bp.output(Resolved)
+@bp.doc(summary="Save which review items are resolved", responses={200: "Saved list", 404: "Not found"},
+        description="Stored as editor.resolved (GET ?editor=true). Kept by regenerate; field ids are stable.")
+def put_resolved(form_id, json_data):
+    resolved = list(dict.fromkeys(json_data["resolved"]))
+    if not current_app.config["STORE"].set_resolved(form_id, resolved, user()):
+        abort(404, "Form not found")
+    return {"resolved": resolved}
 
 
 class Regenerate(Schema):
