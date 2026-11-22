@@ -4,7 +4,9 @@ from functools import cache
 
 import jwt
 from apiflask import HTTPTokenAuth, abort
-from flask import current_app
+from flask import current_app, request
+
+from .config import config
 
 log = logging.getLogger(__name__)
 auth = HTTPTokenAuth(scheme="Bearer", description="JWT (HS256 shared secret or RS256 from the IdP's JWKS). Demo token: `python -m coi.make_token`.")
@@ -45,5 +47,10 @@ def verify(token: str) -> dict | None:
         abort(401, f"Invalid token: {e}", extra_data={"code": "invalid_token"}, headers={"WWW-Authenticate": 'Bearer error="invalid_token"'})
 
 
-def user() -> str:
-    return auth.current_user["sub"]
+def user(public: bool = False) -> str:
+    """Caller's `sub`. public=True (endpoints with optional auth): no Authorization header and AUTH_PUBLIC_CONVERT -> "anonymous"."""
+    if auth.current_user:
+        return auth.current_user["sub"]
+    if public and config("app.auth_public_convert") and not request.headers.get("Authorization"):
+        return "anonymous"  # a header that is present but not a Bearer token still gets 401
+    abort(401, "Missing or invalid token", extra_data={"code": "unauthorized"}, headers={"WWW-Authenticate": "Bearer"})

@@ -22,13 +22,17 @@ export type Envelope = {
   }
 }
 
-// ADR 0015: no login; the clerk pastes a JWT, kept for the browser tab only. No token is ever built into the bundle.
+// ADR 0015: no login; the clerk pastes a JWT, kept for the browser tab only.
+// shortcut: demo token served by nginx at /config.js (window.__DEMO_TOKEN__, set at container start by run-them-all.sh), readable by anyone who opens the page;
+// replace with IdP login (JWKS) before production, then delete config.js and `configured` (ADR 0015, addendum 2026-11-22). The bundle itself never holds a token.
 const KEY = 'coi.token'
+const configured = ((window as { __DEMO_TOKEN__?: string }).__DEMO_TOKEN__ ?? '').trim()
 export const token = {
-  get: () => sessionStorage.getItem(KEY) ?? '',
+  configured: !!configured,
+  get: () => configured || (sessionStorage.getItem(KEY) ?? ''),
   set: (t: string) => (t ? sessionStorage.setItem(KEY, t.trim()) : sessionStorage.removeItem(KEY)),
 }
-export const auth = (): Record<string, string> => ({ Authorization: `Bearer ${token.get()}` })
+export const auth = (): Record<string, string> => (token.get() ? { Authorization: `Bearer ${token.get()}` } : {})
 const json = () => ({ ...auth(), 'Content-Type': 'application/json' })
 
 export class ApiError extends Error {

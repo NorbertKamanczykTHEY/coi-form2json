@@ -116,9 +116,17 @@ ERRORS = {400: "No file, more than one file, or a bad file name", 413: "File too
           422: "The file could not be read", 502: "LLM error", 504: "LLM timeout"}
 
 
+def optional_security(spec: dict) -> dict:
+    """OpenAPI: Authorization is optional on the two public-convert endpoints (`{}` = no auth is an allowed alternative)."""
+    for path in ("/api/v1/forms", "/api/v1/forms/validate"):
+        op = spec["paths"][path]["post"]
+        op["security"] = [{}, *op.get("security", [])]
+    return spec
+
+
 # endpoints
 @bp.post("/forms")
-@bp.auth_required(auth)
+@bp.auth_required(auth, optional=True)  # AUTH_PUBLIC_CONVERT: without the header it runs as "anonymous"; a bad token is still 401
 @bp.input(Variant, location="query")
 @bp.input(Upload, location="files")
 @bp.doc(summary="Convert one file into COI form JSON", responses={200: "COI form JSON (or the envelope with ?report / ?editor)", **ERRORS},
@@ -134,7 +142,7 @@ def create_form(query_data, files_data):
     if not name or len(name) > c["MAX_FILENAME_LEN"] or set(name) & set(FORBIDDEN):
         abort(400, f"Invalid file name: 1-{c['MAX_FILENAME_LEN']} characters, none of {FORBIDDEN}", extra_data={"code": "invalid_filename"})
     data = f.read()
-    cfg, store, uid = c["COI"], c["STORE"], user()
+    cfg, store, uid = c["COI"], c["STORE"], user(public=True)
     if len(data) > cfg.max_file_mb * 2**20:
         abort(413, f"File is larger than {cfg.max_file_mb} MB")
     sha = hashlib.sha256(data).hexdigest()
@@ -234,10 +242,11 @@ def regenerate_form(form_id, query_data, json_data):
 
 
 @bp.post("/forms/validate")
-@bp.auth_required(auth)
+@bp.auth_required(auth, optional=True)
 @bp.input(Form, location="json")
 @bp.doc(summary="Validate a COI form JSON", description="Returns {valid, errors[{path, message, rule}]}: the task's JSON Schema, rules R1-R6 of \"Reguły techniczne\", unique techName, choice fields, JSONata references.")
 def validate_form(json_data):
+    user(public=True)
     errors = violations(json_data)
     return {"valid": not errors, "errors": errors}
 

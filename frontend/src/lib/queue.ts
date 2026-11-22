@@ -125,7 +125,7 @@ async function upload(key: string, file: File) {
 }
 
 const REASON: Record<number, string> = {
-  400: 'Serwer odrzucił plik (nazwa lub zawartość żądania)', 401: 'Brak dostępu: wklej aktualny token',
+  400: 'Serwer odrzucił plik (nazwa lub zawartość żądania)', 401: 'Brak dostępu: token jest nieważny albo wygasł',
   413: 'Plik jest za duży', 415: 'Typ pliku nie zgadza się z rozszerzeniem albo nie jest obsługiwany', 422: 'Nie da się odczytać pliku',
   502: 'Błąd modelu językowego', 504: 'Model językowy nie odpowiedział na czas',
 }

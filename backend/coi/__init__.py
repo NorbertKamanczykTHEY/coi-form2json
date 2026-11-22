@@ -42,6 +42,7 @@ def create_app() -> APIFlask:
     )
     app.config["STORE"].init()
     app.error_processor(api.problem)
+    app.spec_processor(api.optional_security)
     app.register_blueprint(api.bp)
     init_dictionaries(app)
     app.config["STORE"].engine.dispose()  # gunicorn --preload forks after this: workers must not share the master's connections
