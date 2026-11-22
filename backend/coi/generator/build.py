@@ -21,6 +21,27 @@ PL = str.maketrans("ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", "acelnoszzACELNOSZZ")
 EXTERNAL = re.compile(r"(MLPZ|PESEL|PESEL_ADDRESS)\.\w+$")
 # the paper's item number at the start of a label ("26. Miejscowość", "B.2 Nazwa", "D.1.26) Ulica", "IV. Dane"): never in the JSON
 NUMBERING = re.compile(r"^\s*(\d+(\.\d+)*[.)]|[A-Z](\.\d+)+[.)]?|[IVX]+\.|\(\d+\)|[a-z]\))\s+")
+PREPOSITION = re.compile(r"^(w|we|przy|na|z|ze|do|od)\s+(\w+)\b", re.I)
+# shortcut: the paper's running text ("w miejscowości", "przy ulicy") for the address nouns seen so far; the prompt asks
+# for the nominative, this only catches what slips through
+NOMINATIVE = {"miejscowości": "Miejscowość", "ulicy": "Ulica", "gminie": "Gmina", "gminy": "Gmina", "powiecie": "Powiat",
+              "województwie": "Województwo", "kwocie": "Kwota", "dniu": "Data"}
+ABBREVIATION = {"zam": "Adres zamieszkania", "tel": "Numer telefonu", "nr tel": "Numer telefonu", "nr": "Numer"}
+FOOTNOTE = re.compile(r"(?<=[^\W\d_])(\d{1,2}\)|\*+|[¹²³⁴⁵⁶⁷⁸⁹⁰]+)(?=\s|$|[:.,])")
+
+
+def clean_label(label: str) -> str:
+    """R14: a field label is a noun phrase without the paper's item number, footnote mark ("ulicy1)"), leading preposition
+    ("W miejscowości") or abbreviation ("Zam", "Tel"). Empty result -> the label as it was."""
+    t = FOOTNOTE.sub("", NUMBERING.sub("", label or "")).strip()
+    if m := PREPOSITION.match(t):
+        if (noun := NOMINATIVE.get(m[2].lower())) is not None:
+            t = noun + t[m.end():]
+    if (full := ABBREVIATION.get(re.sub(r"[.:\s]+$", "", t).lower())) is not None:
+        t = full
+    return (t[:1].upper() + t[1:]) if t else label
+
+
 SEARCH_OVER = 15  # Standardy s.5 pkt 4f: a longer list is a SELECT with a search box
 
 
@@ -165,8 +186,9 @@ def resolve(tree: dict, templates: Path) -> list:
     for p in subject:  # G16: a subject label equal to a template one ("Nazwa organu") takes the paper's full wording
         for s in p["sections"]:
             for f in s["fields"]:
-                full = re.sub(r"[\s.:…_*]+$", "", (f.get("meta") or {}).get("source_label") or "").strip()
-                full = NUMBERING.sub("", full) or full
+                if f.get("from_preset") or f.get("generated"):  # R4/R5: the template's own labels stay
+                    continue
+                full = clean_label(re.sub(r"[\s.:…_*]+$", "", (f.get("meta") or {}).get("source_label") or "").strip())
                 if f.get("label", "").strip().lower() in template_labels and full and full.lower() != f["label"].strip().lower():
                     f["label"] = full[0].upper() + full[1:]
     used = set()
@@ -283,8 +305,6 @@ def build(tree: dict, source_sha256: str, templates: Path, dictionaries=None) ->
         r = simplify(c, idx)
         if r is False and node.get("meta") is not None:
             warnings.append(f"{what}: warunek SHOW nie pasuje do żadnej opcji pola sterującego, element usunięty")
-        if r is True and c and node.get("meta") is not None:
-            warnings.append(f"{what}: warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny")
         return r
 
     for p in pages:

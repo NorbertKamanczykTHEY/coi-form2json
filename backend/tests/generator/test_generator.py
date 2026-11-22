@@ -268,7 +268,7 @@ def test_entity_data_in_subject_is_not_duplicated():
 
 
 def test_controlling_field_comes_first():
-    t = _with_section("form3", [_field("inny_adres", "Adres do korespondencji", show_if={"field": "czy_inny", "options": ["Tak"]}),
+    t = _with_section("form3", [_field("inny_adres", "Uwagi do korespondencji", show_if={"field": "czy_inny", "options": ["Tak"]}),
                                 _field("czy_inny", "Czy adres do korespondencji jest inny", "RADIO", options=["Tak", "Nie"])])
     sec = next(s for _, s, _ in fields(generate(t, SHA)[0]) if s["title"] == "Dodatkowe")
     assert [c["field"]["techName"] for c in sec["repeatingSectionGrid"]] == ["czy_inny", "inny_adres"]
@@ -339,7 +339,7 @@ def test_show_if_always_emitted():
     form, rep, _ = generate(t, SHA)
     block = [f for *_, f in fields(form) if f["techName"].endswith("adres_kor") or "adres_kor_" in f["techName"]]
     assert len(block) == 9 and all(any("'czy_inny' in field.techName" in s["query"] for s in f["states"]) for f in block)
-    assert any("zawsze spełniony" in w for w in rep["warnings"])  # a condition that cannot hide anything is reported, not lost silently
+    assert not any("zawsze spełniony" in w for w in rep["warnings"])  # R10: an equivalent simplification is no warning
 
 
 def test_multiple_files_sit_under_the_last_required_upload():
@@ -362,19 +362,20 @@ def test_multiple_files_sit_under_the_last_required_upload():
 
 
 def test_fully_conditional_pages_merge_into_the_subject_page():
-    # #9 (ADR 0020): spike tree of the real form; variant pages carry SHOW on every section, as extraction is asked to emit
+    # #9 (ADR 0020): spike tree of the real form; variant pages carry SHOW on every section. G12 merges the person block the
+    # variants share (no SHOW left), so "Dane sportowca" stays and the trainer's fully conditional page moves onto it
     form, rep, _ = generate(tree("form9"), SHA)
     titles = [t["title"] for t in form["tabs"]]
-    assert "Dane sportowca" not in titles and "Dane trenera i podopiecznych" not in titles
+    assert "Dane sportowca" in titles and "Dane trenera i podopiecznych" not in titles
     assert titles[-2:] == ["Kontakt i zgody", "Strona końcowa"]
-    host = next(t for t in form["tabs"] if t["title"] == "Dane wnioskodawcy - Klub sportowy")
+    host = next(t for t in form["tabs"] if t["title"] == "Dane sportowca")
     secs = [q["field"]["title"] for q in host["questions"]]
-    assert secs[-6:] == ["Dane osobowe sportowca", "Dyscypliny sportowe", "Osiągnięcia sportowe",
-                         "Dane osobowe trenera", "Dane podopiecznych trenera", "Załączniki dla podopiecznych"]
-    assert all(q["field"]["states"] for q in host["questions"][-6:])  # SHOW kept on every moved section
-    assert [q["y"] for q in host["questions"]] == sorted(q["y"] for q in host["questions"])
-    assert rep["validation"] == []  # JSONata now points at the page the fields moved to (R6)
-    assert sum("cała treść warunkowa" in w for w in rep["warnings"]) == 2
+    assert secs[:3] == ["Dane osobowe sportowca", "Adres zameldowania", "Adres do korespondencji"]
+    assert not any(q["field"]["states"] for q in host["questions"][:3])  # the shared block: every variant
+    assert secs[-3:] == ["Dane osobowe trenera", "Dane podopiecznych trenera", "Załączniki dla podopiecznych"]
+    assert all(q["field"]["states"] for q in host["questions"][3:])  # SHOW kept on every variant-only section
+    assert rep["validation"] == []  # JSONata points at the page the fields moved to (R6)
+    assert sum("cała treść warunkowa" in w for w in rep["warnings"]) == 1
 
 
 def test_conditional_pages_with_no_unconditional_page_share_one():
@@ -562,7 +563,7 @@ def test_g8_case_fee_on_the_contact_page_with_proof():
 
 def test_g12_identical_variant_blocks_merge():
     t = json.loads((FIX / "form3.tree.json").read_text())
-    blk = lambda k: [_field(f"imie_{k}", "Imię"), _field(f"uwagi_{k}", "Uwagi", "TEXTAREA")]
+    blk = lambda k: [_field(f"imie_{k}", "Imię", src=[f"p1.{k}1"]), _field(f"uwagi_{k}", "Uwagi", "TEXTAREA", src=[f"p1.{k}2"])]
     t["pages"].append({"title": "Warianty", "sections": [
         {"title": "Wybór", "fields": [_field("wariant", "Wariant", "RADIO", options=["I", "II", "III"])], "src": []},
         {"title": "Dane I", "show_if": {"field": "wariant", "options": ["I"]}, "fields": blk("a"), "src": []},
@@ -645,3 +646,115 @@ def test_paper_numbering_never_reaches_a_label(source):
                                 _field("ulica_n", "12. Ulica")])
     f = _techs(generate(t, SHA)[0])
     assert f["miejscowosc_n"]["title"] == "Miejscowość" and f["ulica_n"]["title"] == "Ulica"
+
+
+# ---- EVAL-4 rules (generic examples) --------------------------------------------------------------------------------
+def _sections(form, tab):
+    return {q["field"]["title"]: q["field"] for t in form["tabs"] if t["title"] == tab for q in t["questions"]}
+
+
+def test_r1_condition_in_the_text_becomes_show_by_item_number_and_words():
+    t = _with_section("form3", [
+        {**_field("rodzaj", "Rodzaj budynku", "RADIO", options=["budynek jednorodzinny", "budynek wielolokalowy"]), "number": "12"},
+        {**_field("czy_zal", "Czy dołączasz załącznik", "RADIO", options=["TAK", "NIE"]), "number": "14"},
+        _field("zal_a", "Załącznik A", "FILE_UPLOADER", show_if={"field": "czy_zal", "options": ["TAK"]},
+               description="Wypełnić tylko w przypadku budynku jednorodzinnego."),
+        _field("miejsce", "Miejsce pojemników", "TEXTAREA", description="Wypełnić tylko w przypadku zaznaczenia NIE w poz. 14."),
+        _field("uwagi_r1", "Uwagi", description="Wypełnić tylko w przypadku, gdy sprawa jest pilna.")])
+    f = _techs(generate(t, SHA)[0])
+    q = f["zal_a"]["states"][0]["query"]
+    assert "'czy_zal' in field.techName" in q and '"budynek jednorodzinny" in' in q and " and " in q
+    assert f["miejsce"]["states"][0]["query"].startswith('("NIE" in') and "'czy_zal'" in f["miejsce"]["states"][0]["query"]
+    assert f["uwagi_r1"]["states"] == [] and f["uwagi_r1"]["validation"] == []  # nothing to point at: optional
+
+
+def test_r1_block_next_to_its_conditional_twin_is_the_otherwise_branch():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    rows = lambda k: [_field(f"liczba_{k}", "Liczba osób", "NUMBER", src=[f"p2.{k}1"]), _field(f"kwota_{k}", "Kwota", "NUMBER", src=[f"p2.{k}2"])]
+    t["pages"].append({"title": "Opłata", "sections": [
+        {"title": "Ulga", "src": [], "fields": [_field("ulga", "Czy przysługuje ulga", "RADIO", options=["Tak", "Nie"])]},
+        {"title": "Bez ulgi", "src": [], "fields": rows("a")},
+        {"title": "Z ulgą", "src": [], "show_if": {"field": "ulga", "options": ["Tak"]}, "fields": rows("b")}]})
+    sec = _sections(generate(FieldTree.model_validate(t), SHA)[0], "Opłata")
+    assert sec["Bez ulgi"]["states"][0]["query"].startswith('$not("Tak" in') and sec["Z ulgą"]["states"][0]["query"].startswith('("Tak" in')
+
+
+def test_r3_applicant_address_section_keeps_channel_epuap_and_ade():
+    t = json.loads((FIX / "pattern1.tree.json").read_text())
+    t["pages"].append({"title": "Korespondencja", "sections": [{"title": "Korespondencja z urzędem", "party": True, "src": [], "fields": [
+        _field("sposob", "Sposób korespondencji", "RADIO", options=["Poczta tradycyjna", "ePUAP", "e-Doręczenia"]),
+        _field("ulica_k", "Ulica", show_if={"field": "sposob", "options": ["Poczta tradycyjna"]}),
+        _field("epuap_k", "Adres skrzynki ePUAP", show_if={"field": "sposob", "options": ["ePUAP"]}),
+        _field("ade_k", "Adres do e-Doręczeń", show_if={"field": "sposob", "options": ["e-Doręczenia"]})]}]})
+    f = _techs(generate(FieldTree.model_validate(t), SHA)[0])
+    assert {"sposob", "epuap_k", "ade_k"} <= set(f) and "ulica_k" not in f
+    assert "EPUAP" in f["epuap_k"]["validation"] and "ADE" in f["ade_k"]["validation"]
+
+
+def test_r4_address_of_a_person_is_the_template_block_titled_with_the_paper_label():
+    t = _with_section("form3", [_field("osoba_imie", "Imię"), {**_field("adres_os", "Adres zameldowania"), "source_label": "Zam."},
+                                _field("telefon_os", "Tel.")])
+    form = generate(t, SHA)[0]
+    sec = _sections(form, next(t["title"] for t in form["tabs"] if "Adres zameldowania" in _sections(form, t["title"])))
+    labels = [c["field"]["title"] for c in sec["Adres zameldowania"]["repeatingSectionGrid"]]
+    assert labels[0] == "Kraj" and "Kod pocztowy" in labels and "Numer budynku" in labels
+    assert _techs(form)["telefon_os"]["title"] == "Numer telefonu"
+
+
+def test_r4_place_address_leaves_the_repeating_section():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].append({"title": "Zwierzęta", "sections": [{"title": "Zwierzę", "repeating": True, "src": [], "fields": [
+        _field("rasa", "Rasa"), _field("adres_miejsca", "Adres miejsca utrzymywania zwierzęcia", preset="address"), _field("wiek", "Wiek", "NUMBER")]}]})
+    sec = _sections(generate(FieldTree.model_validate(t), SHA)[0], "Zwierzęta")
+    assert sec["Zwierzę"]["type"] == "REPEATING_SECTION" and [c["field"]["techName"] for c in sec["Zwierzę"]["repeatingSectionGrid"]] == ["rasa", "wiek"]
+    assert sec["Adres miejsca utrzymywania zwierzęcia"]["type"] == "SECTION"
+
+
+def test_r5_no_pesel_branch_keeps_the_template_labels():
+    t = _with_section("form3", [{**_field("pesel_x", "PESEL", preset="pesel"), "source_label": "7. PESEL"}])
+    form, rep, _ = generate(t, SHA, blocks={"p1.b9": "Osoby nieposiadające numeru PESEL wpisują numer dokumentu tożsamości."})
+    got = {f["techName"]: f["title"] for *_, f in fields(form) if f["techName"].endswith("pesel_x")}
+    assert sorted(got.values()) == ["Czy ta osoba ma numer PESEL?", "Numer PESEL", "Numer dokumentu tożsamości", "Rodzaj dokumentu tożsamości"]
+
+
+def test_r8_one_blank_one_field_and_one_document_one_uploader():
+    t = _with_section("form3", [_field("dl", "Długość", "NUMBER"), _field("dl_2", "Długość", "NUMBER"),
+                                _field("harm", "Harmonogram robót", "FILE_UPLOADER"), _field("harm_2", "Szczegółowy harmonogram robót", "FILE_UPLOADER")])
+    f = _techs(generate(t, SHA)[0])
+    assert "dl" in f and "dl_2" not in f and "harm_2" not in f and f["harm"]["title"] == "Szczegółowy harmonogram robót"
+
+
+def test_r9_other_attachments_are_an_optional_upload():
+    t = _with_section("form3", [_field("inne_z", "Inne załączniki (podać jakie)", required=None)])
+    f = _techs(generate(t, SHA)[0])
+    assert f["inne_z"]["type"] == "FILE_UPLOADER" and f["inne_z"]["validation"] == []
+
+
+def test_r10_statement_upload_says_whose_and_what():
+    t = _with_section("form3", [_field("osw", "Oświadczenie rodzica lub opiekuna prawnego", "FILE_UPLOADER", src=["p1.b7"])])
+    f = _techs(generate(t, SHA, blocks={"p1.b7": "Wyrażam zgodę na udział dziecka w zajęciach."})[0])
+    assert "rodzica lub opiekuna prawnego" in f["osw"]["description"] and "udział dziecka" in f["osw"]["description"]
+
+
+def test_r11_same_document_under_different_show_stays_twice():
+    t = _with_section("form3", [_field("wariant", "Wariant", "RADIO", options=["A", "B"]),
+                                _field("op_a", "Opinia klubu", "FILE_UPLOADER", show_if={"field": "wariant", "options": ["A"]}),
+                                _field("op_b", "Opinia klubu", "FILE_UPLOADER", show_if={"field": "wariant", "options": ["B"]})])
+    f = _techs(generate(t, SHA)[0])
+    assert {"op_a", "op_b"} <= set(f)
+
+
+def test_r13_name_of_a_person_splits_unless_it_may_be_a_company():
+    t = _with_section("form3", [_field("osoba", "Imię i nazwisko osoby odpowiedzialnej"), _field("wlasciciel", "Imię i nazwisko lub nazwa właściciela")])
+    f = _techs(generate(t, SHA)[0])
+    assert f["osoba_imie"]["title"] == "Imię" and f["osoba_nazwisko"]["title"] == "Nazwisko" and "wlasciciel" in f
+
+
+@pytest.mark.parametrize("raw, clean", [("Przy ulicy1)", "Ulica"), ("W miejscowości", "Miejscowość"), ("Zam.", "Adres zamieszkania"),
+                                        ("Tel.", "Numer telefonu"), ("Kwota*", "Kwota"), ("Na co przeznaczysz", "Na co przeznaczysz")])
+def test_r14_clean_labels(raw, clean):
+    form = generate(_with_section("form3", [{**_field("pole_r14", raw), "source_label": raw}]), SHA)[0]
+    if clean.startswith("Adres"):  # an address label becomes the template block titled with it (R4)
+        assert clean in {q["field"]["title"] for t in form["tabs"] for q in t["questions"]}
+    else:
+        assert _techs(form)["pole_r14"]["title"] == clean

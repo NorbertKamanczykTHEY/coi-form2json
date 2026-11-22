@@ -155,6 +155,21 @@ Każda reguła wynika z treści dokumentu albo ze Standardów, nigdy z numeru fo
 
 Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyślną: `case_fee`, `case_fee_src`, `case_fee_proof`, `Consent.required` (zgoda dobrowolna → `required: false`), `proxy_id_card` (pole serii i numeru dowodu w „Pełnomocnictwo”); od `d0d3821` także `Section.number` i `FormField.number` (G12). `Section.party` (od `d0d3821`: tylko adres wnioskodawcy, czyli zamieszkania, siedziby lub do korespondencji) nie tworzy sekcji, bo adres zbiera szablon „Dane”; adres do korespondencji w takiej sekcji włącza szablonowy blok korespondencji. Osoby trzecie (współmałżonek) są sekcjami `third_party` w przedmiocie.
 
+## 7b. Reguły po EVAL-4 (`app/results/eval-4/README.md`, część generatora)
+
+| Reguła | Co robi generator | Gdzie |
+|---|---|---|
+| R1 | Warunek zapisany słowami („Wypełnić tylko w przypadku…”, „W PRZYPADKU…”, „jeśli … w poz. X”) w opisie, tekście źródła pola albo nagłówku sekcji staje się SHOW. Numer pozycji (`FormField.number`) zawęża pole sterujące, a słowa wybierają opcję (co najmniej 75% rdzeni słów opcji w zdaniu; bez numeru opcja musi mieć co najmniej dwa słowa). Warunek łączy się koniunkcją z istniejącym SHOW. Gdy dokument mówi „tylko w przypadku”, a pola sterującego nie ma, element jest opcjonalny. Sekcja o tych samych polach co sąsiednia sekcja warunkowa, sama bez SHOW, dostaje przeciwny warunek (gałąź „w przeciwnym razie”) | `adapter.conditions_from_text`, `adapter.merge_variant_twins` |
+| R3 | Sekcja `party` (adres wnioskodawcy) traci tylko pola adresu i pola od nich zależne. Wybór kanału, ePUAP i ADE zostają w przedmiocie | `adapter.to_internal` |
+| R4 | Pole „Adres …” (osoby lub miejsca, poza adresami elektronicznymi) staje się szablonowym blokiem adresu z etykietami szablonu („Kraj”, „Kod pocztowy”…), a etykieta z papieru jest tytułem jego sekcji. „Adres miejsca …” wychodzi z sekcji powtarzalnej, a adres osoby w wierszu zostaje | `adapter.field`, `adapter.address_blocks` |
+| R5 | Pola gałęzi „brak PESEL” i pola bloku adresu mają etykiety szablonu: G16 ich nie zmienia (`generated`, `from_preset`) | `build.resolve`, `adapter.pesel_alternative` |
+| R8 | Drugie pole o tej samej etykiecie, typie i warunku w sekcji znika. Uploader, którego słowa zawierają się w słowach innego przy tym samym warunku i sekcji, łączy się z nim i bierze dłuższą etykietę | `adapter.same_place`, `adapter.to_internal` |
+| R9 | „Inne …” na liście załączników to opcjonalny FILE_UPLOADER | `adapter.field` |
+| R10 | Uproszczenie warunku do zawsze prawdziwego nie daje już ostrzeżenia. Plik „Oświadczenie <kogo>” (Q34) bez opisu dostaje opis: czyje to oświadczenie i jego treść z dokumentu | `build.cond`, `adapter.to_internal` |
+| R11 | Bliźniaki G12 łączą się tylko przy rozłącznych opcjach (różne warianty) i różnych kotwicach źródła; przy kilku kandydatach wygrywa ten sam tytuł. Rozszerzenie warunku tworzy nowy obiekt, bo części sekcji współdzielą warunek. Uploadery „ten sam dokument” łączą się tylko przy tym samym SHOW | `adapter.merge_variant_twins`, `adapter.to_internal` |
+| R13 | „Imię i nazwisko …” osoby w przedmiocie dzieli się na „Imię” i „Nazwisko”. Etykieta z „nazwa”/„firma” zostaje jednym polem | `adapter.split_name` |
+| R14 | Etykieta bez znacznika przypisu („ulicy1)”, „*”), wiodącego przyimka przy rzeczownikach adresowych („W miejscowości” → „Miejscowość”) i skrótu („Zam.”, „Tel.”) | `build.clean_label` |
+
 ## 8. Konfiguracja (`coi/config/`)
 
 Całą konfigurację generatora trzymamy w jednym miejscu, na wzór `config/` z Laravela. Generator czyta z niej:
