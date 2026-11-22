@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 async function projectId(page: Page) {
   const r = await page.request.get('/api/v1/forms', { headers: { Authorization: `Bearer ${token}` } })
   const { items } = (await r.json()) as { items: { id: string; title: string }[] }
-  return items.find((i) => /świetlic/i.test(i.title))!.id
+  return process.env.E2E_PROJECT ?? items.find((i) => /świetlic/i.test(i.title))!.id // E2E_PROJECT keeps fresh imports (e.g. for screenshots) untouched
 }
 async function openMockup(page: Page, id: string, mode: 'view' | 'edit') {
   await page.goto(`/#/projekt/${id}`) // the editor opens on the first page, in edit mode
