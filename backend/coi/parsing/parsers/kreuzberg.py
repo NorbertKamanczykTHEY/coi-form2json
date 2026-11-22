@@ -27,6 +27,10 @@ def _clean(md: str) -> str:
     return re.sub(r"[  ]{2,}", " ", md)
 
 
+def _wt(xml: str) -> str:
+    return html.unescape("".join(re.findall(r"<w:t(?:\s[^>]*)?>([^<]*)</w:t>", xml.replace("<w:tab/>", "<w:t> </w:t>")))).strip()
+
+
 def _docx_notes(data: bytes) -> list[str]:
     """Word footnotes/endnotes: no Kreuzberg output mode includes them, yet "*Numer PESEL wpisują…" drives the flow."""
     notes = []
@@ -37,10 +41,35 @@ def _docx_notes(data: bytes) -> list[str]:
             for _, attrs, body in NOTE.findall(z.read(part).decode("utf-8", "replace")):
                 if "w:type=" in attrs:  # separator / continuationSeparator
                     continue
-                text = html.unescape("".join(re.findall(r"<w:t(?:\s[^>]*)?>([^<]*)</w:t>", body))).strip()
+                text = _wt(body)
                 if text:  # custom marks ("*") are in the text; numbered ones get their number back
                     notes.append(text if text[0] in "*" or text[0].isdigit() else f"{len(notes) + 1}) {text}")
     return notes
+
+
+def _docx_margins(data: bytes, seen: str) -> tuple[list[str], list[str]]:
+    """Headers, footers, comments and text boxes (#7: "Opłata skarbowa – 82 zł" sits in footer2.xml).
+    Paragraphs already in the main text (Kreuzberg reads some text boxes) or in another part (header1/2/3) are skipped.
+    shortcut: text-box paragraphs go to the end, their position on the page is not read; place them if a form needs it."""
+    key = lambda t: re.sub(r"\W+", "", t).lower()  # noqa: E731
+    known = key(seen)
+    top, bottom, done = [], [], set()
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        names = sorted(z.namelist())
+        parts = [n for n in names if re.fullmatch(r"word/header\d*\.xml", n)] + \
+                [n for n in names if re.fullmatch(r"word/(footer\d*|comments|document)\.xml", n)]
+        for part in parts:
+            xml = z.read(part).decode("utf-8", "replace")
+            if part == "word/document.xml":  # only what sits in text boxes
+                xml = "".join(re.findall(r"<w:txbxContent>(.*?)</w:txbxContent>", xml, re.S))
+            for para in re.findall(r"<w:p[ >].*?</w:p>", xml, re.S):
+                text = _wt(para)
+                k = key(text)
+                if len(k) < 3 or k in done or k in known:  # page numbers, repeats, already extracted
+                    continue
+                done.add(k)
+                (top if "header" in part else bottom).append(text)
+    return top, bottom
 
 
 def native(data: bytes, mime: str) -> list[str]:
@@ -51,6 +80,7 @@ def native(data: bytes, mime: str) -> list[str]:
     except (MissingDependencyError, PluginError, OCRError) as e:  # install problem; ParsingError (broken file) propagates as is
         raise ParserEnvironmentError(f"kreuzberg: {e}") from e
     texts = [p["content"] for p in r.pages] if mime == "application/pdf" and r.pages else [r.content]
-    if mime == DOCX and (notes := _docx_notes(data)):
-        texts[-1] += "\n\n" + "\n\n".join(notes)
+    if mime == DOCX:
+        top, bottom = _docx_margins(data, texts[-1])
+        texts[-1] = "\n\n".join(top + [texts[-1]] + bottom + _docx_notes(data))
     return [normalize(_clean(t)) for t in texts]

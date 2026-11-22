@@ -114,3 +114,10 @@ def test_broken_sheet_is_a_file_error():
     with pytest.raises(ValueError):
         from coi.parsing.parsers import sheet
         sheet.read(b"PK\x03\x04 not a zip", "ods")
+
+
+def test_docx_footer_text_kept_once():
+    """#7 .DOC (OOXML): 'Opłata skarbowa – 82 zł' and the account number live in word/footer2.xml."""
+    path = next(p for p in form_files("7. ") if p.suffix == ".DOC")
+    text = parse(path.read_bytes(), path.name).text
+    assert "82 zł" in text and text.count("Numer konta") == 1
