@@ -6,15 +6,28 @@ services:
       - "8000:8000"
     volumes:
       - data:/data  # SQLite (DATABASE_URL=sqlite:////data/coi.sqlite): stored forms and dictionaries
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     restart: unless-stopped
   frontend:
-    build: ./frontend  # VITE_API_TOKEN from frontend/.env is baked in at build time (demo only)
+    build: ./frontend  # no secrets in the bundle: the clerk pastes the JWT in the UI (ADR 0015)
     environment:
       API_UPSTREAM: http://backend:8000
     ports:
       - "8080:8080"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     restart: unless-stopped
 
 volumes:

@@ -16,13 +16,11 @@ Przepływ: `parse → extract → generate → validate`. Tekst wyciągamy lokal
 ```bash
 cd app
 cp .env.example .env            # wpisz EDENAI_API_KEY i JWT_SECRET (openssl rand -hex 32)
-cp frontend/.env.example frontend/.env
-docker compose build backend
-printf 'VITE_API_TOKEN=%s\n' "$(docker compose run --rm -T backend python -m coi.make_token demo-frontend --hours 720)" > frontend/.env
 docker compose up --build -d     # backend :8000, frontend :8080
+docker compose exec backend python -m coi.make_token demo --hours 720   # token JWT do wklejenia w UI
 ```
 
-- Frontend: http://localhost:8080
+- Frontend: http://localhost:8080 (przy pierwszym wejściu wklej token z `make_token`; zostaje tylko w karcie przeglądarki, ADR 0015)
 - Swagger UI: http://localhost:8000/docs, OpenAPI 3.1: http://localhost:8000/openapi.json
 - Zatrzymanie: `docker compose down` (dane zostają na wolumenie `data`; `down -v` je usuwa)
 
@@ -71,8 +69,7 @@ Cała konfiguracja backendu jest w pakiecie `backend/coi/config/` (jeden moduł 
 | `DICT_MATCH_THRESHOLD` | `0.8` | próg dopasowania pola do istniejącego słownika |
 | `GENERATOR_PREFILL_IDENTITY` | `MLPZ` | źródło danych „Twoje dane”: `MLPZ` albo `PESEL` |
 | Frontend `API_UPSTREAM` | `http://backend:8000` | runtime, szablon nginx |
-| Frontend `VITE_API_TOKEN` | brak | build, token demo (`frontend/.env`) |
-| Frontend `VITE_BATCH_CONCURRENCY` | `3` | build, ile plików naraz |
+| Frontend `VITE_BATCH_CONCURRENCY` | `2` | build, ile plików kolejka importu wysyła naraz |
 
 Prompty, drabiny modeli i szablony stron są plikami, nie kodem: [Dostosowanie bez zmiany kodu](docs/architecture.md#dostosowanie-bez-zmiany-kodu).
 

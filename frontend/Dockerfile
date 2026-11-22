@@ -3,7 +3,6 @@ WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# .env (VITE_API_TOKEN) is read here and baked into the bundle: demo only, see README.
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.29.3-alpine3.22
