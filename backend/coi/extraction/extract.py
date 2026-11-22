@@ -8,6 +8,7 @@ then fields page by page with the skeleton as fixed input.
 import json
 import re
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Callable, Literal
@@ -165,13 +166,18 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
         return ShowIf(field=c.field, options=opts, negate=c.negate) if opts else None
     schema = json.dumps(SubjectPage.model_json_schema(), ensure_ascii=False)
 
-    def fields_of(sp: SkeletonPage) -> SubjectPage:
-        only = set(expand([a for s in sp.sections for a in s.src], blocks))
-        return calls.ask(model, prompt("field_extraction_page", skeleton=fixed, page=sp.title, variant_rule=rule,
-                                       schema=schema, text=anchored(doc, only)), SubjectPage)
+    def fields_of(unit: tuple[SkeletonPage, SkeletonSection]) -> list[Section]:  # one call per section: short output, run concurrently
+        sp, sk = unit
+        only = set(expand(sk.src, blocks))
+        got = calls.ask(model, prompt("field_extraction_page", skeleton=fixed, page=sp.title, sections=json.dumps([sk.title], ensure_ascii=False),
+                                      variant_rule=rule, schema=schema, text=anchored(doc, only)), SubjectPage).sections
+        mine = [s for s in got if norm(s.title) == norm(sk.title)]
+        return mine or got[:1] if got else []
 
+    units = [(sp, sk) for sp in skel.pages for sk in sp.sections]
     with ThreadPoolExecutor(max(1, workers)) as ex:
-        pages = list(ex.map(fields_of, skel.pages))
+        done = dict(zip(map(id, (u[1] for u in units)), ex.map(fields_of, units)))
+    pages = [SubjectPage(title=sp.title, sections=[s for sk in sp.sections for s in done[id(sk)]]) for sp in skel.pages]
     for sp, page in zip(skel.pages, pages):
         page.title = sp.title
         by_title = {norm(s.title): s for s in sp.sections}
@@ -244,11 +250,23 @@ def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.
     calls = _Calls(provider, cfg["max_tokens"])
     trace: list[dict] = []
     best = None  # (rank, tree, review, gate); rank = (objections, -coverage): fewer objections, then more of the paper covered
+    t0 = time.monotonic()
+    first = lambda m: _two_stage(calls, m, doc, blocks, cfg["workers"]) if two_stage else _single(calls, m, doc)  # noqa: E731
+    pool = ThreadPoolExecutor(len(cfg["ladder"])) if two_stage and cfg["parallel_rungs"] else None
+    ahead = [pool.submit(first, m) for m in cfg["ladder"]] if pool else []  # long documents: all first passes at once
+    try:
+        return _ladder(cfg, calls, doc, blocks, mode, trace, emit, best, t0, first, ahead)
+    finally:
+        if pool:
+            pool.shutdown(wait=False, cancel_futures=True)  # a stronger rung's call still running when a weaker one passed
+
+
+def _ladder(cfg, calls, doc, blocks, mode, trace, emit, best, t0, first, ahead) -> ExtractionResult:
     for rung, model in enumerate(cfg["ladder"]):
         step = {"stage": "extract", "mode": mode, "rung": rung, "model": model}
         cost0, secs0, n0 = calls.cost, calls.seconds, calls.n
         try:
-            tree = _two_stage(calls, model, doc, blocks, cfg["workers"]) if two_stage else _single(calls, model, doc)
+            tree = ahead[rung].result() if ahead else first(model)
         except ExtractionError as e:
             trace.append(step | {"round": "first", "accepted": False, "error": str(e), "cost": round(calls.cost - cost0, 5)})
             emit("escalation", {"step": f"extract.{rung}", "model": model, "accepted": False, "error": str(e)})
@@ -263,6 +281,12 @@ def extract(doc: ParsedDocument, on_event: OnEvent | None = None, provider: llm.
             if best is None or rank <= best[0]:  # ties: the later (stronger) attempt
                 best = (rank, tree, review + g["needs_review"], g)
             if g["ok"] or rnd == "repair":
+                break
+            if ahead and rung < len(cfg["ladder"]) - 1:  # parallel rungs: the stronger first pass is ready; a weak rung's repair of a long tree collapses
+                trace.append(step | {"round": "repair", "accepted": False, "error": "repair skipped: a stronger rung is ready"})
+                break
+            if time.monotonic() - t0 > cfg["repair_budget_s"]:  # a repair is one long full-tree call; past the budget the best tree so far stands
+                trace.append(step | {"round": "repair", "accepted": False, "error": f"repair skipped: time budget {cfg['repair_budget_s']:.0f} s"})
                 break
             cost0, secs0, n0 = calls.cost, calls.seconds, calls.n
             base = _base_prompt(doc)  # repair is one full call even for two-stage trees (#9 fits: ~9k tokens in)

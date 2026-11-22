@@ -80,7 +80,9 @@ def test_no_valid_schema_raises():
         extract(DOC, provider=Fake(["{}"] * 4))
 
 
-def test_two_stage_for_multi_variant_document():
+def test_two_stage_for_multi_variant_document(monkeypatch):
+    monkeypatch.setenv("EXTRACTION_WORKERS", "1")  # replies are consumed in order
+    monkeypatch.setenv("EXTRACTION_PARALLEL_RUNGS", "0")
     d = doc(["Wniosek o stypendium", "Wynik sportowy ___", "Wniosek o nagrodę", "Wynik sportowy ___", "Klub ___",
              "Zgoda osoby niepełnoletniej: wyrażam zgodę", "Zgoda dla nagrody: akceptuję regulamin"])
     skel = {"title": "Wniosek o stypendium lub nagrodę", "applicant_kinds": ["person"], "variants": ["Stypendium", "Nagroda"],
@@ -92,13 +94,16 @@ def test_two_stage_for_multi_variant_document():
             "pages": [{"title": "Osiągnięcia", "sections": [
                 {"title": "Wyniki", "src": ["p1.b1", "p1.b3"], "variants": ["Stypendium", "Nagroda"]},
                 {"title": "Klub", "src": ["p1.b4"], "variants": ["Nagroda"]}]}]}
-    page = {"title": "Osiągnięcia", "sections": [
-        {"title": "Wyniki", "src": ["p1.b1", "p1.b3"], "fields": [{"key": "wynik", "label": "Wynik sportowy", "source_label": "Wynik sportowy", "type": "TEXTAREA", "src": ["p1.b1", "p1.b3"]}]},
-        {"title": "Klub", "src": ["p1.b4"], "fields": [{"key": "klub", "label": "Klub", "source_label": "Klub", "type": "TEXT_FIELD", "src": ["p1.b4"]}]}]}
-    p = Fake([skel, page])
+    wyniki = {"title": "Osiągnięcia", "sections": [
+        {"title": "Wyniki", "src": ["p1.b1", "p1.b3"], "fields": [{"key": "wynik", "label": "Wynik sportowy", "source_label": "Wynik sportowy", "type": "TEXTAREA", "src": ["p1.b1", "p1.b3"]}]}]}
+    klub = {"title": "Osiągnięcia", "sections": [  # a per-section call may echo another section: only its own is kept
+        {"title": "Klub", "src": ["p1.b4"], "fields": [{"key": "klub", "label": "Klub", "source_label": "Klub", "type": "TEXT_FIELD", "src": ["p1.b4"]}]},
+        {"title": "Wyniki", "src": ["p1.b1"], "fields": [{"key": "x", "label": "X", "source_label": "Wynik sportowy", "type": "TEXT_FIELD", "src": ["p1.b1"]}]}]}
+    p = Fake([skel, wyniki, klub])
     r = extract(d, provider=p)
     assert "PIERWSZY ETAP" in p.calls[0][1] and "DRUGI ETAP" in p.calls[1][1]
-    assert "[p1.b0]" not in p.calls[1][1]  # stage two sees only the page's blocks
+    assert "[p1.b0]" not in p.calls[1][1] and "[p1.b4]" not in p.calls[1][1]  # stage two: one call per section, only its blocks
+    assert [f.key for f in r.tree.pages[0].sections[2].fields] == ["klub"]
     secs = r.tree.pages[0].sections
     assert [s.title for s in secs] == ["Rodzaj wniosku", "Wyniki", "Klub"]
     radio, adult = secs[0].fields
@@ -147,3 +152,35 @@ def test_repair_that_collapses_the_tree_is_rejected_and_best_keeps_coverage():
     assert [t["round"] for t in r.trace] == ["first", "repair", "first", "repair"]
     assert "collapsed" in r.trace[1]["error"]
     assert len([f for p in r.tree.pages for s in p.sections for f in s.fields]) == 2  # the full first tree, not the collapsed one
+
+
+def test_repair_skipped_past_the_time_budget(monkeypatch):
+    monkeypatch.setenv("EXTRACTION_REPAIR_BUDGET_S", "0")
+    p = Fake([bad(), good()])
+    r = extract(DOC, provider=p)
+    assert [m for m, _ in p.calls] == ["small", "large"]  # no repair call: straight to the next rung
+    assert any("time budget" in (s.get("error") or "") for s in r.trace) and r.trace[-1]["accepted"]
+
+
+class ByModel:  # thread-safe fake: the reply depends on the model and the stage, not on the call order
+    name = "fake"
+
+    def __init__(self, replies):
+        self.replies, self.calls, self._lock = replies, [], __import__("threading").Lock()
+
+    def chat(self, model, content, max_tokens, response_format=None):
+        with self._lock:
+            self.calls.append((model, content))
+        r = self.replies[(model, "PIERWSZY ETAP" in content)]
+        return llm.Reply(json.dumps(r, ensure_ascii=False), "stop", 0.001, 0.1)
+
+
+def test_parallel_rungs_start_together_and_the_weaker_passing_rung_wins(monkeypatch):
+    monkeypatch.setenv("EXTRACTION_TWO_STAGE_BLOCKS", "1")
+    skel = {"title": "Wniosek o test", "applicant_kinds": ["person"], "dropped": good()["dropped"],
+            "pages": [{"title": "Zwrot", "sections": [{"title": "Sposób", "src": ["p1.b1-p1.b2"]}]}]}
+    page = {"title": "Zwrot", "sections": good()["pages"][0]["sections"]}
+    p = ByModel({("small", True): skel, ("small", False): page, ("large", True): skel, ("large", False): page})
+    r = extract(DOC, provider=p)
+    assert {m for m, c in p.calls if "PIERWSZY ETAP" in c} == {"small", "large"}  # both first passes were started
+    assert [s["model"] for s in r.trace if s.get("stage") == "extract"] == ["small"] and r.trace[-1]["accepted"]

@@ -2,7 +2,7 @@ Jesteś analitykiem cyfryzującym polskie formularze urzędowe na e-formularze w
 To jest DRUGI ETAP. Szkielet całego dokumentu (strony, sekcje, warianty, bloki usunięte do szablonu) jest ustalony:
 {skeleton}
 
-Teraz wypisz pola strony „{page}”: zwróć dokładnie jej sekcje, w tej kolejności i z tymi tytułami. Dostajesz tylko bloki tej strony. `___` to miejsce do wypełnienia, `☐` to pole wyboru.
+Teraz wypisz pola strony „{page}”: zwróć dokładnie te sekcje, w tej kolejności i z tymi tytułami: {sections}. Dostajesz tylko bloki tych sekcji. `___` to miejsce do wypełnienia, `☐` to pole wyboru.
 {variant_rule}
 Zasady:
 1. Każde miejsce `___` i każda opcja `☐` w tych blokach należą do pola. Nic nie pomijaj: pusta linia `___` pod nagłówkiem też jest polem. Nie dodawaj pól, których w blokach nie ma.

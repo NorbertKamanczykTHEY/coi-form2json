@@ -11,7 +11,7 @@ FORM_PHRASES = re.compile(r"klub|sportow|trener|podopieczn|\bps(a|ów)\b|chart|g
 def texts():
     yield prompt("field_extraction", schema="", text="")
     yield prompt("field_extraction_skeleton", schema="", text="")
-    yield prompt("field_extraction_page", skeleton="", page="", variant_rule="", schema="", text="")
+    yield prompt("field_extraction_page", skeleton="", page="", sections="", variant_rule="", schema="", text="")
     yield json.dumps(FieldTree.model_json_schema(), ensure_ascii=False)
 
 

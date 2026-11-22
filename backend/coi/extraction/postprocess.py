@@ -250,6 +250,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     for si in [c for x in tree.consents for c in x.show_if]:
         si.field = rename.get(si.field, si.field)
         si.options = [clean_option(o) for o in si.options]
+    review += relink_show_if(tree)
     review += rebuild_lost_controls(tree, blocks)
     review += _third_party_statements(tree, blocks, seen)
     review += _consents(tree)
@@ -293,6 +294,25 @@ def _useful_description(f: FormField) -> str | None:
     if f.description_source == "ai" and stems(d) <= stems(f.label + " " + f.source_label) | GENERIC:
         return None
     return d or None
+
+
+def relink_show_if(tree: FieldTree) -> list[dict]:
+    """A show_if naming a key that no field has (per-section calls cannot see each other's keys) points at the only
+    choice field whose options include all the condition's options."""
+    choices = [f for p in tree.pages for s in p.sections for f in s.fields if f.type in ("RADIO", "CHECKBOX", "SELECT")]
+    keys = {f.key for p in tree.pages for s in p.sections for f in s.fields}
+    conds = [x for p in tree.pages for s in p.sections for x in [s.show_if, *(f.show_if for f in s.fields)] if x]
+    conds += [x for c in tree.consents for x in c.show_if]
+    review = []
+    for si in conds:
+        if si.field in keys or not si.options:
+            continue
+        want = {norm_ws(o).lower() for o in si.options}
+        hits = [f for f in choices if want <= {norm_ws(o).lower() for o in f.options}]
+        if len(hits) == 1:
+            review.append({"key": hits[0].key, "why": f"warunek wyświetlania wskazywał nieistniejące pole {si.field!r}; dopasowany po opcjach"})
+            si.field = hits[0].key
+    return review
 
 
 def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[str]) -> list[dict]:
@@ -388,10 +408,21 @@ def rebuild_lost_controls(tree: FieldTree, blocks: dict[str, str]) -> list[dict]
     for si in [c for x in tree.consents for c in x.show_if] + [x for p in tree.pages for s in p.sections for x in [s.show_if, *(f.show_if for f in s.fields)] if x]:
         if si.field not in have:
             refs.setdefault(si.field, []).extend(o for o in si.options if o not in refs.get(si.field, []))
+    yes_no = {"tak", "nie"}
+    for k, o in refs.items():  # a lone "Tak" / "Nie" is a yes-no question
+        if len(o) == 1 and o[0].strip().lower() in yes_no:
+            refs[k] = ["TAK", "NIE"] if o[0].isupper() else ["Tak", "Nie"]  # the condition's option must match exactly (G4)
     lost = [FormField(key=k, label=_label_from_key(k, blocks), source_label=_label_from_key(k, blocks), type="RADIO", options=o)
             for k, o in refs.items() if len(o) >= 2]
-    if lost and tree.pages:
-        tree.pages[0].sections.insert(0, Section(title="Informacje wstępne", fields=lost))
+    for f in lost:  # right before the first section that depends on it (a page-1 question for a later block confuses)
+        at = next(((p, i, sec) for p in tree.pages for i, sec in enumerate(p.sections)
+                   if (sec.show_if and sec.show_if.field == f.key) or any(x.show_if and x.show_if.field == f.key for x in sec.fields)), None)
+        if at and not (at[2].show_if and at[2].show_if.field == f.key):
+            at[2].fields.insert(0, f)  # only some fields depend: the question opens their section
+        elif at:
+            at[0].sections.insert(at[1], Section(title=f.label, fields=[f]))
+        elif tree.pages:
+            tree.pages[0].sections.insert(0, Section(title="Informacje wstępne", fields=[f]))
     return [{"key": f.key, "why": "pytanie sterujące odtworzone z warunków zgód lub sekcji; sprawdź etykietę"} for f in lost]
 
 

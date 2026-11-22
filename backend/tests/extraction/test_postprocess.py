@@ -261,3 +261,21 @@ def test_q34_statement_the_paper_asks_to_attach_gets_an_upload():
         {"title": "Osoba odpowiedzialna", "person_role": "third_party", "fields": [f("o", "Imię i nazwisko", src="p1.b0")]}]}]})
     ups = [x for x in normalize(t, blocks)[0].pages[0].sections[0].fields if x.type == "FILE_UPLOADER"]
     assert [u.label for u in ups] == ["Oświadczenie osoby odpowiedzialnej"]
+
+
+def test_show_if_on_an_unknown_key_is_relinked_by_options():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "A", "fields": [f("rodzaj", "Rodzaj nieruchomości", "RADIO", "p1.b0", options=["Jednorodzinna", "Wielolokalowa"])]},
+        {"title": "B", "show_if": {"field": "typ_nieruchomosci", "options": ["Wielolokalowa"]}, "fields": [f("m", "Miejsce", src="p1.b1")]}]}]})
+    out, review = normalize(t, {"p1.b0": "Rodzaj ☐ jednorodzinna ☐ wielolokalowa", "p1.b1": "Miejsce ___"})
+    assert out.pages[0].sections[1].show_if.field == "rodzaj_nieruchomosci" and any("dopasowany" in r["why"] for r in review)
+
+
+def test_lost_yes_no_control_is_rebuilt_before_its_section():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [
+        {"title": "Wstęp", "fields": [f("a", "A", src="p1.b0")]},
+        {"title": "Adres do korespondencji", "show_if": {"field": "adres_inny", "options": ["Tak"]}, "fields": [f("u", "Ulica", src="p1.b1")]}]}]})
+    out, review = normalize(t, {"p1.b0": "A ___", "p1.b1": "Adres inny ___ Ulica ___"})
+    secs = out.pages[0].sections
+    assert [s.title for s in secs][1:] != ["Adres do korespondencji"] and secs[1].fields[0].options == ["Tak", "Nie"]
+    assert secs[2].show_if.field == secs[1].fields[0].key and any("odtworzone" in r["why"] for r in review)
