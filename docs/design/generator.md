@@ -170,6 +170,21 @@ Kontrakt z ekstrakcją (`ebb66a1`), czytany przez `getattr` z wartością domyś
 | R13 | „Imię i nazwisko …” osoby w przedmiocie dzieli się na „Imię” i „Nazwisko”. Etykieta z „nazwa”/„firma” zostaje jednym polem | `adapter.split_name` |
 | R14 | Etykieta bez znacznika przypisu („ulicy1)”, „*”), wiodącego przyimka przy rzeczownikach adresowych („W miejscowości” → „Miejscowość”) i skrótu („Zam.”, „Tel.”) | `build.clean_label` |
 
+## 7c. Reguły po EVAL-5 (`app/results/eval-5/README.md`, część generatora)
+
+Przejścia po drzewie wewnętrznym w `coi/generator/passes.py` (kolejność w `PASSES`) oraz poprawki w adapterze. Wszystko deterministyczne: decyduje tekst papieru i kształt drzewa, nie odpowiedź modelu.
+
+| Reguła | Co robi generator | Gdzie |
+|---|---|---|
+| T1 | Plik „Oświadczenie <kogo>” zostaje tylko wtedy, gdy w jego źródle (i trzech blokach dalej) jest podpis albo „oświadcz…”. Plik bez warunku dostaje warunek danych tej osoby z jego sekcji. Zgody wnioskodawcy tracą warunek na pytaniu sterującym tej gałęzi | `passes.third_party_statements` |
+| T2 | Wyzwalacz „na podstawie oświadczenia (zawartego) w poz. X” daje SHOW na opcji „Tak” pola X. Każde pole wskazane w tekście dokłada swój warunek (koniunkcja), a nie tylko pierwsze | `adapter.conditions_from_text` |
+| T4 | Pytanie, które steruje tylko polami jednej innej sekcji (nie sekcjami ani zgodami), przechodzi do tej sekcji przed pierwsze sterowane pole | `passes.controller_home` |
+| T5 | „Oświadczam, że … – w załączeniu X” zostaje zgodą i dodaje wymagany FILE_UPLOADER X (w sekcji powtarzalnej, którą wskazuje „dla każdego …”), chyba że podobny plik już jest | `passes.attachments_from_consents` |
+| T6 | W sekcji powtarzalnej etykiety bez znaczników wiersza („(pierwszy/drugi wiersz)”, „_2”) są duplikatami. Poza nią te same etykiety to wiersze tabeli: zostają i biorą nawias wiersza („Wysokość opłaty (45-60 m²)”). Ta sama pozycja papieru (etykieta, typ, nakładające się źródło) w dwóch sekcjach to jedno pole. Pytanie „Czy dołączasz …”, od którego nic już nie zależy, znika | `adapter.same_place`, `passes.one_position_one_field` |
+| T8 | Przy scalaniu bliźniaków G12 warunki pól z różnych pytań sterujących się sumują | `adapter.merge_variant_twins` |
+| T9 | RADIO, którego opcje to wszystkie pary dwóch wyborów („Hodowanie charta”…), staje się dwoma RADIO; warunek na parze to koniunkcja obu | `passes.split_product` |
+| T12 | Opis, który powtarza etykietę, znika; przypis „dane nieobowiązkowe” nie trafia do opisu pola opcjonalnego; „Numer rachunku” bez opisu dostaje „Wpisz 26 cyfr numeru rachunku.” (COI nie ma walidatora Pattern) | `adapter.field` |
+
 ## 8. Konfiguracja (`coi/config/`)
 
 Całą konfigurację generatora trzymamy w jednym miejscu, na wzór `config/` z Laravela. Generator czyta z niej:

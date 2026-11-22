@@ -6,6 +6,7 @@ from pathlib import Path
 
 from ..extraction.anchors import expand, src_text
 from ..extraction.tree import FieldTree, FormField, Section, ShowIf
+from . import passes
 from .build import clean_label
 
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
@@ -23,6 +24,7 @@ FLAT = re.compile(r"\b(numer|nr)\.?\s+(lokalu|mieszkania)\b", re.I)  # Standardy
 DATE_MASK = re.compile(r"^\W*(DD|RRRR|YYYY|MM)([-./ ]*(DD|MM|RRRR|YYYY|RR))+\W*$", re.I)  # a date mask from the paper: the picker shows the format
 X_MASK = re.compile(r"X{8,}|_{8,}")  # "w formacie XXXX…": a mask, not a hint
 ACCOUNT = re.compile(r"rachun|konto|konta", re.I)
+ACCOUNT_NUMBER = re.compile(r"\b(numer|nr)\.?\s+(rachunku|konta)\b", re.I)
 # the template's proxy section asks for these (S12); a subject uploader for them is a duplicate
 # R4: a field asking for a person's or a place's address ("Adres zameldowania", "Adres miejsca …"), not an electronic one
 ADDRESS_LABEL = re.compile(r"^(inny\s+)?adres\b(?!.*(e-?mail|epuap|elektroniczn|doręcze|skrzynk|www|internet|ip\b|\blub\b))", re.I)  # "adres lub opis": free text
@@ -36,7 +38,8 @@ NAME_SPLIT = re.compile(r"^imię\s+i\s+nazwisko\b", re.I)  # R13: a person typed
 COMPANY = re.compile(r"\bnazw[ay]\b|\bfirm", re.I)
 STATEMENT = re.compile(r"^oświadczenie\s+(\S.*)$", re.I)  # Q34 files made by the extraction
 # R1: the paper puts the condition in the text ("Wypełnić tylko w przypadku …", "W PRZYPADKU …", "jeśli … w poz. X")
-COND_TEXT = re.compile(r"(?:wypełni\w*\s+(?:tylko|wyłącznie)\s+)?(?:w\s+przypadku|jeżeli|jeśli|gdy)\s+([^.;:()]{3,200})", re.I)
+COND_TEXT = re.compile(r"(?:wypełni\w*\s+(?:tylko|wyłącznie)\s+)?(w\s+przypadku|jeżeli|jeśli|gdy|na\s+podstawie\s+oświadcz\w*)\s+([^.;:()]{3,200})", re.I)
+YES = re.compile(r"^tak\b", re.I)
 ONLY_IF = re.compile(r"(?i:(wypełni\w*|należy\s+wypełnić)\s+(tylko|wyłącznie)\s+w\s+przypadku)|\bW PRZYPADKU\b")
 POSITION = re.compile(r"poz\w*\.?\s*([A-Z]?\d+(?:\.\d+)*)")
 TEMPLATE_FILE = re.compile(r"pełnomocnictw|upoważniając|umocowani|opłat\w*\s+skarbow", re.I)
@@ -98,6 +101,12 @@ def field(f: FormField, presets: dict) -> list[dict]:
         desc = None
     elif desc and X_MASK.search(desc):
         desc = "Wpisz 26 cyfr numeru rachunku." if ACCOUNT.search(f"{f.label} {f.source_label}") else None
+    if desc and not n["required"]:  # T12: "Dane nieobowiązkowe" is spent on the requirement, not repeated as a hint
+        desc = re.sub(r"[^.]*\b(nieobowiązkow\w*|opcjonaln\w*)[^.]*\.?", "", desc, flags=re.I).strip() or None
+    if desc and stems(desc) <= stems(n["label"]):  # T12: a description that only repeats the label says nothing
+        desc = None
+    if not desc and f.type == "TEXT_FIELD" and ACCOUNT_NUMBER.search(f"{f.label} {f.source_label}"):
+        desc = "Wpisz 26 cyfr numeru rachunku."
     if desc:
         n["description"] = desc
     if OTHER_FILE.match(n["label"]) and (f.type == "FILE_UPLOADER" or ATTACHMENT.search(f"{f.label} {f.source_label}")):
@@ -212,16 +221,35 @@ def split_name(fields: list[dict]) -> list[dict]:
     return out
 
 
-def same_place(fields: list[dict], warnings: list[str], title: str) -> list[dict]:
-    """R8: one blank on paper is one field: a second field with the same label, type and condition in a section goes."""
+ROW_MARK = re.compile(r"\s*\((pierwsz|drug|trzec|czwart|kolejn)\w*\s+(wiersz|pozycj|odcin)\w*\)|\s*[-–,]?\s*(pierwsz|drug|trzec)\w*\s+(wiersz|pozycj)\w*|_\d+$", re.I)
+PAREN = re.compile(r"\(([^()]+)\)\s*$")
+
+
+def same_place(fields: list[dict], warnings: list[str], title: str, repeating: bool = False) -> list[dict]:
+    """R8/T6: one blank on paper is one field. In a repeating section a second field with the same label, without row marks
+    ("(pierwszy/drugi wiersz)", "_2"), is a row the section repeats anyway: it goes. Elsewhere same labels at different
+    paper positions are table rows ("Wysokość opłaty" per m² band): they stay, named after their row ("… (45-60 m²)")."""
     seen, out = set(), []
-    for n in fields:
-        k = (n["label"].strip().lower(), n["type"], json.dumps(n.get("show_if"), sort_keys=True))
+    for i, n in enumerate(fields):
+        base = ROW_MARK.sub("", n["label"]).strip()
+        k = (base.lower(), n["type"], json.dumps(n.get("show_if"), sort_keys=True))
         if k in seen and not n.get("from_preset") and not n.get("generated") and n["type"] != "TEXT_BLOCK":
-            warnings.append(f"sekcja {title!r}: pole {n['key']!r} powtarza etykietę {n['label']!r}, pominięto")
-            continue
+            if repeating:
+                warnings.append(f"sekcja {title!r}: pole {n['key']!r} powtarza etykietę {n['label']!r}, pominięto")
+                continue
+            row = next((m[1] for g in reversed(fields[:i]) if (m := PAREN.search(g["label"])) and g["label"] != n["label"]), None)
+            if row and row not in n["label"]:
+                n["label"] = f"{base} ({row})"
+        if repeating and base != n["label"]:
+            n["label"] = base
         seen.add(k)
         out.append(n)
+    if not repeating:  # the first of a row-labelled family gets its row too
+        for i, n in enumerate(out):
+            if not PAREN.search(n["label"]) and any(g is not n and g["label"].startswith(n["label"] + " (") for g in out):
+                row = next((m[1] for g in reversed(out[:i]) if (m := PAREN.search(g["label"]))), None)
+                if row:
+                    n["label"] = f"{n['label']} ({row})"
     return out
 
 
@@ -268,7 +296,7 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
         text = re.sub(r"\b(poz|pkt|nr)\.", r"\1", text, flags=re.I)  # "w poz. 14": the dot does not end the condition
         hits = []
         for m in COND_TEXT.finditer(text):
-            phrase = m[1]
+            phrase = m[2]
             pos = POSITION.findall(phrase)
             scores = {}  # (field key, option) -> share of the option's word stems found in the phrase
             for sec, c in choices:
@@ -284,10 +312,16 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
             if scores and (top := max(scores.items(), key=lambda kv: kv[1]))[1] >= 0.75 and top[0][0] not in already:
                 # "jednorodzinnym / wielolokalowym" in one phrase: every option of that field the phrase names
                 hits += [(k, o) for (k, o), sc in scores.items() if k == top[0][0] and sc >= 0.75]
-        if not hits:
-            return None
-        same = [o for k, o in hits if k == hits[0][0]]  # "A (w przypadku X) lub B (w przypadku Y)": any of them
-        return hits[0][0], list(dict.fromkeys(same))
+            elif pos and m[1].lower().startswith("na podstawie"):  # T2: "na podstawie oświadczenia w poz. 35" -> its "Tak"
+                yes = [(k, o) for (k, o) in scores if YES.match(o) and k not in already]
+                if len({k for k, _ in yes}) == 1:
+                    hits += yes
+        out = {}  # T2: every field the text names, each with the options it names ("A … lub B …": any of them)
+        for k, o in hits:
+            out.setdefault(k, [])
+            if o not in out[k]:
+                out[k].append(o)
+        return out
 
     def leaves_of(c):
         if not c:
@@ -306,10 +340,10 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
             head = " ".join([sec["title"]] + [blocks.get(a, "") for a in heading[:40]])  # the section's heading on paper
             keys = {n["key"] for n in sec["fields"]}
             hit = find(head, keys, sec, leaves_of(sec.get("show_if")))
-            if hit:
-                sec["show_if"] = both(sec.get("show_if"), {"field": hit[0], "in": hit[1]})
-                warnings.append(f"sekcja {sec['title']!r}: warunek z treści dokumentu → SHOW na {hit[0]!r} = {hit[1]!r}")
-            elif ONLY_IF.search(head) and not sec.get("show_if"):
+            for k, opts in hit.items():
+                sec["show_if"] = both(sec.get("show_if"), {"field": k, "in": opts})
+                warnings.append(f"sekcja {sec['title']!r}: warunek z treści dokumentu → SHOW na {k!r} = {opts!r}")
+            if not hit and ONLY_IF.search(head) and not sec.get("show_if"):
                 for n in sec["fields"]:
                     n["required"] = False
                 warnings.append(f"sekcja {sec['title']!r}: dokument wypełnia ją tylko w pewnym przypadku, którego nie ma w formularzu; pola opcjonalne")
@@ -318,10 +352,10 @@ def conditions_from_text(pages: list[dict], blocks: dict[str, str], warnings: li
                     continue
                 text = f"{n.get('description') or ''} {src_text(n['meta'].get('src') or [], blocks)}"
                 hit = find(text, {n["key"]}, sec, leaves_of(n.get("show_if")) | leaves_of(sec.get("show_if")))
-                if hit:
-                    n["show_if"] = both(n.get("show_if"), {"field": hit[0], "in": hit[1]})
-                    warnings.append(f"pole {n['key']!r}: warunek z treści dokumentu → SHOW na {hit[0]!r} = {hit[1]!r}")
-                elif ONLY_IF.search(text) and n.get("required", True) and not n.get("show_if") and not sec.get("show_if"):
+                for k, opts in hit.items():
+                    n["show_if"] = both(n.get("show_if"), {"field": k, "in": opts})
+                    warnings.append(f"pole {n['key']!r}: warunek z treści dokumentu → SHOW na {k!r} = {opts!r}")
+                if not hit and ONLY_IF.search(text) and n.get("required", True) and not n.get("show_if") and not sec.get("show_if"):
                     n["required"] = False
                     warnings.append(f"pole {n['key']!r}: dokument wypełnia je tylko w pewnym przypadku, którego nie ma w formularzu; pole opcjonalne")
 
@@ -411,6 +445,8 @@ def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, 
                 first["show_if"] = {**old, "in": old["in"] + [v for v in leaf["in"] if v not in old["in"]]}
                 for a, b in zip(sec["fields"], first["fields"]):
                     alias[a["key"]] = b["key"]
+                    if a.get("show_if") != b.get("show_if"):  # T8: each variant's own steering question keeps working
+                        b["show_if"] = {"any": [x for x in (b.get("show_if"), a.get("show_if")) if x]} if a.get("show_if") and b.get("show_if") else None
                     b["meta"]["src"] = b["meta"]["src"] + [x for x in a["meta"]["src"] if x not in b["meta"]["src"]]
                 notes.append(f"sekcja {sec['title']!r}: te same pola co {first['title']!r} w innym wariancie, scalone w jedną sekcję")
                 continue
@@ -429,22 +465,7 @@ def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, 
             sec["show_if"] = {"not": copy.deepcopy(twin["show_if"])}
             notes.append(f"sekcja {sec['title']!r}: te same pola co sąsiednia sekcja warunkowa, więc pokazana w przeciwnym przypadku")
 
-    def ren(c):
-        if not c:
-            return c
-        if "not" in c:
-            return {"not": ren(c["not"])}
-        if "all" in c or "any" in c:
-            op = "all" if "all" in c else "any"
-            return {op: [ren(x) for x in c[op]]}
-        return {**c, "field": alias.get(c["field"], c["field"])}
-    if alias:
-        for n in [s for p in pages for s in p["sections"]]:
-            n["show_if"] = ren(n.get("show_if"))
-            for f in n["fields"]:
-                f["show_if"] = ren(f.get("show_if"))
-        for c in consents:
-            c["show_if"] = ren(c.get("show_if"))
+    passes.rename(pages, consents, alias)
     return alias, notes
 
 
@@ -488,12 +509,12 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
                 fields = [n for n in fields if n["key"] not in gone]
                 warnings.append(f"sekcja {s.title!r}: adres wnioskodawcy jest w szablonie „Dane”, pominięto pola adresu"
                                 + ("" if fields else " (całą sekcję)"))
-            fields = same_place(split_name(fields), warnings, s.title)
+            fields = same_place(split_name(fields), warnings, s.title, s.repeating)
             ctx = (json.dumps(cond(s.show_if), sort_keys=True), s.repeating)
             for n in [n for n in fields if n["type"] == "FILE_UPLOADER"]:  # G3/R8/R11: one uploader per document and condition
                 if (m := STATEMENT.match(n["label"])) and not n.get("description"):  # R10: whose statement, what it says
                     said = re.sub(r"\s+", " ", src_text(n["meta"].get("src") or [], blocks or {})).strip()
-                    n["description"] = f"Dołącz skan lub zdjęcie oświadczenia podpisanego przez: {m[1]}." + (f" Treść oświadczenia w dokumencie: „{said[:300]}”." if said else "")
+                    n["description"] = f"Dołącz skan lub zdjęcie podpisanego oświadczenia {m[1]}." + (f" Treść oświadczenia w dokumencie: „{said[:300]}”." if said else "")
                 words = set(re.findall(r"\w+", n["label"].lower()))  # whole words: "Załącznik A" is not "Załącznik B"
                 if TEMPLATE_FILE.search(f"{n['label']} {n['meta']['source_label']}"):
                     warnings.append(f"pole {n['key']!r}: dokument jest w szablonie (pełnomocnictwo, opłata skarbowa), pominięto")
@@ -523,6 +544,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
     _, notes = merge_variant_twins(pages, consents)
     warnings += notes
     conditions_from_text(pages, blocks or {}, warnings)
+    passes.run(pages, consents, blocks or {}, warnings)
     entity_option = settings["entity_option"]  # G5: the Standardy's text; the paper's wording names a role, not the option
     if tree.entity_option and tree.entity_option != entity_option:
         warnings.append(f"opcja podmiotu z dokumentu {tree.entity_option!r} zastąpiona opcją ze Standardów {entity_option!r}")

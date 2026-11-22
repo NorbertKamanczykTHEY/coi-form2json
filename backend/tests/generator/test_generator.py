@@ -51,7 +51,8 @@ def app(tmp_path_factory):
 ALLOWED = [r"/validation:", r"/pos:", r"/questionOrder:", r"^[-+] /Kontakt (i zgody|z urzędem)$", r"TERYT_DOWODOWY' -> 'TERYT_4G_DOWODOWY'",
            r"/wojewodztwo\w*/title: 'TERYT_(4G_)?DOWODOWY' -> 'Miejscowość'$",  # human title instead of the dictionary name
            r"^\+ /Dane/q/dane_innej_osoby/children/numer_pesel_inna_osoba$",  # Q33: Standardy s.15 over the patterns
-           r"/title: 'Opłata skarbowa za pełnomonictwo' -> 'Opłata skarbowa za pełnomocnictwo'$"]  # the patterns' typo, fixed
+           r"/title: 'Opłata skarbowa za pełnomonictwo' -> 'Opłata skarbowa za pełnomocnictwo'$",
+           r"^\+ /Informacje o nadpłacie/q/rozliczenie_nadplaty/children/numer_rachunku/description$"]  # T12: "26 cyfr"  # the patterns' typo, fixed
 ALLOWED_5 = ALLOWED + [r"^[-+] /Dane/q/(dane_podmiotu|oplata_skarbowa_pelnomocnictwo_\d|pelnomocnictwo)/children/\w+$",
                        r"/(searchEnabled|multiLevelTree)$", r"/oplata_info(_1)?/description:", r"/podglad_1/description:",
                        r"/wybierz_jako_kto_wnioskujesz/options:",
@@ -202,7 +203,10 @@ def test_api_validate_and_put_use_rules(app):
 def test_radio_keeps_its_options(app):
     form, rep, _ = generate(tree("form7"), SHA, store=app.config["STORE"])
     purpose = next(f for *_, f in fields(form) if f["techName"] == "purpose")
-    assert purpose["type"] == "RADIO" and len(purpose["options"]) == 8 and "dictionaryName" not in purpose
+    # T9: 8 options = 2 actions x 4 kinds, so two RADIOs; each keeps its own options, no dictionary
+    kind = next(f for *_, f in fields(form) if f["techName"] == "purpose_rodzaj")
+    assert purpose["type"] == kind["type"] == "RADIO" and len(purpose["options"]) == 2 and len(kind["options"]) == 4
+    assert "dictionaryName" not in purpose and "dictionaryName" not in kind
     assert all(p["source"] != "document" for p in rep["proposed_dictionaries"])
 
 
@@ -733,14 +737,14 @@ def test_r9_other_attachments_are_an_optional_upload():
 
 def test_r10_statement_upload_says_whose_and_what():
     t = _with_section("form3", [_field("osw", "Oświadczenie rodzica lub opiekuna prawnego", "FILE_UPLOADER", src=["p1.b7"])])
-    f = _techs(generate(t, SHA, blocks={"p1.b7": "Wyrażam zgodę na udział dziecka w zajęciach."})[0])
+    f = _techs(generate(t, SHA, blocks={"p1.b7": "Wyrażam zgodę na udział dziecka w zajęciach.", "p1.b8": "Podpis rodzica"})[0])
     assert "rodzica lub opiekuna prawnego" in f["osw"]["description"] and "udział dziecka" in f["osw"]["description"]
 
 
 def test_r11_same_document_under_different_show_stays_twice():
     t = _with_section("form3", [_field("wariant", "Wariant", "RADIO", options=["A", "B"]),
-                                _field("op_a", "Opinia klubu", "FILE_UPLOADER", show_if={"field": "wariant", "options": ["A"]}),
-                                _field("op_b", "Opinia klubu", "FILE_UPLOADER", show_if={"field": "wariant", "options": ["B"]})])
+                                _field("op_a", "Opinia klubu", "FILE_UPLOADER", show_if={"field": "wariant", "options": ["A"]}, src=["p1.b3"]),
+                                _field("op_b", "Opinia klubu", "FILE_UPLOADER", show_if={"field": "wariant", "options": ["B"]}, src=["p2.b3"])])
     f = _techs(generate(t, SHA)[0])
     assert {"op_a", "op_b"} <= set(f)
 
@@ -790,3 +794,111 @@ def test_r1_otherwise_branch_tolerates_a_differently_worded_sum_and_phrase_names
     assert sec["Tabela"]["states"][0]["query"].startswith('$not("Lokal użytkowy" in')
     q = _techs(form)["zal"]["states"][0]["query"]
     assert '"Budynek jednorodzinny" in' in q and '"Budynek wielolokalowy" in' in q and "Lokal" not in q
+
+
+# ---- EVAL-5 rules (generic examples) --------------------------------------------------------------------------------
+def test_t1_statement_file_only_with_a_signature_takes_the_person_branch_and_frees_the_applicant_consent():
+    t = _with_section("form3", [
+        _field("sam", "Czy odpowiadasz sam", "RADIO", options=["Tak", "Nie"], src=["p1.b2"]),
+        _field("op_imie", "Imię", show_if={"field": "sam", "options": ["Nie"]}, src=["p1.b3"]),
+        _field("osw_op", "Oświadczenie osoby odpowiedzialnej", "FILE_UPLOADER", src=["p1.b4"]),
+        _field("osw_x", "Oświadczenie wykonawcy", "FILE_UPLOADER", src=["p1.b6"])],
+        consents=[{"text": "Oświadczam, że znam regulamin.", "src": [], "show_if": [{"field": "sam", "options": ["Nie"]}]}])
+    blocks = {"p1.b2": "Kto odpowiada", "p1.b3": "Imię", "p1.b4": "zbiorcze oświadczenie tej osoby załączyć", "p1.b5": "Podpis",
+              "p1.b6": "osobą odpowiedzialną za roboty będzie ……", "p1.b7": "zam. ……", "p1.b8": "tel. ……", "p1.b9": "Uwagi"}
+    form, rep, _ = generate(t, SHA, blocks=blocks)
+    f = _techs(form)
+    assert "osw_x" not in f and f["osw_op"]["states"][0]["query"].startswith('("Nie" in')
+    consent = [x for *_, x in fields(form) if x["type"] == "CONSENT_SECTION" and x["states"]]
+    assert not consent  # the applicant's statement is shown in every branch
+
+
+def test_t2_on_the_basis_of_a_statement_at_position_shows_on_its_yes():
+    t = _with_section("form3", [_field("komp", "Czy masz kompostownik", "RADIO", options=["Tak", "Nie"], src=["p1.b2"]),
+                                _field("ulga_k", "Kwota ulgi", "NUMBER", src=["p1.b3"])])
+    t.pages[0].sections.append(type(t.pages[0].sections[0]).model_validate({"title": "Opłata ze zwolnieniem", "src": ["p1.b4-p1.b5"],
+                                "fields": [_field("kw2", "Kwota", "NUMBER", src=["p1.b5"])]}))
+    blocks = {"p1.b2": "35. Czy masz kompostownik", "p1.b3": "36. Kwota ulgi",
+              "p1.b4": "E.2 OPŁATA ZWOLNIONA Z CZĘŚCI (na podstawie oświadczenia zawartego w poz. 35)", "p1.b5": "Kwota"}
+    sec = next(q["field"] for tb in generate(t, SHA, blocks=blocks)[0]["tabs"] for q in tb["questions"] if q["field"]["title"] == "Opłata ze zwolnieniem")
+    assert sec["states"][0]["query"].startswith('("Tak" in') and "'komp'" in sec["states"][0]["query"]
+
+
+def test_t4_question_moves_into_the_section_it_steers():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].append({"title": "Osoby", "sections": [
+        {"title": "Wstęp", "src": [], "fields": [_field("intro", "Uwagi wstępne"), _field("pelnoletni", "Czy kandydat jest pełnoletni", "RADIO", options=["Tak", "Nie"])]},
+        {"title": "Kandydat", "src": [], "fields": [_field("kand", "Imię kandydata"),
+                                                     _field("zgoda_rodzica", "Zgoda rodzica", "FILE_UPLOADER", show_if={"field": "pelnoletni", "options": ["Nie"]})]}]})
+    sec = _sections(generate(FieldTree.model_validate(t), SHA)[0], "Osoby")
+    assert [c["field"]["techName"] for c in sec["Kandydat"]["repeatingSectionGrid"]] == ["kand", "pelnoletni", "zgoda_rodzica"]
+    assert [c["field"]["techName"] for c in sec["Wstęp"]["repeatingSectionGrid"]] == ["intro"]
+
+
+def test_t5_attachment_named_in_a_statement_is_asked_for_in_the_each_section():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].append({"title": "Zwierzęta", "sections": [{"title": "Dane psa", "repeating": True, "src": [], "fields": [_field("rasa_p", "Rasa psa")]}]})
+    t["consents"] = [{"text": "Oświadczam, że zaszczepiono psa przeciwko wściekliźnie – w załączeniu kopia dla każdego psa.", "src": []}]
+    form, rep, _ = generate(FieldTree.model_validate(t), SHA)
+    sec = _sections(form, "Zwierzęta")["Dane psa"]
+    up = [c["field"] for c in sec["repeatingSectionGrid"] if c["field"]["type"] == "FILE_UPLOADER"]
+    assert len(up) == 1 and up[0]["validation"] == ["REQUIRED"] and "wściekliźnie" in up[0]["title"]
+    assert any("wściekliźnie" in re.sub("<[^>]+>", "", c["description"]) for *_, x in fields(form) if x["type"] == "CONSENT_SECTION"
+               for c in x["consentSectionConfig"]["consents"])  # the statement stays
+
+
+def test_t6_row_marks_in_a_repeating_row_and_table_rows_named_after_their_band():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].append({"title": "Pas", "sections": [
+        {"title": "Odcinek", "repeating": True, "src": [], "fields": [_field("dl1", "Długość (pierwszy wiersz)", "NUMBER", src=["p1.b1"]),
+                                                                       _field("dl2", "Długość (drugi wiersz)", "NUMBER", src=["p1.b2"])]},
+        {"title": "Opłata", "src": [], "fields": [_field("l1", "Liczba gospodarstw (do 45 m²)", "NUMBER", src=["p1.b3"]),
+                                                   _field("w1", "Wysokość opłaty", "NUMBER", src=["p1.b4"]),
+                                                   _field("l2", "Liczba gospodarstw (45-60 m²)", "NUMBER", src=["p1.b5"]),
+                                                   _field("w2", "Wysokość opłaty", "NUMBER", src=["p1.b6"])]}]})
+    f = _techs(generate(FieldTree.model_validate(t), SHA)[0])
+    assert "dl2" not in f and f["dl1"]["title"] == "Długość"
+    assert f["w1"]["title"] == "Wysokość opłaty (do 45 m²)" and f["w2"]["title"] == "Wysokość opłaty (45-60 m²)"
+
+
+def test_t6_same_paper_position_twice_is_one_field_and_a_lonely_upload_question_goes():
+    t = _with_section("form3", [_field("czesc_a", "Czy część jest niezamieszkała", "RADIO", options=["Tak", "Nie"], src=["p1.b5"]),
+                                _field("czy_dok", "Czy dołączasz dokumenty upoważniające", "RADIO", options=["Tak", "Nie"], src=["p1.b8"]),
+                                _field("dok", "Dokumenty upoważniające", "FILE_UPLOADER", show_if={"field": "czy_dok", "options": ["Tak"]}, src=["p1.b9"])])
+    t.pages[0].sections.append(type(t.pages[0].sections[0]).model_validate({"title": "Dalej", "src": [], "fields": [
+        _field("czesc_b", "Czy część jest niezamieszkała", "RADIO", options=["Tak", "Nie"], src=["p1.b5"]),
+        _field("kwota_d", "Kwota", "NUMBER", show_if={"field": "czesc_b", "options": ["Tak"]}, src=["p1.b6"])]}))
+    f = _techs(generate(t, SHA)[0])
+    assert "czesc_b" not in f and "'czesc_a'" in f["kwota_d"]["states"][0]["query"]
+    assert "czy_dok" not in f and "dok" not in f
+
+
+def test_t8_merged_variant_fields_keep_each_variants_own_question():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    blk = lambda k: [_field(f"czy_{k}", "Czy adres jest inny", "RADIO", options=["Tak", "Nie"], src=[f"p{k}.b1"]),
+                     _field(f"adr_{k}", "Inny adres", "TEXTAREA", show_if={"field": f"czy_{k}", "options": ["Tak"]}, src=[f"p{k}.b2"])]
+    t["pages"].append({"title": "Warianty", "sections": [
+        {"title": "Wybór", "src": [], "fields": [_field("w", "Wariant", "RADIO", options=["I", "II", "III"])]},
+        {"title": "Osoba I", "show_if": {"field": "w", "options": ["I"]}, "src": [], "fields": blk("1")},
+        {"title": "Osoba II", "show_if": {"field": "w", "options": ["II"]}, "src": [], "fields": blk("2")}]})
+    f = _techs(generate(FieldTree.model_validate(t), SHA)[0])
+    assert "'czy_1'" in f["adr_1"]["states"][0]["query"] and "czy_2" not in f  # the twin question merged into the kept one
+
+
+def test_t9_product_of_two_choices_becomes_two_radios_and_conditions_follow():
+    opts = [f"{a} {b}" for a in ("Hodowanie", "Utrzymywanie") for b in ("charta", "mieszańca charta")]
+    t = _with_section("form3", [_field("cel", "Cel wniosku", "RADIO", options=opts),
+                                _field("rodow", "Rodowód", "FILE_UPLOADER", show_if={"field": "cel", "options": ["Hodowanie charta"]})])
+    f = _techs(generate(t, SHA)[0])
+    assert [o["name"] for o in f["cel"]["options"]] == ["Hodowanie", "Utrzymywanie"]
+    assert [o["name"] for o in f["cel_rodzaj"]["options"]] == ["charta", "mieszańca charta"]
+    q = f["rodow"]["states"][0]["query"]
+    assert '"Hodowanie" in' in q and '"charta" in' in q and " and " in q
+
+
+def test_t12_description_without_paraphrase_footnote_and_with_account_digits():
+    t = _with_section("form3", [_field("ul_t", "Ulica", description="Ulica.", optional_evidence="Dane nieobowiązkowe"),
+                                _field("ul_u", "Uwagi", description="Wpisz uwagi. Dane nieobowiązkowe.", optional_evidence="Dane nieobowiązkowe"),
+                                _field("konto_t", "Numer rachunku bankowego")])
+    f = _techs(generate(t, SHA)[0])
+    assert f["ul_t"]["description"] == "" and "nieobowiązkowe" not in f["ul_u"]["description"] and "26 cyfr" in f["konto_t"]["description"]
