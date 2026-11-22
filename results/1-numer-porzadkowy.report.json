@@ -1,8 +1,8 @@
 {
- "cost": 0.00116,
+ "cost": 0.0028,
  "needs_review": [],
  "proposed_dictionaries": [],
- "seconds": 8.19,
+ "seconds": 13.76,
  "source": {
   "cost": 0,
   "filename": "Wniosek o ustalenie numeru porządkowego nieruchomości.docx",
@@ -10,7 +10,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.01
+  "seconds": 0.04
  },
  "trace": [
   {
@@ -51,22 +51,36 @@
    "step": "T0"
   },
   {
-   "accepted": true,
-   "calls": 2,
-   "cost": 0.00116,
-   "coverage": 1.0,
-   "fails": [],
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00198,
+   "coverage": 0.71,
+   "fails": [
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b5', 'p1.b6']"
+   ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 8.1,
+   "seconds": 8.8,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00082,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 4.9,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
-  "Tytuł wniosku ('Wniosek o ustalenie numeru porządkowego budynku') jest spójny z treścią formularza, która dotyczy budynku, a nie nieruchomości.",
-  "Pole 'Dane nieobowiązkowe' (p1.b32) nie zawiera treści do wypełnienia i zostało usunięte jako puste."
+  "Tytuł wniosku ('Wniosek o ustalenie numeru porządkowego') dotyczy nieruchomości, natomiast treść formularza nie precyzuje, że nieruchomość musi być budynkiem (może dotyczyć także gruntu)."
  ]
 }

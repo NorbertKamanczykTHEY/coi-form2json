@@ -1,34 +1,34 @@
 {
- "cost": 0.06097,
+ "cost": 0.06736,
  "needs_review": [
   {
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_kandydata_2', 'oswiadczenie_kandydata_2_2_2', 'oswiadczenie_kandydata_2_2_2_2_2', 'oswiadczenie_kandydata', 'oswiadczenie_rodzica_lub_opiekuna_prawnego', 'oswiadczenie_kandydata_2_2', 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2', 'oswiadczenie_kandydata_2_2_2_2', 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2_2']",
-    "G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: ['telefon_kontaktowy']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b24', 'p1.b115', 'p1.b179']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dodatkowe_informacje_o_osiagnieciach_sportowych']"
    ],
    "field_id": null,
    "key": "formularz",
    "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
   },
   {
-   "field_id": "95c19ce2-6fa8-4388-95b7-09baad2ea9f3",
-   "key": "czy_kandydat_pelnoletni",
+   "field_id": "435f776e-a396-40ec-a3a3-88510ada95b3",
+   "key": "czy_kandydat_do_stypendium_nagrody_jest_pelnoletni",
    "why": "pytanie sterujące odtworzone z warunków zgód lub sekcji; sprawdź etykietę"
   },
   {
-   "field_id": "99f06b1c-628e-40ea-8c1a-5a58488a4c44",
-   "key": "czy_podopieczny_pelnoletni",
+   "field_id": "8ad0e71a-bec4-45b2-8c49-939c1d2350d8",
+   "key": "czy_podopieczny_trenera_jest_pelnoletni",
    "why": "pytanie sterujące odtworzone z warunków zgód lub sekcji; sprawdź etykietę"
   },
   {
    "field_id": null,
    "key": "formularz",
-   "why": "„Oświadczenie kandydata”: kilka warunków zgody, zostaje ostatni (czy_kandydat_pelnoletni)"
+   "why": "„Oświadczenie kandydata”: kilka warunków zgody, zostaje ostatni (czy_kandydat_do_stypendium_nagrody_jest_pelnoletni)"
   },
   {
    "field_id": null,
    "key": "formularz",
-   "why": "„Oświadczenie kandydata”: kilka warunków zgody, zostaje ostatni (czy_podopieczny_pelnoletni)"
+   "why": "„Oświadczenie kandydata”: kilka warunków zgody, zostaje ostatni (czy_podopieczny_trenera_jest_pelnoletni)"
   },
   {
    "field_id": null,
@@ -36,54 +36,27 @@
    "why": "14 zgód innej osoby niż wnioskodawca zamieniono na pliki „Oświadczenie …” (Q34)"
   },
   {
-   "field_id": "cad6e7e4-78b5-4ad4-bbbc-068af40ccd9b",
-   "key": "oswiadczenie_kandydata_2",
+   "field_id": "26a84e5f-95e7-476a-8e0f-26de1b618a53",
+   "key": "dodatkowe_informacje_o_osiagnieciach_sportowych",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
+   "anchor": "p1.b24",
    "field_id": null,
-   "key": "oswiadczenie_kandydata_2_2_2",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+   "key": "formularz",
+   "why": "miejsce do wpisania bez pola"
   },
   {
+   "anchor": "p1.b115",
    "field_id": null,
-   "key": "oswiadczenie_kandydata_2_2_2_2_2",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+   "key": "formularz",
+   "why": "miejsce do wpisania bez pola"
   },
   {
+   "anchor": "p1.b179",
    "field_id": null,
-   "key": "oswiadczenie_kandydata",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "d6d6b841-d3a3-4fce-9fd4-0669a025c68f",
-   "key": "oswiadczenie_rodzica_lub_opiekuna_prawnego",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": null,
-   "key": "oswiadczenie_kandydata_2_2",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": null,
-   "key": "oswiadczenie_rodzica_lub_opiekuna_prawnego_2",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": null,
-   "key": "oswiadczenie_kandydata_2_2_2_2",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": null,
-   "key": "oswiadczenie_rodzica_lub_opiekuna_prawnego_2_2",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "4d8a66bb-e80c-4a5c-9244-f6b3cdc249e2",
-   "key": "wybierz_rodzaj_dyscypliny_sportowej",
-   "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
+   "key": "formularz",
+   "why": "miejsce do wpisania bez pola"
   },
   {
    "field_id": "ed5aa164-74cf-4a93-8b08-58050fe5bda9",
@@ -91,8 +64,8 @@
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   },
   {
-   "field_id": "10c0e8f7-6d19-471a-8a1f-2738ec85ae36",
-   "key": "inna_dyscyplina",
+   "field_id": "898ece1a-c28a-4d0f-be7b-77db95610ae2",
+   "key": "podaj_nazwe_innej_dyscypliny_sportowej",
    "why": "propozycja słownika DYSCYPLINY_SPORTOWE"
   }
  ],
@@ -100,9 +73,8 @@
   {
    "description": "Rodzaje dyscyplin (zespołowa, indywidualna – inna, indywidualna – lekkoatletyka) i dyscypliny z wniosku #9 (Zgierz).",
    "fields": [
-    "wybierz_rodzaj_dyscypliny_sportowej",
     "wybierz_dyscypliny_sportowe",
-    "inna_dyscyplina"
+    "podaj_nazwe_innej_dyscypliny_sportowej"
    ],
    "id": "DYSCYPLINY_SPORTOWE",
    "items": [
@@ -213,7 +185,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 178.02,
+ "seconds": 36.65,
  "source": {
   "cost": 0,
   "filename": "Wniosek o przyznanie stypendium.docx",
@@ -221,7 +193,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.11
+  "seconds": 0.02
  },
  "trace": [
   {
@@ -263,65 +235,66 @@
   },
   {
    "accepted": false,
-   "cost": 0.01444,
-   "error": "mistral/mistral-small-2603: reply does not match SubjectPage after a repair: sections.2.fields.1.type: Field required",
+   "calls": 22,
+   "cost": 0.0394,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dodatkowe_informacje_o_osiagnieciach_sportowych_2', 'akceptacja_regulaminu', 'akceptacja_regulaminu_2']",
+    "G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: ['rodzaj_wnioskodawcy']",
+    "G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: ['numer_telefonu', 'telefon_kontaktowy']",
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Zgoda w imieniu kandydata nieletniego', 'ulica', 'ulica_2']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['dane_reprezentanta_klubu_sportowego_z_krs_lub_innego_wlasciw', 'dane_pelnomocnika_klubu_sportowego', 'zgoda_na_przetwarzanie_danych_osobowych', 'akceptacja_regulaminu', 'zgoda_na_przetwarzanie_danych_osobowych_wniosku', 'akceptacja_regulaminu_wyroznien_sportowych', 'wyrazenie_zgody_na_przetwarzanie_danych_osobowych_podopieczn', 'akceptacja_regulaminu_wyroznien_sportowych_2']"
+   ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "first",
+   "rung": 0,
+   "seconds": 110.2,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "error": "repair skipped: a stronger rung is ready",
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
    "rung": 0,
    "stage": "extract"
   },
   {
    "accepted": false,
-   "calls": 3,
-   "cost": 0.02346,
-   "coverage": 1.0,
+   "calls": 9,
+   "cost": 0.02796,
+   "coverage": 0.97,
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_kandydata_2', 'oswiadczenie_kandydata_2_2_2', 'oswiadczenie_kandydata_2_2_2_2_2', 'oswiadczenie_kandydata', 'oswiadczenie_rodzica_lub_opiekuna_prawnego', 'oswiadczenie_kandydata_2_2', 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2', 'oswiadczenie_kandydata_2_2_2_2', 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2_2']",
-    "G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: ['telefon_kontaktowy']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b24', 'p1.b115', 'p1.b179']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dodatkowe_informacje_o_osiagnieciach_sportowych']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 63.6,
+   "seconds": 46.7,
    "stage": "extract"
   },
   {
    "accepted": false,
-   "calls": 1,
-   "cost": 0.02307,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_kandydata_2', 'oswiadczenie_kandydata_2_2_2', 'oswiadczenie_kandydata_2_2_2_2_2', 'oswiadczenie_kandydata', 'oswiadczenie_rodzica_lub_opiekuna_prawnego', 'oswiadczenie_kandydata_2_2', 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2', 'oswiadczenie_kandydata_2_2_2_2', 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2_2']",
-    "G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: ['telefon_kontaktowy']"
-   ],
+   "error": "repair skipped: time budget 20 s",
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 64.5,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
-  "Niespójność w tytule wniosku: dokument łączy trzy rodzaje wniosków (stypendium, nagroda, wyróżnienie), ale nagłówek każdego wariantu sugeruje tylko jeden rodzaj.",
-  "Brak informacji o opłacie za sprawę (case_fee) w treści dokumentu.",
-  "Administrator danych osobowych w klauzuli RODO (p1.b82-p1.b84, p1.b146-p1.b148, p1.b232-p1.b234) to wnioskujący (klub sportowy lub Prezydent Miasta Zgierza), a nie adresat wniosku (Prezydent Miasta Zgierza).",
-  "sekcja 'Adres do korespondencji': adres wnioskodawcy jest w szablonie „Dane”, pominięto",
-  "pole 'oswiadczenie_kandydata_2_2_2': ten sam dokument co 'oswiadczenie_kandydata_2', jeden plik",
-  "pole 'oswiadczenie_kandydata_2_2_2_2_2': ten sam dokument co 'oswiadczenie_kandydata_2', jeden plik",
-  "sekcja 'Dane klubu sportowego': pominięto adres_siedziby, nazwa_klubu_sportowego, bo powtarzają dane podmiotu ze strony „Dane”",
-  "pole 'oswiadczenie_kandydata': ten sam dokument co 'oswiadczenie_kandydata_2', jeden plik",
-  "pole 'oswiadczenie_kandydata_2_2': ten sam dokument co 'oswiadczenie_kandydata_2', jeden plik",
-  "pole 'dokument_z_opinia_klubu_sportowego_2': ten sam dokument co 'dokument_z_opinia_klubu_sportowego', jeden plik",
-  "pole 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2': ten sam dokument co 'oswiadczenie_rodzica_lub_opiekuna_prawnego', jeden plik",
-  "pole 'oswiadczenie_kandydata_2_2_2_2': ten sam dokument co 'oswiadczenie_kandydata_2', jeden plik",
-  "pole 'oswiadczenie_rodzica_lub_opiekuna_prawnego_2_2': ten sam dokument co 'oswiadczenie_rodzica_lub_opiekuna_prawnego', jeden plik",
-  "sekcja 'Dodatkowe informacje o osiągnięciach sportowych': te same pola co 'Dodatkowe informacje' w innym wariancie, scalone w jedną sekcję",
-  "opcja podmiotu z dokumentu 'Klub sportowy' zastąpiona opcją ze Standardów 'Osoby prawnej lub jednostki organizacyjnej'",
-  "strona 'Dane sportowca': cała treść warunkowa, sekcje przeniesione na stronę 'Dane klubu sportowego'",
-  "strona 'Dane trenera i podopiecznych': cała treść warunkowa, sekcje przeniesione na stronę 'Osiągnięcia sportowe'"
+  "Tytuł dokumentu sugeruje trzy odrębne wnioski, ale treść łączy je w jeden formularz z trzema wariantami.",
+  "sekcja 'Adres do korespondencji klubu sportowego': pominięto inny_adres_korespondencyjny, adres do korespondencji jest w szablonie „Dane”",
+  "sekcja 'Adres do korespondencji klubu sportowego': adres wnioskodawcy jest w szablonie „Dane”, pominięto pola adresu",
+  "sekcja 'Adres zameldowania': te same pola co 'Adres zameldowania' w innym wariancie, scalone w jedną sekcję",
+  "sekcja 'Adres do korespondencji': te same pola co 'Adres do korespondencji' w innym wariancie, scalone w jedną sekcję",
+  "sekcja 'Opinia macierzystego klubu sportowego (wyróżnienie)': te same pola co 'Opinia macierzystego klubu sportowego (stypendium/nagroda)' w innym wariancie, scalone w jedną sekcję",
+  "opcja podmiotu z dokumentu 'Klub sportowy' zastąpiona opcją ze Standardów 'Osoby prawnej lub jednostki organizacyjnej'"
  ]
 }

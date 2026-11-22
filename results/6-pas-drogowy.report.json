@@ -1,67 +1,33 @@
 {
- "cost": 0.01916,
+ "cost": 0.01419,
  "needs_review": [
   {
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc', 'szerokosc', 'powierzchnia', 'dlugosc_druga_pozycja', 'szerokosc_druga_pozycja', 'powierzchnia_druga_pozycja', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['powierzchnia_pierwszy_wiersz', 'powierzchnia_drugi_wiersz', 'oswiadczenie_osoby_odpowiedzialnej']",
+    "G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: ['czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni']"
    ],
    "field_id": null,
    "key": "formularz",
    "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
   },
   {
-   "field_id": "6358c0e0-d0ed-42f5-91f4-3114c14ae9de",
-   "key": "czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni",
-   "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
-  },
-  {
-   "field_id": "6d759355-db4e-4d97-8b5c-6188a4e028de",
-   "key": "dlugosc",
+   "field_id": "340399b7-68c1-4335-8de2-e7c87560370d",
+   "key": "powierzchnia_pierwszy_wiersz",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "e53b09c6-a84b-4a4d-ac4d-468994d04b36",
-   "key": "szerokosc",
+   "field_id": "dc9eaaa9-4fda-4bb5-88fd-24b696aa214e",
+   "key": "powierzchnia_drugi_wiersz",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "561c94d2-da0d-4c95-93e1-2f0c18373bba",
-   "key": "powierzchnia",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "4b5fb704-4fa2-47cd-862a-b340c37127ec",
-   "key": "dlugosc_druga_pozycja",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "bb1bc5c9-c4e5-4e31-b330-f1f2c5ca114d",
-   "key": "szerokosc_druga_pozycja",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "cfa500ab-c6a0-4e98-aa74-d211ae8a4328",
-   "key": "powierzchnia_druga_pozycja",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "00924c72-254c-4595-80cb-f5bf469dfdce",
-   "key": "data_rozpoczecia_robot",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "9551798f-a84e-432b-84ba-09fe7650efa4",
-   "key": "data_zakonczenia_robot",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
-  },
-  {
-   "field_id": "d8ff8872-c287-49c0-aa2c-9be498c3262d",
-   "key": "nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej",
+   "field_id": "fe74c632-e6b0-456d-b11e-4386339d7d6e",
+   "key": "oswiadczenie_osoby_odpowiedzialnej",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 82.05,
+ "seconds": 72.2,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.docx",
@@ -111,8 +77,8 @@
   },
   {
    "accepted": false,
-   "cost": 0.00437,
-   "error": "mistral/mistral-small-2603: reply does not match FieldTree after a repair: title: Field required; pages.2.title: Field required",
+   "cost": 0.00729,
+   "error": "mistral/mistral-small-2603: reply does not match FieldTree after a repair: title: Field required; pages.0.title: Field required; pages.0.sections.3.title: Field required; pages.0.sections.3.fields.0.type: Input should be 'TEXT_FIELD', 'TEXTAREA', 'NUMBER', 'DATEPICKER', 'RADIO', 'CHECKBOX', 'SELECT', 'FILE_UPLOADER' or 'TEXT_BLOCK'; pages.0.sections.3.fields.1.key: Field r",
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
@@ -122,43 +88,31 @@
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00658,
-   "coverage": 0.82,
+   "cost": 0.0069,
+   "coverage": 1.0,
    "fails": [
-    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b7', 'p1.b12']",
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc', 'szerokosc', 'powierzchnia', 'dlugosc_2', 'szerokosc_2', 'powierzchnia_2', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['powierzchnia_pierwszy_wiersz', 'powierzchnia_drugi_wiersz', 'oswiadczenie_osoby_odpowiedzialnej']",
+    "G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: ['czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni']"
    ],
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 27.2,
+   "seconds": 32.3,
    "stage": "extract"
   },
   {
    "accepted": false,
-   "calls": 1,
-   "cost": 0.00822,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc', 'szerokosc', 'powierzchnia', 'dlugosc_druga_pozycja', 'szerokosc_druga_pozycja', 'powierzchnia_druga_pozycja', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej']"
-   ],
+   "error": "repair skipped: time budget 20 s",
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 28.5,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
-  "Adresat w nagłówku (Urząd Miasta i Gminy Miasteczko) różni się od administratora danych osobowych (Urząd Miasta i Gminy w Daleszycach).",
-  "pole 'dlugosc': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
-  "pole 'szerokosc': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
-  "pole 'powierzchnia': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
-  "pole 'dlugosc_druga_pozycja': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
-  "pole 'szerokosc_druga_pozycja': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
-  "pole 'powierzchnia_druga_pozycja': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny"
+  "Adresat w nagłówku (Urząd Miasta i Gminy Miasteczko) różni się od administratora danych osobowych (Urząd Miasta i Gminy w Daleszycach)."
  ]
 }

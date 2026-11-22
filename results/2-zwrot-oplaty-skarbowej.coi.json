@@ -1531,7 +1531,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Kwota w złotych</p></body></html>",
+         "description": "",
          "id": "0c2573af-31d2-4d6d-91a9-19a4fc745a4d",
          "options": [],
          "questionOrder": 1,
@@ -1721,14 +1721,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "626b9afe-c04e-4a7e-8df7-413f05b44e6b",
+         "id": "e4c4147d-6e8b-4688-a0a4-c0584598b39d",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "imie_i_nazwisko_lub_nazwa_wlasciciela_rachunku",
-         "title": "Imię i nazwisko lub nazwa właściciela rachunku",
+         "techName": "imie_i_nazwisko_lub_nazwa",
+         "title": "Imię i nazwisko lub nazwa",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [

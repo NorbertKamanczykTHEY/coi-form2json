@@ -1,8 +1,29 @@
 {
- "cost": 0.01198,
- "needs_review": [],
+ "cost": 0.01254,
+ "needs_review": [
+  {
+   "fails": [
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b57', 'p1.b59']"
+   ],
+   "field_id": null,
+   "key": "formularz",
+   "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
+  },
+  {
+   "anchor": "p1.b57",
+   "field_id": null,
+   "key": "formularz",
+   "why": "blok z miejscem do wpisania usunięty jako szablon"
+  },
+  {
+   "anchor": "p1.b59",
+   "field_id": null,
+   "key": "formularz",
+   "why": "blok z miejscem do wpisania usunięty jako szablon"
+  }
+ ],
  "proposed_dictionaries": [],
- "seconds": 47.12,
+ "seconds": 35.45,
  "source": {
   "cost": 0,
   "filename": "Wniosek o zwrot opłaty skarbowej.docx",
@@ -58,22 +79,23 @@
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00072,
+   "cost": 0.00089,
    "coverage": 1.0,
    "fails": [
+    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['numer_rachunku_bankowego', 'wlasciciel_rachunku']",
     "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 5.9,
+   "seconds": 7.9,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00091,
+   "cost": 0.00108,
    "coverage": 1.0,
    "fails": [
     "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
@@ -82,35 +104,31 @@
    "model": "mistral/mistral-small-2603",
    "round": "repair",
    "rung": 0,
-   "seconds": 4.8,
+   "seconds": 5.4,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 2,
-   "cost": 0.00633,
+   "cost": 0.01058,
    "coverage": 1.0,
    "fails": [
-    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b59']"
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b57', 'p1.b59']"
    ],
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 21.8,
+   "seconds": 22.1,
    "stage": "extract"
   },
   {
-   "accepted": true,
-   "calls": 1,
-   "cost": 0.00403,
-   "coverage": 1.0,
-   "fails": [],
+   "accepted": false,
+   "error": "repair skipped: time budget 20 s",
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 14.5,
    "stage": "extract"
   }
  ],
@@ -118,8 +136,6 @@
  "warnings": [
   "page 1: gate ['G1 nonsense words'], no VLM path for docx",
   "G3: only 0 form marks found; fields may sit in shapes/text boxes Kreuzberg does not read",
-  "pole 'dokument_stwierdzajacy_udzielenie_pelnomocnictwa': dokument jest w szablonie (pełnomocnictwo, opłata skarbowa), pominięto",
-  "pole 'dowod_uiszczenia_oplaty_skarbowej_za_pelnomocnictwo': dokument jest w szablonie (pełnomocnictwo, opłata skarbowa), pominięto",
-  "opcja podmiotu z dokumentu 'Nazwa /Imię i nazwisko' zastąpiona opcją ze Standardów 'Osoby prawnej lub jednostki organizacyjnej'"
+  "opcja podmiotu z dokumentu 'Nazwa / Imię i nazwisko' zastąpiona opcją ze Standardów 'Osoby prawnej lub jednostki organizacyjnej'"
  ]
 }

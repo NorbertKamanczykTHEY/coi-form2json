@@ -1533,7 +1533,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Nazwa podatku, np. podatek od nieruchomości</p></body></html>",
+         "description": "",
          "id": "4bd8b70e-2ff3-405f-97d8-6dfbec78b619",
          "options": [],
          "questionOrder": 0,
@@ -1555,7 +1555,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Kwota w złotych</p></body></html>",
+         "description": "<html><head></head><body><p>Podaj kwotę w złotych</p></body></html>",
          "id": "bc1f52ec-60f6-47ad-a0d1-ccafab021bb7",
          "options": [],
          "questionOrder": 1,
@@ -1578,27 +1578,16 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "4a3ec74b-297f-4b84-953e-b5182fb00ea0",
-         "options": [
-          {
-           "id": "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
-           "name": "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
-           "techName": "zaliczyc_na_poczet_przyszlego_zobowiazania_podatkowego"
-          },
-          {
-           "id": "Zwrócić przelewem na wskazany rachunek",
-           "name": "Zwrócić przelewem na wskazany rachunek",
-           "techName": "zwrocic_przelewem_na_wskazany_rachunek"
-          }
-         ],
+         "id": "071afd82-06c8-4d6e-9f66-3e3dfc2b63b8",
+         "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "wybierz_sposob_rozliczenia_nadplaty",
-         "title": "Wybierz sposób rozliczenia nadpłaty",
+         "techName": "uzasadnienie_nadplaty",
+         "title": "Uzasadnienie nadpłaty",
          "tooltipMessage": "",
-         "type": "RADIO",
+         "type": "TEXTAREA",
          "validation": [
           "REQUIRED"
          ]
@@ -1611,14 +1600,47 @@
         "cols": 3,
         "field": {
          "description": "",
+         "id": "cdde4917-8684-4337-93c8-74a6a0dbb43b",
+         "options": [
+          {
+           "id": "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
+           "name": "Zaliczyć na poczet przyszłego zobowiązania podatkowego",
+           "techName": "zaliczyc_na_poczet_przyszlego_zobowiazania_podatkowego"
+          },
+          {
+           "id": "Zwrócić przelewem na wskazany rachunek",
+           "name": "Zwrócić przelewem na wskazany rachunek",
+           "techName": "zwrocic_przelewem_na_wskazany_rachunek"
+          }
+         ],
+         "questionOrder": 3,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "sposob_rozliczenia_nadplaty",
+         "title": "Sposób rozliczenia nadpłaty",
+         "tooltipMessage": "",
+         "type": "RADIO",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 3
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
          "id": "e48f2522-ef6f-44ed-9311-37ef1b2c0df4",
          "options": [],
-         "questionOrder": 3,
+         "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Zaliczyć na poczet przyszłego zobowiązania podatkowego\" in tabs['Informacje o nadpłacie' in title].questions['dane_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
+           "query": "(\"Zaliczyć na poczet przyszłego zobowiązania podatkowego\" in tabs['Informacje o nadpłacie' in title].questions['dane_wniosku' in field.techName].field.repeatingSectionGrid['sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
@@ -1632,7 +1654,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 3
+        "y": 4
        },
        {
         "cols": 3,
@@ -1640,12 +1662,12 @@
          "description": "<html><head></head><body><p>26 cyfr numeru rachunku</p></body></html>",
          "id": "a7e1998b-a5ac-4b1c-8856-cb1203b953ce",
          "options": [],
-         "questionOrder": 4,
+         "questionOrder": 5,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Zwrócić przelewem na wskazany rachunek\" in tabs['Informacje o nadpłacie' in title].questions['dane_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
+           "query": "(\"Zwrócić przelewem na wskazany rachunek\" in tabs['Informacje o nadpłacie' in title].questions['dane_wniosku' in field.techName].field.repeatingSectionGrid['sposob_rozliczenia_nadplaty' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
@@ -1659,7 +1681,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 4
+        "y": 5
        }
       ],
       "states": [],
@@ -1669,7 +1691,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 6,
+     "rows": 7,
      "x": 0,
      "y": 0
     },
@@ -1677,52 +1699,9 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "9eebd52d-2eb1-4055-9498-1ed50d8265d7",
-      "options": [],
-      "questionOrder": 6,
-      "readOnly": false,
-      "repeatingSectionGrid": [
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "32797b82-d94c-47eb-8aa0-882f82b3b314",
-         "options": [],
-         "questionOrder": 0,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "uzasadnienie_wniosku",
-         "title": "Uzasadnienie wniosku",
-         "tooltipMessage": "",
-         "type": "TEXTAREA",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 0
-       }
-      ],
-      "states": [],
-      "techName": "uzasadnienie",
-      "title": "Uzasadnienie",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 2,
-     "x": 0,
-     "y": 6
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
       "id": "2227ce26-cc6d-4f74-9cec-ae22e815b902",
       "options": [],
-      "questionOrder": 8,
+      "questionOrder": 7,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1757,7 +1736,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 8
+     "y": 7
     }
    ],
    "title": "Informacje o nadpłacie",

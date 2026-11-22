@@ -1,43 +1,14 @@
 {
- "cost": 0.00825,
+ "cost": 0.00209,
  "needs_review": [
   {
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_odpowiedzialnej']",
-    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['czy_osoba_odpowiedzialna_to_wnioskodawca', 'oswiadczenie_osoby_odpowiedzialnej']"
-   ],
-   "field_id": null,
-   "key": "formularz",
-   "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
-  },
-  {
-   "field_id": "02166c20-c9e3-4dcc-ac4e-4489498b7b56",
-   "key": "czy_osoba_odpowiedzialna_to_wnioskodawca",
-   "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
-  },
-  {
-   "field_id": "5d9ddc01-cb5e-45f3-b792-b6b11c4891fb",
-   "key": "nazwa_swietlicy_wiejskiej",
-   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
-  },
-  {
-   "field_id": "5c701769-eb58-40ee-b26e-aa1a92827fdf",
-   "key": "termin_od",
-   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
-  },
-  {
-   "field_id": "cd7a1e67-1481-4f6b-9514-4bb511212c8f",
-   "key": "termin_do",
-   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
-  },
-  {
-   "field_id": "2c874419-d5b7-446f-83f0-c6618828068b",
-   "key": "oswiadczenie_osoby_odpowiedzialnej",
-   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+   "field_id": "016475c8-e78a-4f18-886d-e3aed51d1f53",
+   "key": "wybierz_wynajecie_uzyczenie",
+   "why": "wybór „wynajęcie/użyczenie*” z papieru odtworzony jako pole RADIO; sprawdź etykietę"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 36.84,
+ "seconds": 17.33,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wynajęcie świetlicy.docx",
@@ -50,17 +21,15 @@
  "trace": [
   {
    "gate": {
-    "fails": [
-     "G5 * without footnote"
-    ],
-    "ok": false,
+    "fails": [],
+    "ok": true,
     "signals": {
      "confidence": null,
-     "footnotes": 0,
+     "footnotes": 1,
      "garbage": 0.0,
      "marks": 11,
-     "nonsense": 0.0068,
-     "polish": 0.0639,
+     "nonsense": 0.0067,
+     "polish": 0.0646,
      "stars": 3
     }
    },
@@ -75,11 +44,11 @@
     "ok": true,
     "signals": {
      "confidence": null,
-     "footnotes": 0,
+     "footnotes": 1,
      "garbage": 0.0,
      "marks": 11,
-     "nonsense": 0.0068,
-     "polish": 0.0639,
+     "nonsense": 0.0067,
+     "polish": 0.0646,
      "stars": 3
     }
    },
@@ -88,72 +57,19 @@
    "step": "T0"
   },
   {
-   "accepted": false,
+   "accepted": true,
    "calls": 1,
-   "cost": 0.00177,
+   "cost": 0.00209,
    "coverage": 1.0,
-   "fails": [
-    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['imie_i_nazwisko_osoby_odpowiedzialnej', 'zgoda_osoby_odpowiedzialnej_na_pelnienie_funkcji']",
-    "G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: ['p1.b9', 'p1.b10']"
-   ],
+   "fails": [],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 5.2,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00104,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['zgoda_osoby_odpowiedzialnej_na_pelnienie_funkcji']",
-    "G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: ['p1.b10']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 7.8,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00262,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_odpowiedzialnej']",
-    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['imie_i_nazwisko_osoby_odpowiedzialnej', 'czy_osoba_odpowiedzialna_to_wnioskodawca', 'oswiadczenie_osoby_odpowiedzialnej']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-large-2512",
-   "round": "first",
-   "rung": 1,
-   "seconds": 12.6,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00283,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_odpowiedzialnej']",
-    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['czy_osoba_odpowiedzialna_to_wnioskodawca', 'oswiadczenie_osoby_odpowiedzialnej']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-large-2512",
-   "round": "repair",
-   "rung": 1,
-   "seconds": 11.1,
+   "seconds": 17.3,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": [
-  "G5: text has * marks but no footnote explaining them; check the source (footnote lost?)"
- ]
+ "warnings": []
 }

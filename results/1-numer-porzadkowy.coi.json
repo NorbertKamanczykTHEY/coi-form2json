@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "a944744a-80e4-499d-98f9-4ccb292cf750",
+    "id": "074fa171-decc-4721-8212-4970a574e089",
     "source": "3fbf7fc3-6299-4697-93c3-c7b170970344",
-    "target": "0e6c1cab-199b-4b45-94af-9bfcf84b1533"
+    "target": "7e46e99a-f8eb-4c1b-9c44-51ed1316b22d"
    },
    {
-    "id": "2e0d94b0-df31-4ae8-9b64-877768269c06",
-    "source": "0e6c1cab-199b-4b45-94af-9bfcf84b1533",
+    "id": "aae05ed0-d76f-413f-9c53-1e2f1fbb5b97",
+    "source": "7e46e99a-f8eb-4c1b-9c44-51ed1316b22d",
     "target": "8e405fed-5fd2-442e-bd33-96a7e5136f68"
    },
    {
@@ -1495,13 +1495,13 @@
    "type": "MAIN"
   },
   {
-   "id": "0e6c1cab-199b-4b45-94af-9bfcf84b1533",
+   "id": "7e46e99a-f8eb-4c1b-9c44-51ed1316b22d",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "c546e5da-73d5-4e9a-9bf2-791009e020cb",
+      "id": "b10ffa0f-2240-48ea-ac6d-e683a804a06f",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1509,7 +1509,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj miejscowość, w której budynek jest zlokalizowany</p></body></html>",
+         "description": "<html><head></head><body><p>Podaj miejscowość, w której zlokalizowana jest nieruchomość.</p></body></html>",
          "id": "3bdbf7b2-6421-413b-b99c-bcb82ae03b43",
          "options": [],
          "questionOrder": 0,
@@ -1517,7 +1517,7 @@
          "repeatingSectionGrid": [],
          "states": [],
          "techName": "miejscowosc",
-         "title": "W miejscowości",
+         "title": "Miejscowość",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1531,15 +1531,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj nazwę ulicy, przy której budynek jest zlokalizowany</p></body></html>",
-         "id": "c0c161d9-ff31-49a4-8cdf-7826855e09ab",
+         "description": "<html><head></head><body><p>Podaj nazwę ulicy, przy której zlokalizowana jest nieruchomość. Dane nieobowiązkowe.</p></body></html>",
+         "id": "ff365fa4-e8a5-48a3-a8f9-7f233d852dc1",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "ulica_lokalizacja_budynku",
-         "title": "Przy ulicy1)",
+         "techName": "ulica_dane_nieruchomosci",
+         "title": "Ulica",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": []
@@ -1551,7 +1551,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj numer ewidencyjny działki, na której znajduje się budynek</p></body></html>",
+         "description": "<html><head></head><body><p>Podaj numer ewidencyjny działki, na której zlokalizowana jest nieruchomość.</p></body></html>",
          "id": "af4d8e64-eb5d-4a02-82d6-a884f32f398c",
          "options": [],
          "questionOrder": 2,
@@ -1573,15 +1573,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj nazwę obrębu, w którym znajduje się działka</p></body></html>",
-         "id": "5414e021-2ad1-4074-9e41-95cb9512b28c",
+         "description": "<html><head></head><body><p>Podaj nazwę obrębu ewidencyjnego, w którym zlokalizowana jest działka.</p></body></html>",
+         "id": "00e1f7f0-0e40-4756-b999-89b5c9657a05",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "obreb",
-         "title": "Obręb",
+         "techName": "obreb_ewidencyjny",
+         "title": "Obręb ewidencyjny",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1594,8 +1594,8 @@
        }
       ],
       "states": [],
-      "techName": "lokalizacja_budynku",
-      "title": "Lokalizacja budynku",
+      "techName": "dane_nieruchomosci",
+      "title": "Dane nieruchomości",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -1605,7 +1605,7 @@
      "y": 0
     }
    ],
-   "title": "Dane budynku",
+   "title": "Ustalenie numeru porządkowego nieruchomości",
    "type": "MAIN"
   },
   {
@@ -1781,5 +1781,5 @@
    "type": "FINISH"
   }
  ],
- "title": "Wniosek o ustalenie numeru porządkowego budynku"
+ "title": "Wniosek o ustalenie numeru porządkowego"
 }

@@ -1,6 +1,19 @@
 {
- "cost": 0.00753,
+ "cost": 0.00469,
  "needs_review": [
+  {
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['rodzaj_podatku']"
+   ],
+   "field_id": null,
+   "key": "formularz",
+   "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
+  },
+  {
+   "field_id": "4bd8b70e-2ff3-405f-97d8-6dfbec78b619",
+   "key": "rodzaj_podatku",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
   {
    "field_id": "4bd8b70e-2ff3-405f-97d8-6dfbec78b619",
    "key": "rodzaj_podatku",
@@ -69,7 +82,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 32.04,
+ "seconds": 26.46,
  "source": {
   "cost": 0,
   "filename": "Wniosek o stwierdzenie nadpłaty podatku.docx",
@@ -119,18 +132,38 @@
   },
   {
    "accepted": false,
-   "cost": 0.00175,
-   "error": "mistral/mistral-small-2603: reply does not match FieldTree after a repair: title: Field required",
+   "calls": 1,
+   "cost": 0.00086,
+   "coverage": 1.0,
+   "fails": [
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b20', 'p1.b21', 'p1.b22', 'p1.b23']"
+   ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
+   "seconds": 7.5,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00251,
+   "cost": 0.00124,
+   "coverage": 0.91,
+   "fails": [
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b0']"
+   ],
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 8.2,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.00258,
    "coverage": 1.0,
    "fails": [
     "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['rodzaj_podatku']"
@@ -139,25 +172,21 @@
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 9.6,
+   "seconds": 10.7,
    "stage": "extract"
   },
   {
-   "accepted": true,
-   "calls": 1,
-   "cost": 0.00327,
-   "coverage": 1.0,
-   "fails": [],
+   "accepted": false,
+   "error": "repair skipped: time budget 20 s",
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 11.1,
    "stage": "extract"
   }
  ],
  "validation": [],
  "warnings": [
-  "Numer PESEL/NIP w bloku p1.b6-p1.b7 jest częścią danych wnioskodawcy, ale nie jest jasne, czy oba pola są wymagane jednocześnie (alternatywa). W e-formularzu wybór między PESEL a NIP wynika z profilu użytkownika, więc nie wymaga dodatkowego pola."
+  "Dokument wymaga podania PESEL lub NIP w zależności od statusu wnioskodawcy, co sugeruje możliwość wyboru między osobą fizyczną a firmą, jednak nie jest to wyraźnie zaznaczone jako opcja wyboru."
  ]
 }

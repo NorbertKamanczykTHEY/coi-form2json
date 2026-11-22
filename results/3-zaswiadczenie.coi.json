@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "f733b9a4-46ae-4b44-b171-e904970ce4ca",
+    "id": "c5ac3770-70a2-43d6-87a3-c408c003da88",
     "source": "2fb8ba20-7f2e-4c01-b154-aac47018a02a",
-    "target": "ba19eb8b-209c-49f8-889d-d93cbf71c3e4"
+    "target": "ad99d36b-8f92-4788-a9d9-b16d0b980606"
    },
    {
-    "id": "20b5bad6-762f-49c9-a41c-7592ea730714",
-    "source": "ba19eb8b-209c-49f8-889d-d93cbf71c3e4",
+    "id": "ae2b78d4-ff66-4310-9160-6d139563bae1",
+    "source": "ad99d36b-8f92-4788-a9d9-b16d0b980606",
     "target": "8dbbf6c4-c147-4238-b0eb-9c349a4d5696"
    },
    {
@@ -987,13 +987,13 @@
    "type": "MAIN"
   },
   {
-   "id": "ba19eb8b-209c-49f8-889d-d93cbf71c3e4",
+   "id": "ad99d36b-8f92-4788-a9d9-b16d0b980606",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "ad0577fd-7361-4ce0-b80e-bbeebce5cf49",
+      "id": "9faa601b-f7b7-49ab-823a-ec3b9c59ca4d",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1002,27 +1002,27 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "9faa601b-f7b7-49ab-823a-ec3b9c59ca4d",
+         "id": "34e4606a-1627-44f2-b516-004b073ce532",
          "options": [
           {
-           "id": "Ilość posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "name": "Ilość posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "techName": "ilosc_posiadanych_uzytkow_rolnych_w_hektarach_fizycznych_i_p"
+           "id": "Ilości posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "name": "Ilości posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "techName": "ilosci_posiadanych_uzytkow_rolnych_w_hektarach_fizycznych_i_"
           },
           {
-           "id": "Ilość dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "name": "Ilość dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
-           "techName": "ilosc_dzierzawionych_uzytkow_rolnych_w_hektarach_fizycznych_"
+           "id": "Ilości dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "name": "Ilości dzierżawionych użytków rolnych w hektarach fizycznych i przeliczeniowych",
+           "techName": "ilosci_dzierzawionych_uzytkow_rolnych_w_hektarach_fizycznych"
           },
           {
-           "id": "Okres posiadania gospodarstwa rolnego",
-           "name": "Okres posiadania gospodarstwa rolnego",
-           "techName": "okres_posiadania_gospodarstwa_rolnego"
+           "id": "Okresie posiadania gospodarstwa rolnego",
+           "name": "Okresie posiadania gospodarstwa rolnego",
+           "techName": "okresie_posiadania_gospodarstwa_rolnego"
           },
           {
-           "id": "Nieposiadanie użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
-           "name": "Nieposiadanie użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
-           "techName": "nieposiadanie_uzytkow_rolnych_gospodarstwa_rolnego_na_tereni"
+           "id": "Nieposiadaniu użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
+           "name": "Nieposiadaniu użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary",
+           "techName": "nieposiadaniu_uzytkow_rolnych_gospodarstwa_rolnego_na_tereni"
           },
           {
            "id": "Inne",
@@ -1034,8 +1034,8 @@
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "rodzaj_zaswiadczenia",
-         "title": "Rodzaj zaświadczenia",
+         "techName": "wybierz_rodzaj_zaswiadczenia",
+         "title": "Wybierz rodzaj zaświadczenia",
          "tooltipMessage": "",
          "type": "CHECKBOX",
          "validation": [
@@ -1050,19 +1050,19 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "cb9146b3-29fc-4987-90c7-086ace9aa302",
+         "id": "2ee84a23-9086-4ab2-9b5b-23e5331ac0de",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Inne\" in tabs['Wniosek o wydanie zaświadczenia' in title].questions['informacje_o_zaswiadczeniu' in field.techName].field.repeatingSectionGrid['rodzaj_zaswiadczenia' in field.techName].field.__userAnswer)",
+           "query": "(\"Inne\" in tabs['Rodzaj zaświadczenia' in title].questions['rodzaj_zaswiadczenia' in field.techName].field.repeatingSectionGrid['wybierz_rodzaj_zaswiadczenia' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
-         "techName": "inne",
-         "title": "Inne",
+         "techName": "inny_rodzaj_zaswiadczenia",
+         "title": "Inny rodzaj zaświadczenia",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1086,7 +1086,7 @@
          "techName": "cel_przedlozenia_zaswiadczenia",
          "title": "Cel przedłożenia zaświadczenia",
          "tooltipMessage": "",
-         "type": "TEXTAREA",
+         "type": "TEXT_FIELD",
          "validation": [
           "REQUIRED"
          ]
@@ -1097,8 +1097,8 @@
        }
       ],
       "states": [],
-      "techName": "informacje_o_zaswiadczeniu",
-      "title": "Informacje o zaświadczeniu",
+      "techName": "rodzaj_zaswiadczenia",
+      "title": "Rodzaj zaświadczenia",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -1108,7 +1108,7 @@
      "y": 0
     }
    ],
-   "title": "Wniosek o wydanie zaświadczenia",
+   "title": "Rodzaj zaświadczenia",
    "type": "MAIN"
   },
   {
@@ -1193,7 +1193,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>17 zł za każdy egzemplarz zaświadczenia, płatne przed złożeniem wniosku na konto Urzędu (PKO BP S.A. 12 1234 1234 1234 1234 1234 1234)</p></body></html>",
+         "description": "<html><head></head><body><p>Opłata za wydanie zaświadczenia wynosi 17 zł od każdego egzemplarza, płatne przed złożeniem wniosku na rachunek Urzędu Miasta i Gminy Młynary: 12 1234 1234 1234 1234 1234 1234.</p></body></html>",
          "id": "72376d8c-a8ac-45fd-aa39-640b01a6f94f",
          "options": [],
          "questionOrder": 0,
@@ -1209,28 +1209,6 @@
         "rows": 1,
         "x": 0,
         "y": 0
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "c586c1c6-efab-439e-b786-de90a772add7",
-         "options": [],
-         "questionOrder": 1,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "potwierdzenie_zaplaty",
-         "title": "Potwierdzenie zapłaty",
-         "tooltipMessage": "",
-         "type": "FILE_UPLOADER",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 1
        }
       ],
       "states": [],
@@ -1240,7 +1218,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 3,
+     "rows": 2,
      "x": 0,
      "y": 3
     },
@@ -1250,7 +1228,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "9e65f71e-d629-495a-87f6-6fb022d2d033",
       "options": [],
-      "questionOrder": 6,
+      "questionOrder": 5,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1292,7 +1270,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 6
+     "y": 5
     }
    ],
    "title": "Kontakt i zgody",
@@ -1347,5 +1325,5 @@
    "type": "FINISH"
   }
  ],
- "title": "Wniosek o wydanie zaświadczenia o posiadanych lub dzierżawionych użytkach rolnych"
+ "title": "Wniosek o wydanie zaświadczenia"
 }

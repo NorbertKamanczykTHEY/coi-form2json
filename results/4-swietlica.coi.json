@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "a6b4de82-a6d2-455d-8b39-877f08cce09d",
+    "id": "3083700b-b2c5-418a-9c42-6319c523fd9d",
     "source": "1d755522-0769-40c9-916f-d7cc4eb045b3",
-    "target": "0e34c754-ced8-4610-8041-edac1b91e06c"
+    "target": "e920d894-f219-42d8-9d79-7a7445cd9b47"
    },
    {
-    "id": "87306229-04fc-4395-a659-66e089f2f4fb",
-    "source": "0e34c754-ced8-4610-8041-edac1b91e06c",
+    "id": "6140eb6e-c11b-4b47-97f4-aa714a510f15",
+    "source": "e920d894-f219-42d8-9d79-7a7445cd9b47",
     "target": "8f634af0-d0ad-48e6-be05-89b0ad9edc47"
    },
    {
@@ -963,13 +963,13 @@
    "type": "MAIN"
   },
   {
-   "id": "0e34c754-ced8-4610-8041-edac1b91e06c",
+   "id": "e920d894-f219-42d8-9d79-7a7445cd9b47",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "cf7d4272-a087-415f-9460-53ee2e4fe617",
+      "id": "6a7aca45-90ed-446d-a1e5-ec090dd89117",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -978,12 +978,12 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "70d5df20-0c3e-45d3-b6a3-a53cf0d8eafd",
+         "id": "016475c8-e78a-4f18-886d-e3aed51d1f53",
          "options": [
           {
-           "id": "Wynajem",
-           "name": "Wynajem",
-           "techName": "wynajem"
+           "id": "Wynajęcie",
+           "name": "Wynajęcie",
+           "techName": "wynajecie"
           },
           {
            "id": "Użyczenie",
@@ -995,8 +995,8 @@
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "wybierz_rodzaj_umowy",
-         "title": "Wybierz rodzaj umowy",
+         "techName": "wybierz_wynajecie_uzyczenie",
+         "title": "Wybierz: wynajęcie lub użyczenie",
          "tooltipMessage": "",
          "type": "RADIO",
          "validation": [
@@ -1011,14 +1011,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "5d9ddc01-cb5e-45f3-b792-b6b11c4891fb",
+         "id": "799eecf8-1a02-4503-aa4e-3a139916e2f1",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "nazwa_swietlicy_wiejskiej",
-         "title": "Nazwa świetlicy wiejskiej",
+         "techName": "miejsce_wydarzenia",
+         "title": "Miejsce wydarzenia",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1033,14 +1033,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "5c701769-eb58-40ee-b26e-aa1a92827fdf",
+         "id": "9a2fbeb7-f6ff-42d8-b49e-1e461dbf0f76",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "termin_od",
-         "title": "Termin od",
+         "techName": "data_rozpoczecia",
+         "title": "Data rozpoczęcia",
          "tooltipMessage": "",
          "type": "DATEPICKER",
          "validation": [
@@ -1055,14 +1055,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "cd7a1e67-1481-4f6b-9514-4bb511212c8f",
+         "id": "013a2628-5f7e-4136-979b-149eb74a7ebb",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "termin_do",
-         "title": "Termin do",
+         "techName": "data_zakonczenia",
+         "title": "Data zakończenia",
          "tooltipMessage": "",
          "type": "DATEPICKER",
          "validation": [
@@ -1072,40 +1072,19 @@
         "rows": 1,
         "x": 0,
         "y": 3
-       }
-      ],
-      "states": [],
-      "techName": "swietlica_i_termin",
-      "title": "Świetlica i termin",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 5,
-     "x": 0,
-     "y": 0
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "0b755788-1b3b-4b6a-9291-6ef75882c400",
-      "options": [],
-      "questionOrder": 5,
-      "readOnly": false,
-      "repeatingSectionGrid": [
+       },
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>np. wesele, urodziny, zabawa</p></body></html>",
-         "id": "0ed3bb49-a829-4d2c-a48e-82ed7db980ea",
+         "description": "<html><head></head><body><p>Rodzaj uroczystości, np. wesele, urodziny, zabawa itp.</p></body></html>",
+         "id": "d4e82d89-2696-4377-914f-500fdb64c681",
          "options": [],
-         "questionOrder": 0,
+         "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "cel_wynajecia_swietlicy",
-         "title": "Cel wynajęcia świetlicy",
+         "techName": "cel_wynajecia",
+         "title": "Cel wynajęcia",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1114,7 +1093,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 0
+        "y": 4
        },
        {
         "cols": 3,
@@ -1122,7 +1101,7 @@
          "description": "",
          "id": "992bf9a3-a3ed-4570-9288-27ba900c163b",
          "options": [],
-         "questionOrder": 1,
+         "questionOrder": 5,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1136,34 +1115,13 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 1
-       }
-      ],
-      "states": [],
-      "techName": "cel_i_uczestnicy",
-      "title": "Cel i uczestnicy",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 3,
-     "x": 0,
-     "y": 5
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "574b2dfd-262b-4262-89ea-86d7471b5fac",
-      "options": [],
-      "questionOrder": 8,
-      "readOnly": false,
-      "repeatingSectionGrid": [
+        "y": 5
+       },
        {
         "cols": 3,
         "field": {
          "description": "",
-         "id": "02166c20-c9e3-4dcc-ac4e-4489498b7b56",
+         "id": "1c276140-339e-4521-a093-787af9c43294",
          "options": [
           {
            "id": "Tak",
@@ -1176,12 +1134,12 @@
            "techName": "nie"
           }
          ],
-         "questionOrder": 0,
+         "questionOrder": 6,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "czy_osoba_odpowiedzialna_to_wnioskodawca",
-         "title": "Czy osoba odpowiedzialna to wnioskodawca?",
+         "techName": "osoba_odpowiedzialna_za_utrzymanie_porzadku_i_bezpieczenstwa",
+         "title": "Osoba odpowiedzialna za utrzymanie porządku i bezpieczeństwa jest wnioskodawcą",
          "tooltipMessage": "",
          "type": "RADIO",
          "validation": [
@@ -1190,25 +1148,25 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 0
+        "y": 6
        },
        {
         "cols": 3,
         "field": {
          "description": "",
-         "id": "6eb3f68e-e489-46af-98fe-779bce9264fa",
+         "id": "e73f6b5a-fcdd-4817-a687-01cbac39fe2a",
          "options": [],
-         "questionOrder": 1,
+         "questionOrder": 7,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Nie\" in tabs['Informacje o wniosku' in title].questions['osoba_odpowiedzialna' in field.techName].field.repeatingSectionGrid['czy_osoba_odpowiedzialna_to_wnioskodawca' in field.techName].field.__userAnswer)",
+           "query": "(\"Nie\" in tabs['Wniosek o wynajęcie/użyczenie świetlicy wiejskiej' in title].questions['informacje_o_wynajmie_swietlicy' in field.techName].field.repeatingSectionGrid['osoba_odpowiedzialna_za_utrzymanie_porzadku_i_bezpieczenstwa' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
-         "techName": "imie_i_nazwisko_osoby_odpowiedzialnej",
-         "title": "Imię i nazwisko osoby odpowiedzialnej",
+         "techName": "imie_i_nazwisko_osoby_odpowiedzialnej_imie",
+         "title": "Imię",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1217,15 +1175,42 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 1
+        "y": 7
        },
        {
         "cols": 3,
         "field": {
          "description": "",
+         "id": "f0c42be4-e4f0-4f24-88bb-0b0d88443f0b",
+         "options": [],
+         "questionOrder": 8,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Nie\" in tabs['Wniosek o wynajęcie/użyczenie świetlicy wiejskiej' in title].questions['informacje_o_wynajmie_swietlicy' in field.techName].field.repeatingSectionGrid['osoba_odpowiedzialna_za_utrzymanie_porzadku_i_bezpieczenstwa' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "imie_i_nazwisko_osoby_odpowiedzialnej_nazwisko",
+         "title": "Nazwisko",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 8
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "<html><head></head><body><p>Plik z oświadczeniem podpisanym przez osoby odpowiedzialnej.</p></body></html>",
          "id": "2c874419-d5b7-446f-83f0-c6618828068b",
          "options": [],
-         "questionOrder": 2,
+         "questionOrder": 9,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1239,22 +1224,22 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 2
+        "y": 9
        }
       ],
       "states": [],
-      "techName": "osoba_odpowiedzialna",
-      "title": "Osoba odpowiedzialna",
+      "techName": "informacje_o_wynajmie_swietlicy",
+      "title": "Informacje o wynajmie świetlicy",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 4,
+     "rows": 11,
      "x": 0,
-     "y": 8
+     "y": 0
     }
    ],
-   "title": "Informacje o wniosku",
+   "title": "Wniosek o wynajęcie/użyczenie świetlicy wiejskiej",
    "type": "MAIN"
   },
   {
@@ -1344,22 +1329,6 @@
            {
             "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z </span><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"klauzulą informacyjną\" aria-label=\"Link otwiera się w nowej karcie\">klauzulą informacyjną</a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\" title=\" \" aria-label=\"Link otwiera się w nowej karcie\"> </a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></p></body></html>",
             "required": true
-           },
-           {
-            "description": "<html><head></head><body><p>Zapoznaję się z warunkami wynajmu świetlicy wiejskiej.</p></body></html>",
-            "required": true
-           },
-           {
-            "description": "<html><head></head><body><p>W czasie najmu odpowiadam za ład i porządek w świetlicy oraz na terenie przyległym do świetlicy.</p></body></html>",
-            "required": true
-           },
-           {
-            "description": "<html><head></head><body><p>Zobowiązuję się do przestrzegania przepisów sanitarnych, BHP i p.poż. w czasie trwania przedsięwzięcia.</p></body></html>",
-            "required": true
-           },
-           {
-            "description": "<html><head></head><body><p>Na okres wynajmu ponoszę pełną odpowiedzialność za powierzone mienie.</p></body></html>",
-            "required": true
            }
           ],
           "files": []
@@ -1380,6 +1349,40 @@
         "rows": 1,
         "x": 0,
         "y": 0
+       },
+       {
+        "cols": 3,
+        "field": {
+         "consentSectionConfig": {
+          "consents": [
+           {
+            "description": "<html><head></head><body><p>Oświadczam, że zapoznaję się z warunkami wynajmu świetlicy wiejskiej, w czasie najmu odpowiadam za ład i porządek w świetlicy oraz na terenie przyległym do świetlicy, zobowiązuję się do przestrzegania przepisów sanitarnych, BHP i p.poż. w czasie trwania przedsięwzięcia oraz ponoszę pełną odpowiedzialność za powierzone mienie.</p></body></html>",
+            "required": true
+           }
+          ],
+          "files": []
+         },
+         "description": "",
+         "id": "3e658a65-eec4-45e8-b999-ad3416160a99",
+         "options": [],
+         "questionOrder": 1,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Nie\" in tabs['Wniosek o wynajęcie/użyczenie świetlicy wiejskiej' in title].questions['informacje_o_wynajmie_swietlicy' in field.techName].field.repeatingSectionGrid['osoba_odpowiedzialna_za_utrzymanie_porzadku_i_bezpieczenstwa' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "zgoda_warunkowa_0",
+         "title": "",
+         "tooltipMessage": "",
+         "type": "CONSENT_SECTION",
+         "validation": []
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 1
        }
       ],
       "states": [],
@@ -1389,7 +1392,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 2,
+     "rows": 3,
      "x": 0,
      "y": 3
     }
@@ -1446,5 +1449,5 @@
    "type": "FINISH"
   }
  ],
- "title": "Wniosek o wynajęcie lub użyczenie świetlicy wiejskiej"
+ "title": "Wniosek o wynajęcie/użyczenie świetlicy wiejskiej"
 }

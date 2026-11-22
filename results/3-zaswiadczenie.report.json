@@ -1,8 +1,14 @@
 {
- "cost": 0.00052,
- "needs_review": [],
+ "cost": 0.00368,
+ "needs_review": [
+  {
+   "field_id": "a4464ffd-eba7-4bc6-aa5c-a7502bbb0be2",
+   "key": "cel_przedlozenia_zaswiadczenia",
+   "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
+  }
+ ],
  "proposed_dictionaries": [],
- "seconds": 4.76,
+ "seconds": 16.08,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wydanie zaświadczenia.docx",
@@ -51,16 +57,42 @@
    "step": "T0"
   },
   {
-   "accepted": true,
+   "accepted": false,
    "calls": 1,
-   "cost": 0.00052,
+   "cost": 0.00099,
    "coverage": 1.0,
-   "fails": [],
+   "fails": [
+    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b12: „- inne ___”']; każde ___ to osobne pole",
+    "G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: ['numer_telefonu']"
+   ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 4.7,
+   "seconds": 6.5,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "cost": 0.00079,
+   "error": "repair collapsed the tree (8 -> 3 fields)",
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "stage": "extract"
+  },
+  {
+   "accepted": true,
+   "calls": 1,
+   "cost": 0.00191,
+   "coverage": 1.0,
+   "fails": [],
+   "mode": "single",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 6.2,
    "stage": "extract"
   }
  ],
