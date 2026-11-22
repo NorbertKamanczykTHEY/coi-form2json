@@ -1,52 +1,67 @@
 {
- "cost": 0.01453,
+ "cost": 0.01916,
  "needs_review": [
   {
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_do_20_szerok', 'dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_20_d', 'dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_50_s', 'dlugosc_szerokosc_i_powierzchnia_chodnika', 'termin_realizacji_robot', 'nazwa_przedsiebiorstwa_lub_osoby_fizycznej']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc', 'szerokosc', 'powierzchnia', 'dlugosc_druga_pozycja', 'szerokosc_druga_pozycja', 'powierzchnia_druga_pozycja', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej']"
    ],
    "field_id": null,
    "key": "formularz",
    "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
   },
   {
-   "field_id": "a2d4d25d-f9d9-4296-9ecc-8d1e8b28d994",
-   "key": "projekt_organizacji_ruchu",
+   "field_id": "6358c0e0-d0ed-42f5-91f4-3114c14ae9de",
+   "key": "czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni",
    "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
   },
   {
-   "field_id": "916a9a5f-72c2-4cc7-bf4e-c0a630520bbc",
-   "key": "dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_do_20_szerok",
+   "field_id": "6d759355-db4e-4d97-8b5c-6188a4e028de",
+   "key": "dlugosc",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "62006804-11ea-424e-9bff-355452108bf3",
-   "key": "dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_20_d",
+   "field_id": "e53b09c6-a84b-4a4d-ac4d-468994d04b36",
+   "key": "szerokosc",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "b91fa3aa-c41f-4958-8057-cdedecfefe5e",
-   "key": "dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_50_s",
+   "field_id": "561c94d2-da0d-4c95-93e1-2f0c18373bba",
+   "key": "powierzchnia",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "0ba5bee1-658d-4fc5-94e9-ba6f19a8f95e",
-   "key": "dlugosc_szerokosc_i_powierzchnia_chodnika",
+   "field_id": "4b5fb704-4fa2-47cd-862a-b340c37127ec",
+   "key": "dlugosc_druga_pozycja",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "e8916e10-0dd8-4d93-804e-0af6ae57fe4b",
-   "key": "termin_realizacji_robot_termin_realizacji_robot",
+   "field_id": "bb1bc5c9-c4e5-4e31-b330-f1f2c5ca114d",
+   "key": "szerokosc_druga_pozycja",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "c22466d4-9677-4a16-bbe5-fb7cb204e718",
-   "key": "nazwa_przedsiebiorstwa_lub_osoby_fizycznej",
+   "field_id": "cfa500ab-c6a0-4e98-aa74-d211ae8a4328",
+   "key": "powierzchnia_druga_pozycja",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "00924c72-254c-4595-80cb-f5bf469dfdce",
+   "key": "data_rozpoczecia_robot",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "9551798f-a84e-432b-84ba-09fe7650efa4",
+   "key": "data_zakonczenia_robot",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "d8ff8872-c287-49c0-aa2c-9be498c3262d",
+   "key": "nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 69.12,
+ "seconds": 82.05,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.docx",
@@ -96,66 +111,54 @@
   },
   {
    "accepted": false,
-   "calls": 1,
-   "cost": 0.00161,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['termin_realizacji_robot', 'nazwa_wykonawcy_robot']"
-   ],
+   "cost": 0.00437,
+   "error": "mistral/mistral-small-2603: reply does not match FieldTree after a repair: title: Field required; pages.2.title: Field required",
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 13.2,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00195,
-   "coverage": 1.0,
+   "cost": 0.00658,
+   "coverage": 0.82,
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['powierzchnia_jezdni_do_20_szerokosci', 'powierzchnia_jezdni_od_20_do_50_szerokosci', 'powierzchnia_jezdni_powyzej_50_szerokosci', 'powierzchnia_chodnika', 'termin_realizacji_robot_od_do']"
-   ],
-   "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 13.6,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 1,
-   "cost": 0.00485,
-   "coverage": 1.0,
-   "fails": [
-    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b32: „zam ___”', 'p1.b32: „tel ___”']; każde ___ to osobne pole",
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['powierzchnia_jezdni_zajecie_do_20_szerokosci', 'powierzchnia_jezdni_zajecie_powyzej_20_do_50_szerokosci', 'powierzchnia_jezdni_zajecie_powyzej_50_szerokosci', 'powierzchnia_chodnika', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_osoby_fizycznej']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b7', 'p1.b12']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc', 'szerokosc', 'powierzchnia', 'dlugosc_2', 'szerokosc_2', 'powierzchnia_2', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej']"
    ],
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 19.8,
+   "seconds": 27.2,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00612,
+   "cost": 0.00822,
    "coverage": 1.0,
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_do_20_szerok', 'dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_20_d', 'dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_50_s', 'dlugosc_szerokosc_i_powierzchnia_chodnika', 'termin_realizacji_robot', 'nazwa_przedsiebiorstwa_lub_osoby_fizycznej']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['dlugosc', 'szerokosc', 'powierzchnia', 'dlugosc_druga_pozycja', 'szerokosc_druga_pozycja', 'powierzchnia_druga_pozycja', 'data_rozpoczecia_robot', 'data_zakonczenia_robot', 'nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej']"
    ],
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 22.3,
+   "seconds": 28.5,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": []
+ "warnings": [
+  "Adresat w nagłówku (Urząd Miasta i Gminy Miasteczko) różni się od administratora danych osobowych (Urząd Miasta i Gminy w Daleszycach).",
+  "pole 'dlugosc': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
+  "pole 'szerokosc': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
+  "pole 'powierzchnia': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
+  "pole 'dlugosc_druga_pozycja': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
+  "pole 'szerokosc_druga_pozycja': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny",
+  "pole 'powierzchnia_druga_pozycja': warunek SHOW jest zawsze spełniony (opcje pola sterującego), element zawsze widoczny"
+ ]
 }

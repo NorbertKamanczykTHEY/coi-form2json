@@ -1,8 +1,8 @@
 {
- "cost": 0.00137,
+ "cost": 0.00052,
  "needs_review": [],
  "proposed_dictionaries": [],
- "seconds": 4.51,
+ "seconds": 4.76,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wydanie zaświadczenia.docx",
@@ -53,14 +53,14 @@
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00137,
+   "cost": 0.00052,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 4.4,
+   "seconds": 4.7,
    "stage": "extract"
   }
  ],

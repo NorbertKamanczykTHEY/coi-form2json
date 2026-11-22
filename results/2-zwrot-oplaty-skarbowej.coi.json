@@ -90,9 +90,9 @@
            "techName": "innej_osoby"
           },
           {
-           "id": "Nazwa /Imię i nazwisko",
-           "name": "Nazwa /Imię i nazwisko",
-           "techName": "nazwa_imie_i_nazwisko"
+           "id": "Osoby prawnej lub jednostki organizacyjnej",
+           "name": "Osoby prawnej lub jednostki organizacyjnej",
+           "techName": "osoby_prawnej_lub_jednostki_organizacyjnej"
           }
          ],
          "questionOrder": 0,
@@ -133,7 +133,7 @@
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Nazwa /Imię i nazwisko\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)",
+           "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
@@ -590,7 +590,7 @@
       ],
       "states": [
        {
-        "query": "(\"Nazwa /Imię i nazwisko\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)",
+        "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)",
         "type": "SHOW"
        }
       ],
@@ -849,7 +849,7 @@
       ],
       "states": [
        {
-        "query": "(\"Nazwa /Imię i nazwisko\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)",
+        "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)",
         "type": "SHOW"
        }
       ],
@@ -897,7 +897,7 @@
       ],
       "states": [
        {
-        "query": "(\"Nazwa /Imię i nazwisko\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Reprezentant\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer)",
+        "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Reprezentant\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer)",
         "type": "SHOW"
        }
       ],
@@ -963,6 +963,29 @@
         "rows": 1,
         "x": 0,
         "y": 1
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "25ac608d-092b-48d9-9f1f-dd81c9da5bf9",
+         "options": [],
+         "questionOrder": 2,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_pesel_inna_osoba",
+         "title": "Numer PESEL",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED",
+          "PESEL"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 2
        }
       ],
       "states": [
@@ -977,7 +1000,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 3,
+     "rows": 4,
      "x": 0,
      "y": 35
     },
@@ -987,7 +1010,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "0af6b485-52cd-46d8-81f0-22392cb51851",
       "options": [],
-      "questionOrder": 38,
+      "questionOrder": 39,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1238,7 +1261,7 @@
      },
      "rows": 10,
      "x": 0,
-     "y": 38
+     "y": 39
     },
     {
      "cols": 3,
@@ -1246,7 +1269,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.</span></p></body></html>",
       "id": "e4a1e0e9-19d8-4d77-94c8-ff426f91e0ea",
       "options": [],
-      "questionOrder": 48,
+      "questionOrder": 49,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1274,7 +1297,7 @@
       ],
       "states": [
        {
-        "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) or ((\"Nazwa /Imię i nazwisko\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Pełnomocnik\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer))",
+        "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) or ((\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Pełnomocnik\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer))",
         "type": "SHOW"
        }
       ],
@@ -1286,7 +1309,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 48
+     "y": 49
     },
     {
      "cols": 3,
@@ -1294,7 +1317,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie </span><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\"><a href=\"https://www.biznes.gov.pl/pl/portal/0089#8\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></strong></p></body></html>",
       "id": "2a7ac8a1-7ae1-4812-ba08-22a08534debe",
       "options": [],
-      "questionOrder": 50,
+      "questionOrder": 51,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1397,7 +1420,7 @@
      },
      "rows": 4,
      "x": 0,
-     "y": 50
+     "y": 51
     },
     {
      "cols": 3,
@@ -1405,7 +1428,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "3263f709-8bc4-4ee3-8aa7-8ccee1271861",
       "options": [],
-      "questionOrder": 54,
+      "questionOrder": 55,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1453,19 +1476,19 @@
       ],
       "states": [
        {
-        "query": "(\"Nazwa /Imię i nazwisko\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Pełnomocnik\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer)",
+        "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Pełnomocnik\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer)",
         "type": "SHOW"
        }
       ],
       "techName": "oplata_skarbowa_pelnomocnictwo_2",
-      "title": "Opłata skarbowa za pełnomonictwo",
+      "title": "Opłata skarbowa za pełnomocnictwo",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
      "rows": 3,
      "x": 0,
-     "y": 54
+     "y": 55
     }
    ],
    "title": "Dane",
@@ -1486,7 +1509,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>DD-MM-RRRR</p></body></html>",
+         "description": "",
          "id": "fc6ac6a9-acb5-4bb6-bc7a-d579048793ca",
          "options": [],
          "questionOrder": 0,
@@ -1531,14 +1554,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "6a475f2e-e237-4a73-8052-8136cfb32d3b",
+         "id": "c7b419dd-b148-4c77-b4b8-91a2848a00c5",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "nazwa_organu",
-         "title": "Nazwa organu",
+         "techName": "nazwa_organu_w_ktorym_zaplacono_oplate",
+         "title": "Nazwa organu, w którym zapłacono opłatę",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1573,7 +1596,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Opisz, dlaczego opłata skarbowa, której dotyczy wniosek, została błędnie uiszczona</p></body></html>",
+         "description": "",
          "id": "fb8df33b-7d0a-4bfa-9dc8-0880f7213b07",
          "options": [],
          "questionOrder": 0,
@@ -1608,7 +1631,7 @@
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "601af714-9c32-44da-ae39-82d41aae2e52",
+      "id": "8978a055-4459-463a-a75a-dc4173a42241",
       "options": [],
       "questionOrder": 6,
       "readOnly": false,
@@ -1649,7 +1672,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Numer rachunku bankowego w formacie XXXXXXXXXXXXXXXXXXXXXXXXXXXX</p></body></html>",
+         "description": "<html><head></head><body><p>26 cyfr numeru rachunku</p></body></html>",
          "id": "01c56ee5-d02d-45ba-bc31-50304b6f8e71",
          "options": [],
          "questionOrder": 1,
@@ -1657,7 +1680,7 @@
          "repeatingSectionGrid": [],
          "states": [
           {
-           "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej' in title].questions['sposob_zwrotu_oplaty' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty' in field.techName].field.__userAnswer)",
+           "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej' in title].questions['sposob_zwrotu_oplaty_skarbowej' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty' in field.techName].field.__userAnswer)",
            "type": "SHOW"
           }
          ],
@@ -1675,8 +1698,8 @@
        }
       ],
       "states": [],
-      "techName": "sposob_zwrotu_oplaty",
-      "title": "Sposób zwrotu opłaty",
+      "techName": "sposob_zwrotu_oplaty_skarbowej",
+      "title": "Sposób zwrotu opłaty skarbowej",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -1698,14 +1721,14 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "2a7e3ecd-af12-4028-8cd9-c054fe2f2c69",
+         "id": "626b9afe-c04e-4a7e-8df7-413f05b44e6b",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "imie_dane_wlasciciela_rachunku",
-         "title": "Imię",
+         "techName": "imie_i_nazwisko_lub_nazwa_wlasciciela_rachunku",
+         "title": "Imię i nazwisko lub nazwa właściciela rachunku",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1715,268 +1738,11 @@
         "rows": 1,
         "x": 0,
         "y": 0
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "b53a7105-5fb3-42de-92a0-791b278b06ff",
-         "options": [],
-         "questionOrder": 1,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "nazwisko_dane_wlasciciela_rachunku",
-         "title": "Nazwisko",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 1
-       },
-       {
-        "cols": 3,
-        "field": {
-         "defaultValue": [
-          "Polska"
-         ],
-         "description": "",
-         "dictionaryName": "Kraje",
-         "id": "dfc528da-4187-4842-b379-40b5ecda4194",
-         "options": [],
-         "questionOrder": 2,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "kraj_adres",
-         "title": "Kraj",
-         "tooltipMessage": "",
-         "type": "SELECT",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 2
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "d2a04fe6-cfa2-47a0-8a7e-6723a29b2fc0",
-         "options": [],
-         "questionOrder": 3,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o opłacie skarbowej' in title].questions['dane_wlasciciela_rachunku' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "miejscowosc_adres_zagranica",
-         "title": "Miejscowość",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 3
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "2eb43735-03b9-437c-a8ea-db9612641559",
-         "options": [],
-         "questionOrder": 4,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o opłacie skarbowej' in title].questions['dane_wlasciciela_rachunku' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "kod_pocztowy_adres_zagranica",
-         "title": "Kod pocztowy",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 4
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "6c763f7f-544a-4286-b8df-5819ccd09630",
-         "options": [],
-         "questionOrder": 5,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "$not(\"Polska\" in tabs['Informacje o opłacie skarbowej' in title].questions['dane_wlasciciela_rachunku' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "ulica_adres_zagranica",
-         "title": "Ulica",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 5
-       },
-       {
-        "cols": 3,
-        "field": {
-         "defaultValue": [],
-         "description": "",
-         "dictionaryName": "TERYT_4G_DOWODOWY",
-         "id": "64de92c3-93ff-46cb-b5c5-fb41e21f6225",
-         "multiLevelTree": true,
-         "options": [],
-         "questionOrder": 6,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "searchEnabled": true,
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o opłacie skarbowej' in title].questions['dane_wlasciciela_rachunku' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "wojewodztwo_adres",
-         "title": "Miejscowość",
-         "tooltipMessage": "",
-         "type": "SELECT",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 6
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "e5901c60-2fa4-4052-82db-53561064f79b",
-         "options": [],
-         "questionOrder": 7,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o opłacie skarbowej' in title].questions['dane_wlasciciela_rachunku' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "kod_pocztowy_adres",
-         "title": "Kod pocztowy",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED",
-          "ZIP_CODE"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 7
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "8e11d523-1ea4-4584-8ee0-77895fd86cb5",
-         "options": [],
-         "questionOrder": 8,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [
-          {
-           "query": "(\"Polska\" in tabs['Informacje o opłacie skarbowej' in title].questions['dane_wlasciciela_rachunku' in field.techName].field.repeatingSectionGrid['kraj_adres' in field.techName].field.__userAnswer)",
-           "type": "SHOW"
-          }
-         ],
-         "techName": "ulica_adres",
-         "title": "Ulica",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 8
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "e57bed79-ec3e-43ee-87fb-91f8003838fb",
-         "options": [],
-         "questionOrder": 9,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_budynku_adres",
-         "title": "Numer budynku",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": [
-          "REQUIRED"
-         ]
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 9
-       },
-       {
-        "cols": 3,
-        "field": {
-         "description": "",
-         "id": "2aa4e516-7fa3-4979-b509-28bf21eb3d22",
-         "options": [],
-         "questionOrder": 10,
-         "readOnly": false,
-         "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_lokalu_adres",
-         "title": "Numer lokalu",
-         "tooltipMessage": "",
-         "type": "TEXT_FIELD",
-         "validation": []
-        },
-        "rows": 1,
-        "x": 0,
-        "y": 10
        }
       ],
       "states": [
        {
-        "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej' in title].questions['sposob_zwrotu_oplaty' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty' in field.techName].field.__userAnswer)",
+        "query": "(\"Przelewem na rachunek w banku\" in tabs['Informacje o opłacie skarbowej' in title].questions['sposob_zwrotu_oplaty_skarbowej' in field.techName].field.repeatingSectionGrid['wybierz_sposob_zwrotu_oplaty' in field.techName].field.__userAnswer)",
         "type": "SHOW"
        }
       ],
@@ -1986,7 +1752,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 12,
+     "rows": 2,
      "x": 0,
      "y": 9
     }

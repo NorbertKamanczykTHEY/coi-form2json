@@ -1,0 +1,296 @@
+| Formularz | Pola (r1/r2/r3) | needs_review | warnings | Bramka (przeszła, rundy) | Koszt [$] | Czas [s] | Mediana |
+|---|---|---|---|---|---|---|---|
+| 1-numer-porzadkowy | 54/54/54 | 0/0/0 | 1/2/2 | tak(1)/tak(1)/tak(1) | 0.00182/0.00116/0.00055 | 5.0/8.3/4.6 | r2 |
+| 2-zwrot-oplaty-skarbowej | 57/57/57 | 0/0/0 | 5/5/5 | tak(3)/tak(4)/tak(4) | 0.01291/0.01198/0.01164 | 38.2/47.1/53.2 | r2 |
+| 3-zaswiadczenie | 39/39/39 | 0/0/0 | 0/0/0 | tak(1)/tak(1)/tak(1) | 0.00177/0.00052/0.00051 | 5.1/4.8/4.5 | r2 |
+| 4-swietlica | 42/41/42 | 6/5/6 | 1/1/1 | NIE(4)/NIE(4)/NIE(4) | 0.00844/0.00729/0.00825 | 37.4/37.3/36.9 | r3 |
+| 5-nadplata-podatku | 58/58/58 | 2/2/2 | 1/0/0 | tak(3)/tak(4)/tak(4) | 0.00753/0.00695/0.00791 | 32.1/35.4/32.6 | r1 |
+| 6-pas-drogowy | 85/86/77 | 11/11/10 | 7/7/7 | NIE(3)/NIE(4)/NIE(4) | 0.01916/0.01876/0.01877 | 82.1/87.0/87.2 | r1 |
+| 7-psy-agresywne | 53/52/52 | 5/5/5 | 1/1/1 | tak(4)/tak(3)/tak(3) | 0.01198/0.0069/0.00949 | 50.0/31.9/45.1 | r3 |
+| 8-deklaracja-odpady | 110/113/117 | 27/25/26 | 6/4/4 | NIE(4)/NIE(4)/NIE(4) | 0.06281/0.0752/0.06227 | 228.1/215.4/245.6 | r2 |
+| 9-stypendium-sportowe | 77/76/73 | 22/18/21 | 15/17/20 | NIE(4)/NIE(3)/NIE(4) | 0.05367/0.06097/0.05211 | 187.3/178.1/195.6 | r2 |
+| 7-psy-agresywne-skan | 45/49/63 | 5/6/6 | 1/3/1 | tak(3)/tak(2)/NIE(4) | 0.01356/0.01037/0.01903 | 70.5/62.2/100.3 | r2 |
+| 9-stypendium-sportowe-skan | 75/82/68 | 20/23/16 | 15/24/10 | NIE(4)/NIE(4)/NIE(4) | 0.0678/0.07241/0.05415 | 224.1/272.8/177.8 | r1 |
+
+### 1-numer-porzadkowy  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(12) | Ustalenie numeru porządkowego budynku(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(12) | Dane budynku(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(12) | Ustalenie numeru porządkowego budynku(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 2; różna wymagalność/SHOW/liczba zgód: 0
+  - nazwa ulicy [TEXT_FIELD] tylko w r1
+  - przy ulicy1) [TEXT_FIELD] tylko w r2,3
+### 2-zwrot-oplaty-skarbowej  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(12) | Informacje o opłacie skarbowej(4) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(12) | Informacje o opłacie skarbowej(4) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(12) | Informacje o opłacie skarbowej(4) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 0; różna wymagalność/SHOW/liczba zgód: 0
+### 3-zaswiadczenie  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(8) | Informacje o wniosku(2) | Kontakt i zgody(3) | Strona końcowa(1)
+- strony r2: Dane(8) | Wniosek o wydanie zaświadczenia(1) | Kontakt i zgody(3) | Strona końcowa(1)
+- strony r3: Dane(8) | Wniosek o wydanie zaświadczenia(1) | Kontakt i zgody(3) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 6; różna wymagalność/SHOW/liczba zgód: 0
+  - cel przedłożenia zaświadczenia [TEXTAREA] tylko w r1,2
+  - cel przedłożenia zaświadczenia [TEXT_FIELD] tylko w r3
+  - inne [TEXT_FIELD] tylko w r2,3
+  - inne zaświadczenie [TEXT_FIELD] tylko w r1
+  - rodzaj zaświadczenia [CHECKBOX] tylko w r1,2
+  - rodzaj zaświadczenia [RADIO] tylko w r3
+### 4-swietlica  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(8) | Informacje o wniosku(3) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(8) | Informacje o wynajmie świetlicy(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(8) | Informacje o wniosku(3) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 13; różna wymagalność/SHOW/liczba zgód: 0
+  - cel wynajęcia świetlicy [TEXTAREA] tylko w r2
+  - cel wynajęcia świetlicy [TEXT_FIELD] tylko w r1,3
+  - czy osoba odpowiedzialna to wnioskodawca? [RADIO] tylko w r1,3
+  - imię i nazwisko osoby odpowiedzialnej [TEXT_FIELD] tylko w r1,3
+  - nazwa świetlicy wiejskiej [TEXT_FIELD] tylko w r1,3
+  - osoba odpowiedzialna za porządek i bezpieczeństwo [TEXT_FIELD] tylko w r2
+  - oświadczenie osoby odpowiedzialnej [FILE_UPLOADER] tylko w r1,3
+  - przewidywana ilość uczestników [NUMBER] tylko w r2
+  - przewidywana liczba uczestników [NUMBER] tylko w r1,3
+  - rodzaj wniosku [RADIO] tylko w r2
+  - w [TEXT_FIELD] tylko w r2
+  - wybierz rodzaj umowy [RADIO] tylko w r1,3
+  - zgoda osoby odpowiedzialnej [FILE_UPLOADER] tylko w r2
+### 5-nadplata-podatku  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(12) | Informacje o nadpłacie(3) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(12) | Informacje o nadpłacie(3) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(12) | Informacje o nadpłacie(2) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 2; różna wymagalność/SHOW/liczba zgód: 0
+  - uzasadnienie [TEXTAREA] tylko w r3
+  - uzasadnienie wniosku [TEXTAREA] tylko w r1,2
+### 6-pas-drogowy  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(12) | Dane wniosku(2) | Całkowita powierzchnia zajęcia(3) | Osoba odpowiedzialna za wykonanie robót(1) | Załączniki(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(12) | Dane wniosku(6) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(12) | Dane wniosku(2) | Całkowita powierzchnia zajęcia(3) | Załączniki(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 39; różna wymagalność/SHOW/liczba zgód: 0
+  - całkowita powierzchnia zajęcia [NUMBER] tylko w r1
+  - całkowita powierzchnia zajęcia (m²) [NUMBER] tylko w r2,3
+  - cel zajęcia terenu pasa drogowego [TEXT_FIELD] tylko w r1,3
+  - czy zajęcie pasa drogowego wpływa na ruch drogowy lub ogranicza widoczność na drodze albo powoduje wprowadzenie zmian w istniejącej organizacji ruchu? [RADIO] tylko w r1
+  - czy zajęcie pasa drogowego wpływa na ruch drogowy lub ogranicza widoczność? [RADIO] tylko w r2,3
+  - długość [NUMBER] tylko w r1
+  - długość (druga pozycja) [NUMBER] tylko w r1
+  - długość (m) [NUMBER] tylko w r2,3
+  - długość (m) [NUMBER] (kolejne) tylko w r2,3
+  - imię i nazwisko [TEXT_FIELD] tylko w r1
+  - imię i nazwisko osoby odpowiedzialnej [TEXT_FIELD] tylko w r2,3
+  - miejscowość zamieszkania [TEXT_FIELD] tylko w r3
+  - mui [TEXT_FIELD] tylko w r2
+  - nazwa drogi gminnej [TEXT_FIELD] tylko w r2
+  - nazwa drogi i jej numer [TEXT_FIELD] tylko w r3
+  - nazwa drogi oraz jej numer [TEXT_FIELD] tylko w r1,2
+  - nazwa przedsiębiorstwa lub imię i nazwisko osoby fizycznej [TEXT_FIELD] tylko w r1,3
+  - nazwa przedsiębiorstwa lub osoby fizycznej [TEXT_FIELD] tylko w r2
+  - numer telefonu osoby odpowiedzialnej [TEXT_FIELD] tylko w r2
+  - powierzchnia [NUMBER] tylko w r1
+  - powierzchnia (druga pozycja) [NUMBER] tylko w r1
+  - powierzchnia (m²) [NUMBER] tylko w r2,3
+  - powierzchnia (m²) [NUMBER] (kolejne) tylko w r2,3
+  - projekt organizacji ruchu [FILE_UPLOADER] tylko w r2,3
+  - szerokość [NUMBER] tylko w r1
+  - szerokość (druga pozycja) [NUMBER] tylko w r1
+  - szerokość (m) [NUMBER] tylko w r2,3
+  - szerokość (m) [NUMBER] (kolejne) tylko w r2,3
+  - tel [TEXT_FIELD] tylko w r1,3
+  - zam [SELECT] tylko w r1,2
+  - zam [SELECT] (kolejne) tylko w r1,2
+  - zam [TEXT_FIELD] tylko w r1,2
+  - zam [TEXT_FIELD] (kolejne) tylko w r1,2
+  - zam [TEXT_FIELD] (kolejne) tylko w r1,2
+  - zam [TEXT_FIELD] (kolejne) tylko w r1,2
+  - zam [TEXT_FIELD] (kolejne) tylko w r1,2
+  - zam [TEXT_FIELD] (kolejne) tylko w r1,2
+  - zam [TEXT_FIELD] (kolejne) tylko w r1,2
+  - zatwierdzony projekt organizacji ruchu [FILE_UPLOADER] tylko w r1
+### 7-psy-agresywne  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(8) | Rodzaj wniosku i dane psa(1) | Informacje o psie(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(8) | Informacje o wniosku(1) | Informacje o psie(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(8) | Rodzaj wniosku(1) | Informacje o psie(1) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 9; różna wymagalność/SHOW/liczba zgód: 1
+  - data szczepienia [DATEPICKER] tylko w r3
+  - data szczepienia przeciwko wściekliźnie [DATEPICKER] tylko w r1,2
+  - numer identyfikacyjny psa [TEXT_FIELD] tylko w r2,3
+  - numer mikroprocesora [TEXT_FIELD] tylko w r1
+  - numer tatuażu [TEXT_FIELD] tylko w r1
+  - opis miejsca i warunków utrzymywania psa [TEXTAREA] tylko w r1,3
+  - opis miejsca i warunków utrzymywania psa/psów [TEXTAREA] tylko w r2
+  - płeć psa [RADIO] tylko w r1
+  - wybierz płeć psa [RADIO] tylko w r2,3
+  - zgoda [CONSENT_SECTION] (REQ, SHOW, zgody) = r1:(False, False, 4); r2:(False, False, 3); r3:(False, False, 3)
+### 8-deklaracja-odpady  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(13) | Dane nieruchomości i okoliczności złożenia deklaracji(2) | Dane adresowe nieruchomości(4) | Obliczenie wysokości opłaty dla nieruchomości(3) | Razem wysokość miesięcznej opłaty(2) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(13) | Rodzaj i dane składającego deklarację(2) | Adresy i dane nieruchomości(3) | Dane identyfikacyjne nieruchomości(1) | Obliczenie wysokości opłaty(3) | Razem wysokość miesięcznej opłaty(2) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(13) | Dane nieruchomości i okoliczności złożenia deklaracji(1) | Dane identyfikacyjne współmałżonka(2) | Adres nieruchomości, na której powstają i są gromadzone odpady(4) | Obliczenie wysokości opłaty dla nieruchomości(3) | Razem wysokość miesięcznej opłaty(2) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 62; różna wymagalność/SHOW/liczba zgód: 6
+  - czy nieruchomość w części stanowi nieruchomość, na której nie zamieszkują mieszkańcy, a powstają na niej odpady komunalne? [RADIO] tylko w r1
+  - czy nieruchomość w części stanowi nieruchomość, na której zamieszkują mieszkańcy, a w części nieruchomość, na której nie zamieszkują mieszkańcy, a powstają na niej odpady komunalne? [RADIO] tylko w r2,3
+  - czy nieruchomość wyposażona jest w przydomowy kompostownik? [RADIO] tylko w r1,2
+  - dane innego podmiotu [TEXTAREA] tylko w r2
+  - data wystąpienia zmiany danych [DATEPICKER] (kolejne) tylko w r1,2
+  - imię i nazwisko [TEXT_FIELD] tylko w r2
+  - kwota opłaty z załącznika a lub b [NUMBER] tylko w r2
+  - kwota z pozycji 29 załącznika a lub b do deklaracji [NUMBER] tylko w r3
+  - kwota z załącznika a lub b do deklaracji [NUMBER] tylko w r1
+  - liczba gospodarstw domowych (45-60 m²) [NUMBER] tylko w r2
+  - liczba gospodarstw domowych (45-60 m²) [NUMBER] (kolejne) tylko w r2
+  - liczba gospodarstw domowych (60-80 m²) [NUMBER] tylko w r2
+  - liczba gospodarstw domowych (60-80 m²) [NUMBER] (kolejne) tylko w r2
+  - liczba gospodarstw domowych (do 45 m²) [NUMBER] tylko w r2
+  - liczba gospodarstw domowych (do 45 m²) [NUMBER] (kolejne) tylko w r2
+  - liczba gospodarstw domowych (powyżej 80 m²) [NUMBER] tylko w r2
+  - liczba gospodarstw domowych (powyżej 80 m²) [NUMBER] (kolejne) tylko w r2
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej nieprzekraczającej 45 m² [NUMBER] tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej nieprzekraczającej 45 m² [NUMBER] (kolejne) tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej przekraczającej 45 m², jednak nie większej niż 60 m² [NUMBER] tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej przekraczającej 45 m², jednak nie większej niż 60 m² [NUMBER] (kolejne) tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej przekraczającej 60 m², jednak nie większej niż 80 m² [NUMBER] tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej przekraczającej 60 m², jednak nie większej niż 80 m² [NUMBER] (kolejne) tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej przekraczającej 80 m² [NUMBER] tylko w r1,3
+  - liczba gospodarstw domowych zajmujących lokale mieszkalne o powierzchni użytkowej przekraczającej 80 m² [NUMBER] (kolejne) tylko w r1,3
+  - nazwisko i imię [TEXT_FIELD] tylko w r1
+  - nazwisko i imię lub nazwa pełna [TEXT_FIELD] tylko w r3
+  - nazwisko i imię współmałżonka [TEXT_FIELD] tylko w r3
+  - nip lub regon [TEXT_FIELD] tylko w r3
+  - numer nieruchomości lub domu [TEXT_FIELD] tylko w r1
+  - numer nieruchomości/domu [TEXT_FIELD] tylko w r2,3
+  - numer pesel [TEXT_FIELD] (kolejne) tylko w r2
+  - okoliczności złożenia deklaracji [RADIO] tylko w r2
+  - okoliczność uzasadniająca złożenie deklaracji [RADIO] tylko w r3
+  - oświadczam, że nieruchomość wyposażona jest w przydomowy kompostownik [RADIO] tylko w r3
+  - pesel [RADIO] (kolejne) tylko w r3
+  - pesel [TEXT_FIELD] (kolejne) tylko w r3
+  - pesel [TEXT_FIELD] (kolejne) tylko w r3
+  - pesel współmałżonka [TEXT_FIELD] tylko w r3
+  - rodzaj i dokładne dane innego podmiotu [TEXTAREA] tylko w r3
+  - adres lub opis miejsca lokalizacji pojemników [TEXTAREA] (REQ, SHOW, zgody) = r1:(True, True, 0); r2:(True, False, 0); r3:(True, False, 0)
+  - numer pesel [TEXT_FIELD] (REQ, SHOW, zgody) = r1:(True, True, 0); r2:(False, False, 0); r3:(True, True, 0)
+  - pesel [RADIO] (REQ, SHOW, zgody) = r1:(False, False, 0); r2:(True, True, 0); r3:(True, False, 0)
+  - pesel [TEXT_FIELD] (REQ, SHOW, zgody) = r1:(False, True, 0); r2:(True, True, 0); r3:(True, True, 0)
+  - pesel [TEXT_FIELD] (REQ, SHOW, zgody) = r1:(False, True, 0); r2:(True, True, 0); r3:(True, True, 0)
+  - pesel [TEXT_FIELD] (REQ, SHOW, zgody) = r1:(False, True, 0); r2:(True, True, 0); r3:(True, True, 0)
+### 9-stypendium-sportowe  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(10) | Dane przedmiotu wniosku(13) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(10) | Rodzaj wniosku(2) | Dane klubu sportowego(3) | Osiągnięcia sportowe(7) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(10) | Rodzaj wniosku(2) | Dane kandydata do stypendium lub nagrody(6) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 27; różna wymagalność/SHOW/liczba zgód: 0
+  - adres siedziby [TEXT_FIELD] tylko w r1
+  - czy adres do korespondencji różni się od adresu zameldowania? [RADIO] tylko w r2,3
+  - czy adres do korespondencji różni się od adresu zameldowania? [RADIO] (kolejne) tylko w r2,3
+  - czy kandydat do nagrody jest pełnoletni [RADIO] tylko w r1
+  - czy kandydat do stypendium jest pełnoletni [RADIO] tylko w r1
+  - czy kandydat jest pełnoletni? [RADIO] tylko w r3
+  - czy kandydat pełnoletni [RADIO] tylko w r2
+  - czy podopieczny jest pełnoletni [RADIO] tylko w r3
+  - czy podopieczny pełnoletni [RADIO] tylko w r2
+  - czy podopieczny trenera jest pełnoletni [RADIO] tylko w r1
+  - dodatkowe informacje o kandydacie [TEXTAREA] tylko w r3
+  - dodatkowe informacje o osiągnięciach sportowych [TEXTAREA] tylko w r1,2
+  - dokument z opinią klubu [FILE_UPLOADER] tylko w r1
+  - dokument z opinią klubu sportowego [FILE_UPLOADER] tylko w r2
+  - nazwa klubu sportowego [TEXT_FIELD] tylko w r1
+  - opinia macierzystego klubu sportowego [FILE_UPLOADER] tylko w r3
+  - opinia macierzystego klubu sportowego [TEXTAREA] tylko w r1,2
+  - opinia macierzystego klubu sportowego [TEXTAREA] (kolejne) tylko w r1,2
+  - opis osiągnięć sportowych [TEXTAREA] tylko w r2
+  - opisz najważniejsze osiągnięcia sportowe [TEXTAREA] tylko w r1,3
+  - telefon kontaktowy [TEXT_FIELD] tylko w r1,2
+  - wybierz rodzaj dyscypliny sportowej [CHECKBOX] tylko w r1,2
+  - wybierz rodzaje dyscyplin sportowych [CHECKBOX] tylko w r3
+  - zaświadczenia polskiego związku sportowego [FILE_UPLOADER] tylko w r3
+  - zaświadczenia polskiego związku sportowego dla podopiecznego [FILE_UPLOADER] tylko w r3
+  - zaświadczenia potwierdzające osiągnięcia sportowe [FILE_UPLOADER] tylko w r1,2
+  - zaświadczenia potwierdzające osiągnięcia sportowe podopiecznych [FILE_UPLOADER] tylko w r1,2
+### 7-psy-agresywne-skan  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(8) | Informacje o psie(2) | Rodzaj wniosku(1) | Kontakt i zgody(3) | Strona końcowa(1)
+- strony r2: Dane(8) | Informacje o psie i warunkach utrzymywania(1) | Informacje o psie(1) | Kontakt i zgody(3) | Strona końcowa(1)
+- strony r3: Dane(8) | Informacje o psie(3) | Kontakt i zgody(3) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 38; różna wymagalność/SHOW/liczba zgód: 2
+  - adres miejsca utrzymywania psa [TEXT_FIELD] tylko w r1,2
+  - adres miejsca utrzymywania psa/psów [SELECT] tylko w r3
+  - adres miejsca utrzymywania psa/psów [SELECT] (kolejne) tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] (kolejne) tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] (kolejne) tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] (kolejne) tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] (kolejne) tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] (kolejne) tylko w r3
+  - adres miejsca utrzymywania psa/psów [TEXT_FIELD] (kolejne) tylko w r3
+  - imię i nazwisko poprzedniego właściciela [TEXT_FIELD] tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [SELECT] tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [SELECT] (kolejne) tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] (kolejne) tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] (kolejne) tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] (kolejne) tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] (kolejne) tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] (kolejne) tylko w r3
+  - imię, nazwisko i adres poprzedniego właściciela [TEXT_FIELD] (kolejne) tylko w r3
+  - kopia książeczki szczepień psa przeciwko wściekliźnie [FILE_UPLOADER] tylko w r3
+  - kopia zaświadczenia o szczepieniu przeciwko wściekliźnie [FILE_UPLOADER] tylko w r1,2
+  - liczba psów [NUMBER] tylko w r2
+  - metryka psa [FILE_UPLOADER] tylko w r3
+  - metryka, numer rodowodu, imię, nazwisko i adres poprzedniego właściciela [TEXTAREA] tylko w r1
+  - numer identyfikacyjny psa [TEXT_FIELD] tylko w r1,3
+  - numer mikroprocesora [TEXT_FIELD] tylko w r2
+  - numer rodowodu psa [TEXT_FIELD] tylko w r3
+  - numer tatuażu [TEXT_FIELD] tylko w r2
+  - oznakowanie psa [RADIO] tylko w r2
+  - pochodzenie psa [TEXTAREA] tylko w r2
+  - potwierdzenie zapłaty [FILE_UPLOADER] tylko w r2
+  - płeć psa [RADIO] tylko w r2
+  - rasa mieszańca [TEXT_FIELD] tylko w r2
+  - rodzaj psa [RADIO] tylko w r2
+  - wybierz płeć psa [RADIO] tylko w r1,3
+  - wybierz rodzaj wniosku [RADIO] tylko w r1
+  - wybierz sposób oznakowania psa [RADIO] tylko w r1,3
+  - rasa psa [TEXT_FIELD] (REQ, SHOW, zgody) = r1:(True, False, 0); r2:(True, True, 0); r3:(True, False, 0)
+  - zgoda [CONSENT_SECTION] (REQ, SHOW, zgody) = r1:(False, False, 3); r2:(False, False, 4); r3:(False, False, 3)
+### 9-stypendium-sportowe-skan  (walidacja r1-r3: [True, True, True])
+- strony r1: Dane(10) | Dane sportowca / trenera / podopiecznych(12) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r2: Dane(10) | Rodzaj wniosku(2) | Dane klubu sportowego(7) | Kontakt i zgody(2) | Strona końcowa(1)
+- strony r3: Dane(10) | Rodzaj wniosku(2) | Dane klubu sportowego(4) | Kontakt i zgody(2) | Strona końcowa(1)
+- pola nie we wszystkich przebiegach: 54; różna wymagalność/SHOW/liczba zgód: 0
+  - adres do korespondencji [TEXT_FIELD] tylko w r1,2
+  - adres do korespondencji [TEXT_FIELD] (kolejne) tylko w r1,2
+  - adres do korespondencji [TEXT_FIELD] (kolejne) tylko w r2
+  - adres siedziby [TEXT_FIELD] tylko w r3
+  - adres skrzynki edoręczenia [TEXT_FIELD] tylko w r3
+  - adres skrzynki epuap [TEXT_FIELD] tylko w r3
+  - adres zameldowania [TEXT_FIELD] tylko w r1,2
+  - adres zameldowania [TEXT_FIELD] (kolejne) tylko w r1,2
+  - adres zameldowania [TEXT_FIELD] (kolejne) tylko w r2
+  - czy adres do korespondencji różni się od adresu zameldowania? [RADIO] tylko w r1
+  - czy adres do korespondencji różni się od adresu zameldowania? [RADIO] (kolejne) tylko w r1
+  - czy kandydat jest pełnoletni [RADIO] tylko w r1,3
+  - czy kandydat pełnoletni nagroda [RADIO] tylko w r2
+  - czy kandydat pełnoletni stypendium [RADIO] tylko w r2
+  - czy podopieczny jest pełnoletni [RADIO] tylko w r1,3
+  - czy podopieczny pełnoletni [RADIO] tylko w r2
+  - data urodzenia [DATEPICKER] tylko w r1,2
+  - data urodzenia [DATEPICKER] (kolejne) tylko w r1,2
+  - data urodzenia [DATEPICKER] (kolejne) tylko w r2
+  - dodatkowe informacje o kandydacie/kandydatce do nagrody [TEXTAREA] tylko w r2
+  - dodatkowe informacje o kandydacie/kandydatce do stypendium [TEXTAREA] tylko w r2
+  - dodatkowe informacje o kandydacie/kandydatce do wyróżnienia [TEXTAREA] tylko w r2
+  - dodatkowe informacje o osiągnięciach sportowych [TEXTAREA] tylko w r1,3
+  - dokument z opinią klubu sportowego [FILE_UPLOADER] tylko w r1
+  - dokumenty potwierdzające osiągnięcia sportowe [FILE_UPLOADER] tylko w r1
+  - dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe [FILE_UPLOADER] tylko w r2,3
+  - dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe podopiecznego [FILE_UPLOADER] tylko w r2
+  - dyscypliny sportowe [CHECKBOX] tylko w r2
+  - imię [TEXT_FIELD] (kolejne) tylko w r1,2
+  - imię [TEXT_FIELD] (kolejne) tylko w r1,2
+  - imię [TEXT_FIELD] (kolejne) tylko w r2
+  - inna dyscyplina [TEXT_FIELD] tylko w r1,2
+  - inny adres korespondencyjny [TEXT_FIELD] tylko w r3
+  - nazwa klubu sportowego [TEXT_FIELD] tylko w r3
+  - nazwisko [TEXT_FIELD] (kolejne) tylko w r1,2
+  - nazwisko [TEXT_FIELD] (kolejne) tylko w r1,2
+  - nazwisko [TEXT_FIELD] (kolejne) tylko w r2
+  - opinia macierzystego klubu sportowego [FILE_UPLOADER] tylko w r2
+  - opinia macierzystego klubu sportowego [TEXTAREA] tylko w r1,3
+  - opinia macierzystego klubu sportowego [TEXTAREA] (kolejne) tylko w r1
+
+Łączny koszt 3 przebiegów: $0.7786

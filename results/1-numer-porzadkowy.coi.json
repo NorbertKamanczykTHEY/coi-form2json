@@ -2,13 +2,13 @@
  "flow": {
   "links": [
    {
-    "id": "04fa1ae4-2ba1-4768-9e79-07b92739ff07",
+    "id": "a944744a-80e4-499d-98f9-4ccb292cf750",
     "source": "3fbf7fc3-6299-4697-93c3-c7b170970344",
-    "target": "528bde12-ddf8-48a8-bf3c-b4e83dca26a1"
+    "target": "0e6c1cab-199b-4b45-94af-9bfcf84b1533"
    },
    {
-    "id": "eb60c6fa-375a-44ac-848d-ff3f35291907",
-    "source": "528bde12-ddf8-48a8-bf3c-b4e83dca26a1",
+    "id": "2e0d94b0-df31-4ae8-9b64-877768269c06",
+    "source": "0e6c1cab-199b-4b45-94af-9bfcf84b1533",
     "target": "8e405fed-5fd2-442e-bd33-96a7e5136f68"
    },
    {
@@ -963,6 +963,29 @@
         "rows": 1,
         "x": 0,
         "y": 1
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "fb7054d0-047c-46eb-ad1b-6158a207d89f",
+         "options": [],
+         "questionOrder": 2,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_pesel_inna_osoba",
+         "title": "Numer PESEL",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED",
+          "PESEL"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 2
        }
       ],
       "states": [
@@ -977,7 +1000,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 3,
+     "rows": 4,
      "x": 0,
      "y": 35
     },
@@ -987,7 +1010,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "0c737dd6-f6de-4304-9762-bc8afb06724a",
       "options": [],
-      "questionOrder": 38,
+      "questionOrder": 39,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1238,7 +1261,7 @@
      },
      "rows": 10,
      "x": 0,
-     "y": 38
+     "y": 39
     },
     {
      "cols": 3,
@@ -1246,7 +1269,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.</span></p></body></html>",
       "id": "4ef0bc12-0def-4a6f-a1d3-8a3805342cdc",
       "options": [],
-      "questionOrder": 48,
+      "questionOrder": 49,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1286,7 +1309,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 48
+     "y": 49
     },
     {
      "cols": 3,
@@ -1294,7 +1317,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie </span><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\"><a href=\"https://www.biznes.gov.pl/pl/portal/0089#8\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></strong></p></body></html>",
       "id": "334fe596-c324-4bf9-8b1e-466624c6359e",
       "options": [],
-      "questionOrder": 50,
+      "questionOrder": 51,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1397,7 +1420,7 @@
      },
      "rows": 4,
      "x": 0,
-     "y": 50
+     "y": 51
     },
     {
      "cols": 3,
@@ -1405,7 +1428,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "68a28f31-e837-405b-b69e-1f422d9555e6",
       "options": [],
-      "questionOrder": 54,
+      "questionOrder": 55,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1458,27 +1481,27 @@
        }
       ],
       "techName": "oplata_skarbowa_pelnomocnictwo_2",
-      "title": "Opłata skarbowa za pełnomonictwo",
+      "title": "Opłata skarbowa za pełnomocnictwo",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
      "rows": 3,
      "x": 0,
-     "y": 54
+     "y": 55
     }
    ],
    "title": "Dane",
    "type": "MAIN"
   },
   {
-   "id": "528bde12-ddf8-48a8-bf3c-b4e83dca26a1",
+   "id": "0e6c1cab-199b-4b45-94af-9bfcf84b1533",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "438572bd-224c-4868-8b0a-370d540fa152",
+      "id": "c546e5da-73d5-4e9a-9bf2-791009e020cb",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1486,7 +1509,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Miejscowość, w której zlokalizowany jest budynek.</p></body></html>",
+         "description": "<html><head></head><body><p>Podaj miejscowość, w której budynek jest zlokalizowany</p></body></html>",
          "id": "3bdbf7b2-6421-413b-b99c-bcb82ae03b43",
          "options": [],
          "questionOrder": 0,
@@ -1494,7 +1517,7 @@
          "repeatingSectionGrid": [],
          "states": [],
          "techName": "miejscowosc",
-         "title": "Miejscowość",
+         "title": "W miejscowości",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1508,15 +1531,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Nazwa ulicy, przy której zlokalizowany jest budynek.</p></body></html>",
-         "id": "4f1b59de-32ad-4fa9-aa49-32eb4c584398",
+         "description": "<html><head></head><body><p>Podaj nazwę ulicy, przy której budynek jest zlokalizowany</p></body></html>",
+         "id": "c0c161d9-ff31-49a4-8cdf-7826855e09ab",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "ulica_dane_budynku",
-         "title": "Ulica",
+         "techName": "ulica_lokalizacja_budynku",
+         "title": "Przy ulicy1)",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": []
@@ -1528,7 +1551,7 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Numer ewidencyjny działki, na której zlokalizowany jest budynek.</p></body></html>",
+         "description": "<html><head></head><body><p>Podaj numer ewidencyjny działki, na której znajduje się budynek</p></body></html>",
          "id": "af4d8e64-eb5d-4a02-82d6-a884f32f398c",
          "options": [],
          "questionOrder": 2,
@@ -1550,15 +1573,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Nazwa obrębu ewidencyjnego, w którym zlokalizowana jest działka.</p></body></html>",
-         "id": "00e1f7f0-0e40-4756-b999-89b5c9657a05",
+         "description": "<html><head></head><body><p>Podaj nazwę obrębu, w którym znajduje się działka</p></body></html>",
+         "id": "5414e021-2ad1-4074-9e41-95cb9512b28c",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "obreb_ewidencyjny",
-         "title": "Obręb ewidencyjny",
+         "techName": "obreb",
+         "title": "Obręb",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1571,8 +1594,8 @@
        }
       ],
       "states": [],
-      "techName": "dane_budynku",
-      "title": "Dane budynku",
+      "techName": "lokalizacja_budynku",
+      "title": "Lokalizacja budynku",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
@@ -1582,7 +1605,7 @@
      "y": 0
     }
    ],
-   "title": "Informacje o budynku",
+   "title": "Dane budynku",
    "type": "MAIN"
   },
   {

@@ -1,16 +1,23 @@
 {
- "cost": 0.05729,
+ "cost": 0.0752,
  "needs_review": [
   {
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'numer_y_dzialki_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym', 'wysokosc_miesiecznego_zwolnienia']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_2', 'numery_dzialek_geodezyjnych_2', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym']",
     "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
-    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczam_ze_nieruchomosc_wyposazona_jest_w_przydomowy_komp']"
+    "G17: blok danych osoby wypełniany tylko przy zaznaczonej opcji bez sekcji; to sekcja `person_role: \"third_party\"` z `show_if` na tę opcję: ['p1.b369']",
+    "G24: oświadczenia z dokumentu zgubione; każde „Oświadczam…” to zgoda w `consents` (i `dropped` z powodem `consent`): ['p1.b147']",
+    "G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): ['p1.b343']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b361', 'p1.b362']"
    ],
    "field_id": null,
    "key": "formularz",
    "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
+  },
+  {
+   "field_id": null,
+   "key": "numery_dzialek_geodezyjnych",
+   "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
   },
   {
    "field_id": "a8a3b632-59f6-40c8-893b-ea9ba5178264",
@@ -28,8 +35,13 @@
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "909bd605-a488-45c1-ad94-fed44435794a",
-   "key": "numer_y_dzialki_dzialek_geodezyjnych",
+   "field_id": "fc1b0eed-7807-4f0f-a36b-1846687a4147",
+   "key": "data_wystapienia_zmiany_danych_2",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
+  },
+  {
+   "field_id": "a3c07b56-1420-4bc0-bcac-2f62af1fbdb4",
+   "key": "numery_dzialek_geodezyjnych_2",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
@@ -103,14 +115,21 @@
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "2924ce08-e086-4c9b-ba7c-414089ded1b9",
-   "key": "kwota_oplaty_dla_czesci_nieruchomosci_na_ktorej_nie_zamieszk",
+   "field_id": "a6cb29c2-bf7b-42b3-aea1-5b9422c63eda",
+   "key": "kwota_oplaty_z_zalacznika_a_lub_b",
    "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   },
   {
-   "field_id": "f57fd507-4e70-485e-9622-bd7991fbfc60",
-   "key": "oswiadczam_ze_nieruchomosc_wyposazona_jest_w_przydomowy_komp",
-   "why": "pole wyboru ma mniej niż 2 opcje"
+   "anchor": "p1.b361",
+   "field_id": null,
+   "key": "formularz",
+   "why": "blok z miejscem do wpisania usunięty jako szablon"
+  },
+  {
+   "anchor": "p1.b362",
+   "field_id": null,
+   "key": "formularz",
+   "why": "blok z miejscem do wpisania usunięty jako szablon"
   },
   {
    "anchor": "p1.b353",
@@ -120,7 +139,7 @@
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 184.45,
+ "seconds": 215.36,
  "source": {
   "cost": 0,
   "filename": "Deklaracja o wysokości opłaty.docx",
@@ -128,7 +147,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.04
+  "seconds": 0.05
  },
  "trace": [
   {
@@ -170,69 +189,94 @@
   },
   {
    "accepted": false,
-   "calls": 3,
-   "cost": 0.00851,
-   "coverage": 1.0,
+   "calls": 8,
+   "cost": 0.01195,
+   "coverage": 0.5,
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['adres_zamieszkania_wspolmalzonka', 'numery_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2_2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym', 'wysokosc_miesiecznego_zwolnienia', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2_2_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2_2_2_2']",
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b27']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['adres_zamieszkania_wspolmalzonka', 'pierwsza_deklaracja_data_zdarzenia_powodujacego_powstanie_ob', 'ustanie_obowiazku_uiszczania_oplaty_data_zdarzenia_powodujac', 'nowa_deklaracja_skladana_ze_wzgledu_na_zmiane_danych_bedacyc', 'korekta_zlozonej_obowiazujacej_deklaracji_data_wystapienia_z', 'numer_y_dzialek_geodezyjnych', 'oswiadczenie_o_wyposazeniu_nieruchomosci_w_przydomowy_kompos', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o_', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2_2']",
     "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353', 'p1.b354']",
-    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['inne_zalaczniki']"
+    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['kraj_2', 'wojewodztwo_2', 'gmina_2', 'miejscowosc_2', 'ulica_2', 'numer_nieruchomosci_domu_2', 'numer_lokalu_2', 'kod_pocztowy_2']",
+    "G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): ['p1.b328']",
+    "G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: ['numery_dzialek', 'miejsce_gromadzenia_odpadow', 'czy_nieruchomosc_stanowi_czesc_z_mieszkancami_i_czesc_bez_mi']",
+    "G22: lista załączników jako pole wyboru; każdy dokument to osobne pole FILE_UPLOADER (warunkowy z `show_if`): ['rodzaje_zalacznikow']",
+    "G27: telefon i e-mail wnioskodawcy to szablon „Kontakt i zgody” (`dropped` z powodem `contact`), nie pola przedmiotu: ['numer_telefonu_lub_faksu', 'adres_e_mail']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zgoda_na_otrzymywanie_korespondencji_za_posrednictwem_adresu']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 51.2,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "cost": 0.00437,
-   "error": "repair collapsed the tree (73 -> 5 fields)",
-   "mode": "two_stage",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "stage": "extract"
-  },
-  {
-   "accepted": false,
-   "calls": 2,
-   "cost": 0.02173,
-   "coverage": 1.0,
-   "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_2', 'numer_y_dzialki_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o_', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_mieszkalne_o__2_2_2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym']",
-    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
-    "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
-    "G4: show_if wskazuje nieistniejące pole albo opcję (podaj dokładny key i dokładną nazwę opcji): ['Oświadczenie o wyposażeniu nieruchomości w przydomowy kompostownik']"
-   ],
-   "mode": "two_stage",
-   "model": "mistral/mistral-large-2512",
-   "round": "first",
-   "rung": 1,
-   "seconds": 65.2,
+   "seconds": 57.2,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.02267,
+   "cost": 0.00753,
    "coverage": 1.0,
    "fails": [
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'numer_y_dzialki_dzialek_geodezyjnych', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym', 'wysokosc_miesiecznego_zwolnienia']",
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['adres_zamieszkania_wspolmalzonka', 'data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_2', 'numery_dzialek_geodezyjnych', 'oswiadczenie_o_wyposazeniu_nieruchomosci_w_przydomowy_kompos', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2', 'liczba_gospodarstw_domowych_zajmujacych_lokale_o_powierzchni_2_2']",
     "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
     "G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: ['p1.b51']",
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczam_ze_nieruchomosc_wyposazona_jest_w_przydomowy_komp']"
+    "G17: blok danych osoby wypełniany tylko przy zaznaczonej opcji bez sekcji; to sekcja `person_role: \"third_party\"` z `show_if` na tę opcję: ['p1.b29', 'p1.b369']",
+    "G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): ['p1.b328']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b361', 'p1.b362']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
+   "seconds": 32.0,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 2,
+   "cost": 0.02905,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['adres_zamieszkania_wspolmalzonka', 'data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_2', 'numery_dzialek_geodezyjnych_2', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2']",
+    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353', 'p1.b354']",
+    "G17: blok danych osoby wypełniany tylko przy zaznaczonej opcji bez sekcji; to sekcja `person_role: \"third_party\"` z `show_if` na tę opcję: ['p1.b369']",
+    "G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): ['p1.b343']",
+    "G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: ['nip_lub_regon', 'numery_dzialek_geodezyjnych']",
+    "G22: lista załączników jako pole wyboru; każdy dokument to osobne pole FILE_UPLOADER (warunkowy z `show_if`): ['zalacznik_a', 'zalacznik_b']",
+    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['oswiadczenie_o_wyposazeniu_nieruchomosci_w_przydomowy_kompos']"
+   ],
+   "mode": "two_stage",
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 85.1,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "calls": 1,
+   "cost": 0.02667,
+   "coverage": 1.0,
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['data_zdarzenia_powodujacego_powstanie_obowiazku_oplaty', 'data_zdarzenia_powodujacego_ustanie_obowiazku_oplaty', 'data_wystapienia_zmiany_danych', 'data_wystapienia_zmiany_danych_2', 'numery_dzialek_geodezyjnych_2', 'liczba_gospodarstw_domowych_do_45_m2', 'liczba_gospodarstw_domowych_45_60_m2', 'liczba_gospodarstw_domowych_60_80_m2', 'liczba_gospodarstw_domowych_powyzej_80_m2', 'liczba_gospodarstw_domowych_objetych_zwolnieniem_dochodowym']",
+    "G14: pozycje listy załączników bez pola FILE_UPLOADER (każdy wymieniony dokument to osobny upload): ['p1.b353']",
+    "G17: blok danych osoby wypełniany tylko przy zaznaczonej opcji bez sekcji; to sekcja `person_role: \"third_party\"` z `show_if` na tę opcję: ['p1.b369']",
+    "G24: oświadczenia z dokumentu zgubione; każde „Oświadczam…” to zgoda w `consents` (i `dropped` z powodem `consent`): ['p1.b147']",
+    "G19: pozycja SUMA/RAZEM bez pola NUMBER (wzór i stawka w `description`): ['p1.b343']",
+    "G11: blok z ___ usunięty z niewłaściwym powodem (powinien być polem przedmiotu): ['p1.b361', 'p1.b362']"
    ],
    "mode": "two_stage",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 57.4,
+   "seconds": 67.8,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": []
+ "warnings": [
+  "sekcja 'Adres zamieszkania / siedziby': adres wnioskodawcy jest w szablonie „Dane”, pominięto",
+  "sekcja 'Adres do korespondencji': adres wnioskodawcy jest w szablonie „Dane”, pominięto",
+  "opcja podmiotu z dokumentu 'właściciel nieruchomości / współwłaściciel / najemca/dzierżawca / wspólnota mieszkaniowa / spółdzielnia mieszkaniowa / inny podmiot władający nieruchomością' zastąpiona opcją ze Standardów 'Osoby prawnej lub jednostki organizacyjnej'",
+  "strona 'Obliczenie wysokości opłaty dla właścicieli nieruchomości z kompostownikiem': cała treść warunkowa, sekcje przeniesione na stronę 'Obliczenie wysokości opłaty'"
+ ]
 }

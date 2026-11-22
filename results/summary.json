@@ -2,12 +2,12 @@
  "1-numer-porzadkowy": {
   "file": "Wniosek o ustalenie numeru porządkowego nieruchomości.docx",
   "format": "docx",
-  "seconds": 10.1,
+  "seconds": 8.3,
   "status": 200,
-  "cost": 0.00318,
-  "fields": 53,
+  "cost": 0.00116,
+  "fields": 54,
   "needs_review": 0,
-  "warnings": 0,
+  "warnings": 2,
   "valid": true,
   "errors": [],
   "schema_errors": [],
@@ -15,20 +15,21 @@
   "title": "Wniosek o ustalenie numeru porządkowego budynku",
   "pages": [
    "Dane",
-   "Informacje o budynku",
+   "Dane budynku",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r2"
  },
  "2-zwrot-oplaty-skarbowej": {
   "file": "Wniosek o zwrot opłaty skarbowej.docx",
   "format": "docx",
-  "seconds": 51.0,
+  "seconds": 47.1,
   "status": 200,
-  "cost": 0.01735,
-  "fields": 66,
-  "needs_review": 10,
-  "warnings": 2,
+  "cost": 0.01198,
+  "fields": 57,
+  "needs_review": 0,
+  "warnings": 5,
   "valid": true,
   "errors": [],
   "schema_errors": [],
@@ -39,37 +40,39 @@
    "Informacje o opłacie skarbowej",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r2"
  },
  "3-zaswiadczenie": {
   "file": "Wniosek o wydanie zaświadczenia.docx",
   "format": "docx",
-  "seconds": 4.6,
+  "seconds": 4.8,
   "status": 200,
-  "cost": 0.00137,
-  "fields": 36,
+  "cost": 0.00052,
+  "fields": 39,
   "needs_review": 0,
   "warnings": 0,
   "valid": true,
   "errors": [],
   "schema_errors": [],
   "proposed": [],
-  "title": "Wniosek o wydanie zaświadczenia o posiadanych/dzierżawionych użytkach rolnych lub nieposiadaniu gospodarstwa rolnego",
+  "title": "Wniosek o wydanie zaświadczenia o posiadanych lub dzierżawionych użytkach rolnych",
   "pages": [
    "Dane",
-   "Informacje o wniosku",
+   "Wniosek o wydanie zaświadczenia",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r2"
  },
  "4-swietlica": {
   "file": "Wniosek o wynajęcie świetlicy.docx",
   "format": "docx",
-  "seconds": 45.2,
+  "seconds": 36.9,
   "status": 200,
-  "cost": 0.00946,
-  "fields": 43,
-  "needs_review": 4,
+  "cost": 0.00825,
+  "fields": 42,
+  "needs_review": 6,
   "warnings": 1,
   "valid": true,
   "errors": [],
@@ -78,20 +81,21 @@
   "title": "Wniosek o wynajęcie lub użyczenie świetlicy wiejskiej",
   "pages": [
    "Dane",
-   "Informacje o wynajmie świetlicy",
+   "Informacje o wniosku",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r3"
  },
  "5-nadplata-podatku": {
   "file": "Wniosek o stwierdzenie nadpłaty podatku.docx",
   "format": "docx",
-  "seconds": 20.2,
+  "seconds": 32.1,
   "status": 200,
-  "cost": 0.00382,
+  "cost": 0.00753,
   "fields": 58,
   "needs_review": 2,
-  "warnings": 0,
+  "warnings": 1,
   "valid": true,
   "errors": [],
   "schema_errors": [],
@@ -104,17 +108,18 @@
    "Informacje o nadpłacie",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r1"
  },
  "6-pas-drogowy": {
   "file": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.docx",
   "format": "docx",
-  "seconds": 69.2,
+  "seconds": 82.1,
   "status": 200,
-  "cost": 0.01453,
-  "fields": 70,
-  "needs_review": 8,
-  "warnings": 0,
+  "cost": 0.01916,
+  "fields": 85,
+  "needs_review": 11,
+  "warnings": 7,
   "valid": true,
   "errors": [],
   "schema_errors": [],
@@ -122,86 +127,22 @@
   "title": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego w celu prowadzenia robót",
   "pages": [
    "Dane",
-   "Informacje o zajęciu pasa drogowego",
+   "Dane wniosku",
+   "Całkowita powierzchnia zajęcia",
+   "Osoba odpowiedzialna za wykonanie robót",
+   "Załączniki",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r1"
  },
  "7-psy-agresywne": {
   "file": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.DOC",
   "format": "doc",
-  "seconds": 19.3,
+  "seconds": 45.1,
   "status": 200,
-  "cost": 0.00351,
-  "fields": 41,
-  "needs_review": 5,
-  "warnings": 0,
-  "valid": true,
-  "errors": [],
-  "schema_errors": [],
-  "proposed": [
-   "RASY_PSOW_AGRESYWNYCH"
-  ],
-  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
-  "pages": [
-   "Dane",
-   "Informacje o psie",
-   "Kontakt i zgody",
-   "Strona końcowa"
-  ]
- },
- "8-deklaracja-odpady": {
-  "file": "Deklaracja o wysokości opłaty.docx",
-  "format": "docx",
-  "seconds": 184.5,
-  "status": 200,
-  "cost": 0.05729,
-  "fields": 120,
-  "needs_review": 22,
-  "warnings": 0,
-  "valid": true,
-  "errors": [],
-  "schema_errors": [],
-  "proposed": [],
-  "title": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi",
-  "pages": [
-   "Dane",
-   "Rodzaj i dane nieruchomości",
-   "Obliczenie wysokości opłaty",
-   "Kontakt i zgody",
-   "Strona końcowa"
-  ]
- },
- "9-stypendium-sportowe": {
-  "file": "Wniosek o przyznanie stypendium.docx",
-  "format": "docx",
-  "seconds": 224.7,
-  "status": 200,
-  "cost": 0.06655,
-  "fields": 151,
-  "needs_review": 5,
-  "warnings": 5,
-  "valid": true,
-  "errors": [],
-  "schema_errors": [],
-  "proposed": [
-   "DYSCYPLINY_SPORTOWE"
-  ],
-  "title": "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta Zgierza",
-  "pages": [
-   "Dane",
-   "Rodzaj wniosku",
-   "Kontakt i zgody",
-   "Strona końcowa"
-  ]
- },
- "7-psy-agresywne-skan": {
-  "file": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.JPG",
-  "format": "jpg",
-  "seconds": 60.1,
-  "status": 200,
-  "cost": 0.00974,
-  "fields": 46,
+  "cost": 0.00949,
+  "fields": 52,
   "needs_review": 5,
   "warnings": 1,
   "valid": true,
@@ -213,34 +154,112 @@
   "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
   "pages": [
    "Dane",
-   "Informacje o posiadanym psie",
-   "Oświadczenia",
+   "Rodzaj wniosku",
+   "Informacje o psie",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r3"
  },
- "9-stypendium-sportowe-skan": {
-  "file": "Wniosek o przyznanie stypendium.png",
-  "format": "png",
-  "seconds": 171.2,
+ "8-deklaracja-odpady": {
+  "file": "Deklaracja o wysokości opłaty.docx",
+  "format": "docx",
+  "seconds": 215.4,
   "status": 200,
-  "cost": 0.05994,
-  "fields": 144,
-  "needs_review": 7,
-  "warnings": 2,
+  "cost": 0.0752,
+  "fields": 113,
+  "needs_review": 25,
+  "warnings": 4,
+  "valid": true,
+  "errors": [],
+  "schema_errors": [],
+  "proposed": [],
+  "title": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi",
+  "pages": [
+   "Dane",
+   "Rodzaj i dane składającego deklarację",
+   "Adresy i dane nieruchomości",
+   "Dane identyfikacyjne nieruchomości",
+   "Obliczenie wysokości opłaty",
+   "Razem wysokość miesięcznej opłaty",
+   "Kontakt i zgody",
+   "Strona końcowa"
+  ],
+  "run": "r2"
+ },
+ "9-stypendium-sportowe": {
+  "file": "Wniosek o przyznanie stypendium.docx",
+  "format": "docx",
+  "seconds": 178.1,
+  "status": 200,
+  "cost": 0.06097,
+  "fields": 76,
+  "needs_review": 18,
+  "warnings": 17,
   "valid": true,
   "errors": [],
   "schema_errors": [],
   "proposed": [
-   "SPOSOBY_DORECZENIA",
    "DYSCYPLINY_SPORTOWE"
   ],
-  "title": "Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza",
+  "title": "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta Zgierza",
   "pages": [
    "Dane",
-   "Wniosek",
+   "Rodzaj wniosku",
+   "Dane klubu sportowego",
+   "Osiągnięcia sportowe",
    "Kontakt i zgody",
    "Strona końcowa"
-  ]
+  ],
+  "run": "r2"
+ },
+ "7-psy-agresywne-skan": {
+  "file": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.JPG",
+  "format": "jpg",
+  "seconds": 62.2,
+  "status": 200,
+  "cost": 0.01037,
+  "fields": 49,
+  "needs_review": 6,
+  "warnings": 3,
+  "valid": true,
+  "errors": [],
+  "schema_errors": [],
+  "proposed": [
+   "RASY_PSOW_AGRESYWNYCH"
+  ],
+  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie chartów rasowych oraz ich mieszańców",
+  "pages": [
+   "Dane",
+   "Informacje o psie i warunkach utrzymywania",
+   "Informacje o psie",
+   "Kontakt i zgody",
+   "Strona końcowa"
+  ],
+  "run": "r2"
+ },
+ "9-stypendium-sportowe-skan": {
+  "file": "Wniosek o przyznanie stypendium.png",
+  "format": "png",
+  "seconds": 224.1,
+  "status": 200,
+  "cost": 0.0678,
+  "fields": 75,
+  "needs_review": 20,
+  "warnings": 15,
+  "valid": true,
+  "errors": [],
+  "schema_errors": [],
+  "proposed": [
+   "DYSCYPLINY_SPORTOWE"
+  ],
+  "title": "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta Zgierza",
+  "pages": [
+   "Dane",
+   "Dane sportowca / trenera / podopiecznych",
+   "Kontakt i zgody",
+   "Strona końcowa"
+  ],
+  "run": "r1"
  }
 }

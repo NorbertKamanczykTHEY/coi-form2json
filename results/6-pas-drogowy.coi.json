@@ -2,13 +2,28 @@
  "flow": {
   "links": [
    {
-    "id": "88cdc3ba-e185-4e3e-bd90-a3c05828ff5f",
+    "id": "3737996e-5423-46e4-8717-aefa438bda8a",
     "source": "91a4f9cb-c0db-4c3d-8c34-1a9da254cf92",
-    "target": "9ac66b93-b855-4e24-98f7-a10f80f359e6"
+    "target": "0ebee175-16f9-4cb1-99c2-a09d6c7055af"
    },
    {
-    "id": "9382e5b5-c90f-4bb5-b634-891dd65873f2",
-    "source": "9ac66b93-b855-4e24-98f7-a10f80f359e6",
+    "id": "6cee72bf-6cd1-4719-9a6b-6117a7df2e60",
+    "source": "0ebee175-16f9-4cb1-99c2-a09d6c7055af",
+    "target": "df8f5b29-55d9-4a7e-b3b8-cbeb538d8db0"
+   },
+   {
+    "id": "698565a3-355d-40e3-a9ca-b6bcc6bc8dce",
+    "source": "df8f5b29-55d9-4a7e-b3b8-cbeb538d8db0",
+    "target": "ae1c7e94-516c-4dbe-a1dd-22bb5cd005d9"
+   },
+   {
+    "id": "0f52aaf9-7fbb-457f-9e61-a034f47db6d2",
+    "source": "ae1c7e94-516c-4dbe-a1dd-22bb5cd005d9",
+    "target": "1ab397b5-9d06-4ff5-97ea-f189de6d9dd1"
+   },
+   {
+    "id": "d9e32482-afe5-4aaf-b7d6-053ea0b8e6d7",
+    "source": "1ab397b5-9d06-4ff5-97ea-f189de6d9dd1",
     "target": "0997d6dd-fd67-4ec9-a114-3d7881f17381"
    },
    {
@@ -963,6 +978,29 @@
         "rows": 1,
         "x": 0,
         "y": 1
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "aaf61e05-ad45-4d43-97d0-77bfc34dd8b4",
+         "options": [],
+         "questionOrder": 2,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_pesel_inna_osoba",
+         "title": "Numer PESEL",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED",
+          "PESEL"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 2
        }
       ],
       "states": [
@@ -977,7 +1015,7 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 3,
+     "rows": 4,
      "x": 0,
      "y": 35
     },
@@ -987,7 +1025,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "0abd8229-3d20-46fa-bf53-b16f4f8c8059",
       "options": [],
-      "questionOrder": 38,
+      "questionOrder": 39,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1238,7 +1276,7 @@
      },
      "rows": 10,
      "x": 0,
-     "y": 38
+     "y": 39
     },
     {
      "cols": 3,
@@ -1246,7 +1284,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.</span></p></body></html>",
       "id": "5e2a5f6e-42c9-4099-adc8-957616aa105b",
       "options": [],
-      "questionOrder": 48,
+      "questionOrder": 49,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1286,7 +1324,7 @@
      },
      "rows": 2,
      "x": 0,
-     "y": 48
+     "y": 49
     },
     {
      "cols": 3,
@@ -1294,7 +1332,7 @@
       "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie </span><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\"><a href=\"https://www.biznes.gov.pl/pl/portal/0089#8\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></strong></p></body></html>",
       "id": "3dbcc7c6-343b-41f0-be27-c8f5df4d6c7e",
       "options": [],
-      "questionOrder": 50,
+      "questionOrder": 51,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1397,7 +1435,7 @@
      },
      "rows": 4,
      "x": 0,
-     "y": 50
+     "y": 51
     },
     {
      "cols": 3,
@@ -1405,7 +1443,7 @@
       "description": "<html><head></head><body></body></html>",
       "id": "64a5980e-7e0c-4622-8f3b-da5d87b05807",
       "options": [],
-      "questionOrder": 54,
+      "questionOrder": 55,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
@@ -1458,27 +1496,27 @@
        }
       ],
       "techName": "oplata_skarbowa_pelnomocnictwo_2",
-      "title": "Opłata skarbowa za pełnomonictwo",
+      "title": "Opłata skarbowa za pełnomocnictwo",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
      "rows": 3,
      "x": 0,
-     "y": 54
+     "y": 55
     }
    ],
    "title": "Dane",
    "type": "MAIN"
   },
   {
-   "id": "9ac66b93-b855-4e24-98f7-a10f80f359e6",
+   "id": "0ebee175-16f9-4cb1-99c2-a09d6c7055af",
    "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
-      "id": "ca6e7a34-9ba2-4252-afef-52d28113c648",
+      "id": "94cd3696-5e1d-4e0b-bb86-37ecd14712f1",
       "options": [],
       "questionOrder": 0,
       "readOnly": false,
@@ -1487,9 +1525,31 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "6312f4fb-1554-48db-ad15-5c2145cbf217",
+         "id": "b93a341f-a6df-4203-a3fc-5e9900024071",
          "options": [],
          "questionOrder": 0,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "cel_zajecia_terenu_pasa_drogowego",
+         "title": "Cel zajęcia terenu pasa drogowego",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 0
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "6312f4fb-1554-48db-ad15-5c2145cbf217",
+         "options": [],
+         "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1503,7 +1563,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 0
+        "y": 1
        },
        {
         "cols": 3,
@@ -1511,12 +1571,12 @@
          "description": "",
          "id": "dcefa1fd-f071-43c5-9960-802ada3e3eb6",
          "options": [],
-         "questionOrder": 1,
+         "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
          "techName": "miejscowosc",
-         "title": "Miejscowość",
+         "title": "W miejscowości",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1525,7 +1585,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 1
+        "y": 2
        },
        {
         "cols": 3,
@@ -1533,7 +1593,7 @@
          "description": "",
          "id": "cd76f874-c39c-47be-a229-227bea65d4bf",
          "options": [],
-         "questionOrder": 2,
+         "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1547,36 +1607,15 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 2
-       }
-      ],
-      "states": [],
-      "techName": "dane_drogi",
-      "title": "Dane drogi",
-      "tooltipMessage": "",
-      "type": "SECTION",
-      "validation": []
-     },
-     "rows": 4,
-     "x": 0,
-     "y": 0
-    },
-    {
-     "cols": 3,
-     "field": {
-      "description": "<html><head></head><body></body></html>",
-      "id": "21e68128-e7ba-4799-959a-321d9284a013",
-      "options": [],
-      "questionOrder": 4,
-      "readOnly": false,
-      "repeatingSectionGrid": [
+        "y": 3
+       },
        {
         "cols": 3,
         "field": {
          "description": "",
          "id": "2c7ac451-17e8-4d10-8e5b-0482ab13c27a",
          "options": [],
-         "questionOrder": 0,
+         "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1590,19 +1629,19 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 0
+        "y": 4
        }
       ],
       "states": [],
-      "techName": "rodzaj_i_zakres_robot",
-      "title": "Rodzaj i zakres robót",
+      "techName": "informacje_o_zajeciu_pasa_drogowego",
+      "title": "Informacje o zajęciu pasa drogowego",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 2,
+     "rows": 6,
      "x": 0,
-     "y": 4
+     "y": 0
     },
     {
      "cols": 3,
@@ -1616,17 +1655,38 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj długość, szerokość i powierzchnię w formacie: długość m, szerokość m, powierzchnia m²</p></body></html>",
-         "id": "916a9a5f-72c2-4cc7-bf4e-c0a630520bbc",
-         "options": [],
+         "description": "",
+         "id": "5ed39a1c-eb71-42f3-829f-6f9a785c1142",
+         "options": [
+          {
+           "id": "Jezdnia (przy zajęciu do 20% szerokości)",
+           "name": "Jezdnia (przy zajęciu do 20% szerokości)",
+           "techName": "jezdnia_przy_zajeciu_do_20_szerokosci"
+          },
+          {
+           "id": "Jezdnia (przy zajęciu powyżej 20% do 50% szerokości)",
+           "name": "Jezdnia (przy zajęciu powyżej 20% do 50% szerokości)",
+           "techName": "jezdnia_przy_zajeciu_powyzej_20_do_50_szerokosci"
+          },
+          {
+           "id": "Jezdnia (przy zajęciu powyżej 50% szerokości)",
+           "name": "Jezdnia (przy zajęciu powyżej 50% szerokości)",
+           "techName": "jezdnia_przy_zajeciu_powyzej_50_szerokosci"
+          },
+          {
+           "id": "Chodnik",
+           "name": "Chodnik",
+           "techName": "chodnik"
+          }
+         ],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_do_20_szerok",
-         "title": "Długość, szerokość i powierzchnia jezdni (zajęcie do 20% szerokości)",
+         "techName": "wybierz_rodzaj_zajecia_pasa_drogowego",
+         "title": "Wybierz rodzaj zajęcia pasa drogowego",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "RADIO",
          "validation": [
           "REQUIRED"
          ]
@@ -1638,17 +1698,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj długość, szerokość i powierzchnię w formacie: długość m, szerokość m, powierzchnia m²</p></body></html>",
-         "id": "62006804-11ea-424e-9bff-355452108bf3",
+         "description": "<html><head></head><body><p>Podaj w metrach</p></body></html>",
+         "id": "6d759355-db4e-4d97-8b5c-6188a4e028de",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_20_d",
-         "title": "Długość, szerokość i powierzchnia jezdni (zajęcie powyżej 20% do 50% szerokości)",
+         "techName": "dlugosc",
+         "title": "Długość",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "NUMBER",
          "validation": [
           "REQUIRED"
          ]
@@ -1660,17 +1720,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj długość, szerokość i powierzchnię w formacie: długość m, szerokość m, powierzchnia m²</p></body></html>",
-         "id": "b91fa3aa-c41f-4958-8057-cdedecfefe5e",
+         "description": "<html><head></head><body><p>Podaj w metrach</p></body></html>",
+         "id": "e53b09c6-a84b-4a4d-ac4d-468994d04b36",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "dlugosc_szerokosc_i_powierzchnia_jezdni_zajecie_powyzej_50_s",
-         "title": "Długość, szerokość i powierzchnia jezdni (zajęcie powyżej 50% szerokości)",
+         "techName": "szerokosc",
+         "title": "Szerokość",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "NUMBER",
          "validation": [
           "REQUIRED"
          ]
@@ -1682,17 +1742,17 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj długość, szerokość i powierzchnię w formacie: długość m, szerokość m, powierzchnia m²</p></body></html>",
-         "id": "0ba5bee1-658d-4fc5-94e9-ba6f19a8f95e",
+         "description": "<html><head></head><body><p>Podaj w metrach kwadratowych</p></body></html>",
+         "id": "561c94d2-da0d-4c95-93e1-2f0c18373bba",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "dlugosc_szerokosc_i_powierzchnia_chodnika",
-         "title": "Długość, szerokość i powierzchnia chodnika",
+         "techName": "powierzchnia",
+         "title": "Powierzchnia",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "NUMBER",
          "validation": [
           "REQUIRED"
          ]
@@ -1704,15 +1764,15 @@
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj powierzchnię w m²</p></body></html>",
-         "id": "60b5b541-7d67-46cf-8c8e-5ce56b4a0bcf",
+         "description": "<html><head></head><body><p>Podaj w metrach</p></body></html>",
+         "id": "4b5fb704-4fa2-47cd-862a-b340c37127ec",
          "options": [],
          "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "calkowita_powierzchnia_zajecia",
-         "title": "Całkowita powierzchnia zajęcia",
+         "techName": "dlugosc_druga_pozycja",
+         "title": "Długość (druga pozycja)",
          "tooltipMessage": "",
          "type": "NUMBER",
          "validation": [
@@ -1722,18 +1782,112 @@
         "rows": 1,
         "x": 0,
         "y": 4
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "<html><head></head><body><p>Podaj w metrach</p></body></html>",
+         "id": "bb1bc5c9-c4e5-4e31-b330-f1f2c5ca114d",
+         "options": [],
+         "questionOrder": 5,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "szerokosc_druga_pozycja",
+         "title": "Szerokość (druga pozycja)",
+         "tooltipMessage": "",
+         "type": "NUMBER",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 5
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "<html><head></head><body><p>Podaj w metrach kwadratowych</p></body></html>",
+         "id": "cfa500ab-c6a0-4e98-aa74-d211ae8a4328",
+         "options": [],
+         "questionOrder": 6,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "powierzchnia_druga_pozycja",
+         "title": "Powierzchnia (druga pozycja)",
+         "tooltipMessage": "",
+         "type": "NUMBER",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 6
        }
       ],
       "states": [],
       "techName": "powierzchnia_zajecia_pasa_drogowego",
       "title": "Powierzchnia zajęcia pasa drogowego",
       "tooltipMessage": "",
+      "type": "REPEATING_SECTION",
+      "validation": []
+     },
+     "rows": 8,
+     "x": 0,
+     "y": 6
+    }
+   ],
+   "title": "Dane wniosku",
+   "type": "MAIN"
+  },
+  {
+   "id": "df8f5b29-55d9-4a7e-b3b8-cbeb538d8db0",
+   "questions": [
+    {
+     "cols": 3,
+     "field": {
+      "description": "<html><head></head><body></body></html>",
+      "id": "60b5b541-7d67-46cf-8c8e-5ce56b4a0bcf",
+      "options": [],
+      "questionOrder": 0,
+      "readOnly": false,
+      "repeatingSectionGrid": [
+       {
+        "cols": 3,
+        "field": {
+         "description": "<html><head></head><body><p>Podaj w metrach kwadratowych</p></body></html>",
+         "id": "c5592de9-80dc-473f-9428-9ccb98a8dc8f",
+         "options": [],
+         "questionOrder": 0,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "calkowita_powierzchnia_zajecia_calkowita_powierzchnia_zajeci",
+         "title": "Całkowita powierzchnia zajęcia",
+         "tooltipMessage": "",
+         "type": "NUMBER",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 0
+       }
+      ],
+      "states": [],
+      "techName": "calkowita_powierzchnia_zajecia",
+      "title": "Całkowita powierzchnia zajęcia",
+      "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 6,
+     "rows": 2,
      "x": 0,
-     "y": 6
+     "y": 0
     },
     {
      "cols": 3,
@@ -1741,23 +1895,23 @@
       "description": "<html><head></head><body></body></html>",
       "id": "a3d11067-051f-4431-abf9-dde279df87bf",
       "options": [],
-      "questionOrder": 12,
+      "questionOrder": 2,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
-         "description": "<html><head></head><body><p>Podaj termin realizacji robót w formacie: od DD.MM.RRRR do DD.MM.RRRR</p></body></html>",
-         "id": "e8916e10-0dd8-4d93-804e-0af6ae57fe4b",
+         "description": "",
+         "id": "00924c72-254c-4595-80cb-f5bf469dfdce",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "termin_realizacji_robot_termin_realizacji_robot",
-         "title": "Termin realizacji robót",
+         "techName": "data_rozpoczecia_robot",
+         "title": "Data rozpoczęcia robót",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "DATEPICKER",
          "validation": [
           "REQUIRED"
          ]
@@ -1770,9 +1924,31 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "b9ae2d3a-fbf8-4712-b2cc-95c0ee74356f",
+         "id": "9551798f-a84e-432b-84ba-09fe7650efa4",
          "options": [],
          "questionOrder": 1,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "data_zakonczenia_robot",
+         "title": "Data zakończenia robót",
+         "tooltipMessage": "",
+         "type": "DATEPICKER",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 1
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "b9ae2d3a-fbf8-4712-b2cc-95c0ee74356f",
+         "options": [],
+         "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1786,7 +1962,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 1
+        "y": 2
        },
        {
         "cols": 3,
@@ -1794,7 +1970,7 @@
          "description": "",
          "id": "ad02306d-ce38-47d3-9e5e-b969acee13c9",
          "options": [],
-         "questionOrder": 2,
+         "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
@@ -1808,7 +1984,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 2
+        "y": 3
        }
       ],
       "states": [],
@@ -1818,9 +1994,9 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 4,
+     "rows": 5,
      "x": 0,
-     "y": 12
+     "y": 2
     },
     {
      "cols": 3,
@@ -1828,21 +2004,71 @@
       "description": "<html><head></head><body></body></html>",
       "id": "0ec2992d-b623-4bc1-9057-17e1963a9273",
       "options": [],
-      "questionOrder": 16,
+      "questionOrder": 7,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
          "description": "",
-         "id": "c22466d4-9677-4a16-bbe5-fb7cb204e718",
+         "id": "d8ff8872-c287-49c0-aa2c-9be498c3262d",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "nazwa_przedsiebiorstwa_lub_osoby_fizycznej",
-         "title": "Nazwa przedsiębiorstwa lub osoby fizycznej",
+         "techName": "nazwa_przedsiebiorstwa_lub_imie_i_nazwisko_osoby_fizycznej",
+         "title": "Nazwa przedsiębiorstwa lub imię i nazwisko osoby fizycznej",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 0
+       }
+      ],
+      "states": [],
+      "techName": "wykonawca_robot",
+      "title": "Wykonawca robót",
+      "tooltipMessage": "",
+      "type": "SECTION",
+      "validation": []
+     },
+     "rows": 2,
+     "x": 0,
+     "y": 7
+    }
+   ],
+   "title": "Całkowita powierzchnia zajęcia",
+   "type": "MAIN"
+  },
+  {
+   "id": "ae1c7e94-516c-4dbe-a1dd-22bb5cd005d9",
+   "questions": [
+    {
+     "cols": 3,
+     "field": {
+      "description": "<html><head></head><body></body></html>",
+      "id": "298368c2-8c39-41ca-83e9-1ec974153343",
+      "options": [],
+      "questionOrder": 0,
+      "readOnly": false,
+      "repeatingSectionGrid": [
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "8705de91-6826-4305-8b00-e2dedc82f2c4",
+         "options": [],
+         "questionOrder": 0,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "imie_i_nazwisko",
+         "title": "Imię i nazwisko",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1856,17 +2082,21 @@
        {
         "cols": 3,
         "field": {
+         "defaultValue": [
+          "Polska"
+         ],
          "description": "",
-         "id": "7d206f03-1c20-4341-a80e-1e34cf46074b",
+         "dictionaryName": "Kraje",
+         "id": "0d4ad115-041d-4a81-a363-a34ab968d52e",
          "options": [],
          "questionOrder": 1,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "imie_i_nazwisko_osoby_odpowiedzialnej",
-         "title": "Imię i nazwisko osoby odpowiedzialnej",
+         "techName": "kraj_adres_zamieszkania",
+         "title": "Zam",
          "tooltipMessage": "",
-         "type": "TEXT_FIELD",
+         "type": "SELECT",
          "validation": [
           "REQUIRED"
          ]
@@ -1879,14 +2109,19 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "e953cf13-4194-4feb-9161-e1032eeb2b7d",
+         "id": "9a9db40c-3479-4c31-ac90-cbf1a612b4d0",
          "options": [],
          "questionOrder": 2,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "miejscowosc_zamieszkania_osoby_odpowiedzialnej",
-         "title": "Miejscowość zamieszkania osoby odpowiedzialnej",
+         "states": [
+          {
+           "query": "$not(\"Polska\" in tabs['Osoba odpowiedzialna za wykonanie robót' in title].questions['osoba_odpowiedzialna_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_zamieszkania' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "miejscowosc_adres_zamieszkania_zagranica",
+         "title": "Zam",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1901,14 +2136,19 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "6a9581d9-f339-4e10-aeb6-ae03bf8bbbcf",
+         "id": "4a6dd5d6-e9ea-4d3d-b1d8-9dfa65382a13",
          "options": [],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [],
-         "techName": "numer_telefonu_osoby_odpowiedzialnej",
-         "title": "Numer telefonu osoby odpowiedzialnej",
+         "states": [
+          {
+           "query": "$not(\"Polska\" in tabs['Osoba odpowiedzialna za wykonanie robót' in title].questions['osoba_odpowiedzialna_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_zamieszkania' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "kod_pocztowy_adres_zamieszkania_zagranica",
+         "title": "Zam",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
          "validation": [
@@ -1918,32 +2158,216 @@
         "rows": 1,
         "x": 0,
         "y": 3
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "0dfbc981-dcfb-4cb3-a5c4-f7a97b4f827c",
+         "options": [],
+         "questionOrder": 4,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "$not(\"Polska\" in tabs['Osoba odpowiedzialna za wykonanie robót' in title].questions['osoba_odpowiedzialna_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_zamieszkania' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "ulica_adres_zamieszkania_zagranica",
+         "title": "Zam",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 4
+       },
+       {
+        "cols": 3,
+        "field": {
+         "defaultValue": [],
+         "description": "",
+         "dictionaryName": "TERYT_4G_DOWODOWY",
+         "id": "0bdb5624-3a81-4293-b641-99ec5f94ee87",
+         "multiLevelTree": true,
+         "options": [],
+         "questionOrder": 5,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "searchEnabled": true,
+         "states": [
+          {
+           "query": "(\"Polska\" in tabs['Osoba odpowiedzialna za wykonanie robót' in title].questions['osoba_odpowiedzialna_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_zamieszkania' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "wojewodztwo_adres_zamieszkania",
+         "title": "Zam",
+         "tooltipMessage": "",
+         "type": "SELECT",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 5
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "2f8e4c51-d21f-47b9-abae-613a2ee3cfbc",
+         "options": [],
+         "questionOrder": 6,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Polska\" in tabs['Osoba odpowiedzialna za wykonanie robót' in title].questions['osoba_odpowiedzialna_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_zamieszkania' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "kod_pocztowy_adres_zamieszkania",
+         "title": "Zam",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED",
+          "ZIP_CODE"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 6
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "7037b636-8882-42ed-b7a0-40e0f89fea5d",
+         "options": [],
+         "questionOrder": 7,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Polska\" in tabs['Osoba odpowiedzialna za wykonanie robót' in title].questions['osoba_odpowiedzialna_za_wykonanie_robot' in field.techName].field.repeatingSectionGrid['kraj_adres_zamieszkania' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "ulica_adres_zamieszkania",
+         "title": "Zam",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 7
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "4e9ac73a-5325-4ee2-9693-1b9f0297b752",
+         "options": [],
+         "questionOrder": 8,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_budynku_adres_zamieszkania",
+         "title": "Zam",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 8
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "2a8150c9-7de3-4212-8281-1cce2e55dae6",
+         "options": [],
+         "questionOrder": 9,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_lokalu_adres_zamieszkania",
+         "title": "Zam",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": []
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 9
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "31ffd278-9995-4cdf-9219-4b6c03c8a633",
+         "options": [],
+         "questionOrder": 10,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [],
+         "techName": "numer_telefonu",
+         "title": "Tel",
+         "tooltipMessage": "",
+         "type": "TEXT_FIELD",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 10
        }
       ],
       "states": [],
-      "techName": "wykonawca_robot",
-      "title": "Wykonawca robót",
+      "techName": "osoba_odpowiedzialna_za_wykonanie_robot",
+      "title": "Osoba odpowiedzialna za wykonanie robót",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []
      },
-     "rows": 5,
+     "rows": 12,
      "x": 0,
-     "y": 16
-    },
+     "y": 0
+    }
+   ],
+   "title": "Osoba odpowiedzialna za wykonanie robót",
+   "type": "MAIN"
+  },
+  {
+   "id": "1ab397b5-9d06-4ff5-97ea-f189de6d9dd1",
+   "questions": [
     {
      "cols": 3,
      "field": {
       "description": "<html><head></head><body></body></html>",
       "id": "d55ab1cd-8235-4ec5-af24-5638911aacfb",
       "options": [],
-      "questionOrder": 21,
+      "questionOrder": 0,
       "readOnly": false,
       "repeatingSectionGrid": [
        {
         "cols": 3,
         "field": {
-         "description": "",
+         "description": "<html><head></head><body><p>Skala 1:10 000 lub 1:25 000</p></body></html>",
          "id": "a68401fe-8d3e-475c-96fc-b327dd618fac",
          "options": [],
          "questionOrder": 0,
@@ -2010,16 +2434,27 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "a2d4d25d-f9d9-4296-9ecc-8d1e8b28d994",
-         "options": [],
+         "id": "6358c0e0-d0ed-42f5-91f4-3114c14ae9de",
+         "options": [
+          {
+           "id": "Tak",
+           "name": "Tak",
+           "techName": "tak"
+          },
+          {
+           "id": "Nie",
+           "name": "Nie",
+           "techName": "nie"
+          }
+         ],
          "questionOrder": 3,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "projekt_organizacji_ruchu",
-         "title": "Projekt organizacji ruchu",
+         "techName": "czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni",
+         "title": "Czy zajęcie pasa drogowego wpływa na ruch drogowy lub ogranicza widoczność na drodze albo powoduje wprowadzenie zmian w istniejącej organizacji ruchu?",
          "tooltipMessage": "",
-         "type": "FILE_UPLOADER",
+         "type": "RADIO",
          "validation": [
           "REQUIRED"
          ]
@@ -2032,12 +2467,44 @@
         "cols": 3,
         "field": {
          "description": "",
-         "id": "e5f1597f-ffb3-46a9-9332-af72f822d375",
+         "id": "e9ff14c5-a65e-4da9-a90c-897777862dc1",
          "options": [],
          "questionOrder": 4,
          "readOnly": false,
          "repeatingSectionGrid": [],
-         "states": [],
+         "states": [
+          {
+           "query": "(\"Tak\" in tabs['Załączniki' in title].questions['zalaczniki' in field.techName].field.repeatingSectionGrid['czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
+         "techName": "zatwierdzony_projekt_organizacji_ruchu",
+         "title": "Zatwierdzony projekt organizacji ruchu",
+         "tooltipMessage": "",
+         "type": "FILE_UPLOADER",
+         "validation": [
+          "REQUIRED"
+         ]
+        },
+        "rows": 1,
+        "x": 0,
+        "y": 4
+       },
+       {
+        "cols": 3,
+        "field": {
+         "description": "",
+         "id": "e5f1597f-ffb3-46a9-9332-af72f822d375",
+         "options": [],
+         "questionOrder": 5,
+         "readOnly": false,
+         "repeatingSectionGrid": [],
+         "states": [
+          {
+           "query": "(\"Nie\" in tabs['Załączniki' in title].questions['zalaczniki' in field.techName].field.repeatingSectionGrid['czy_zajecie_pasa_drogowego_wplywa_na_ruch_drogowy_lub_ograni' in field.techName].field.__userAnswer)",
+           "type": "SHOW"
+          }
+         ],
          "techName": "informacja_o_sposobie_zabezpieczenia_robot",
          "title": "Informacja o sposobie zabezpieczenia robót",
          "tooltipMessage": "",
@@ -2046,7 +2513,7 @@
         },
         "rows": 1,
         "x": 0,
-        "y": 4
+        "y": 5
        }
       ],
       "states": [],
@@ -2056,12 +2523,12 @@
       "type": "SECTION",
       "validation": []
      },
-     "rows": 6,
+     "rows": 7,
      "x": 0,
-     "y": 21
+     "y": 0
     }
    ],
-   "title": "Informacje o zajęciu pasa drogowego",
+   "title": "Załączniki",
    "type": "MAIN"
   },
   {
@@ -2082,13 +2549,13 @@
          "defaultValue": "MLPZ.phoneNumber",
          "defaultValueType": "EXTERNAL_SYSTEM",
          "description": "",
-         "id": "31ffd278-9995-4cdf-9219-4b6c03c8a633",
+         "id": "c7ccad16-8081-4edd-8d55-b3b6d066032f",
          "options": [],
          "questionOrder": 0,
          "readOnly": false,
          "repeatingSectionGrid": [],
          "states": [],
-         "techName": "numer_telefonu",
+         "techName": "numer_telefonu_dane_do_kontaktu",
          "title": "Numer telefonu",
          "tooltipMessage": "",
          "type": "TEXT_FIELD",
@@ -2151,10 +2618,6 @@
            {
             "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z </span><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"klauzulą informacyjną\" aria-label=\"Link otwiera się w nowej karcie\">klauzulą informacyjną</a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\" title=\" \" aria-label=\"Link otwiera się w nowej karcie\"> </a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></p></body></html>",
             "required": true
-           },
-           {
-            "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie moich danych osobowych przez Urząd Miasta i Gminy w Daleszycach.</p></body></html>",
-            "required": true
            }
           ],
           "files": []
@@ -2179,7 +2642,7 @@
       ],
       "states": [],
       "techName": "zgoda_wyrazenie",
-      "title": "Zgody i oświadczenia",
+      "title": "Zgoda",
       "tooltipMessage": "",
       "type": "SECTION",
       "validation": []

@@ -1,9 +1,9 @@
 {
- "cost": 0.00351,
+ "cost": 0.00949,
  "needs_review": [
   {
-   "field_id": "86e0ea8c-e613-4622-b72c-5282219bbc21",
-   "key": "data_szczepienia_przeciwko_wsciekliznie",
+   "field_id": "b12879ba-1ca1-42c2-b842-b558eb45c4d7",
+   "key": "data_szczepienia",
    "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
   },
   {
@@ -17,8 +17,8 @@
    "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
   },
   {
-   "field_id": "86e0ea8c-e613-4622-b72c-5282219bbc21",
-   "key": "data_szczepienia_przeciwko_wsciekliznie",
+   "field_id": "b12879ba-1ca1-42c2-b842-b558eb45c4d7",
+   "key": "data_szczepienia",
    "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
   },
   {
@@ -87,7 +87,7 @@
    "source": "catalog"
   }
  ],
- "seconds": 19.25,
+ "seconds": 45.1,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.DOC",
@@ -95,7 +95,7 @@
   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "parser": "kreuzberg",
   "parser_version": "kreuzberg 4.10.4",
-  "seconds": 0.02
+  "seconds": 0.01
  },
  "trace": [
   {
@@ -138,32 +138,47 @@
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00211,
+   "cost": 0.00148,
    "coverage": 0.83,
    "fails": [
-    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b16']"
+    "G3: miejsca do wpisania (___ lub ☐) bez pola ani dropped; każde z nich to pole przedmiotu albo świadomie usunięty blok szablonu: ['p1.b16']",
+    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['rasa_psa', 'data_urodzenia_psa', 'data_szczepienia_przeciwko_wsciekliznie', 'plec_psa', 'sposob_oznakowania_psa']",
+    "G24: oświadczenia z dokumentu zgubione; każde „Oświadczam…” to zgoda w `consents` (i `dropped` z powodem `consent`): ['p1.b18']",
+    "G21: opis przeczy konfiguracji (pole wymagane, a opis mówi „nieobowiązkowe” albo podaje warunek bez `show_if`); zrób pole opcjonalnym z cytatem w `optional_evidence` albo dodaj `show_if`: ['data_szczepienia_przeciwko_wsciekliznie']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 9.5,
+   "seconds": 13.4,
+   "stage": "extract"
+  },
+  {
+   "accepted": false,
+   "cost": 0.00497,
+   "error": "mistral/mistral-small-2603: reply does not match FieldTree after a repair: : Invalid JSON: EOF while parsing a list at line 1 column 4355",
+   "mode": "single",
+   "model": "mistral/mistral-small-2603",
+   "round": "repair",
+   "rung": 0,
    "stage": "extract"
   },
   {
    "accepted": true,
    "calls": 1,
-   "cost": 0.00139,
+   "cost": 0.00305,
    "coverage": 1.0,
    "fails": [],
    "mode": "single",
-   "model": "mistral/mistral-small-2603",
-   "round": "repair",
-   "rung": 0,
-   "seconds": 9.6,
+   "model": "mistral/mistral-large-2512",
+   "round": "first",
+   "rung": 1,
+   "seconds": 13.8,
    "stage": "extract"
   }
  ],
  "validation": [],
- "warnings": []
+ "warnings": [
+  "Zgoda na zaświadczenie o szczepieniu przeciwko wściekliźnie jest wymieniona jako oświadczenie, ale dokument każe dołączyć kopię zaświadczenia (załącznik). Zgoda została przeniesiona do `consents`, a załącznik do pól przedmiotu."
+ ]
 }

@@ -1,29 +1,43 @@
 {
- "cost": 0.00946,
+ "cost": 0.00825,
  "needs_review": [
   {
-   "field_id": "1c276140-339e-4521-a093-787af9c43294",
-   "key": "osoba_odpowiedzialna_za_utrzymanie_porzadku_i_bezpieczenstwa",
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_odpowiedzialnej']",
+    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['czy_osoba_odpowiedzialna_to_wnioskodawca', 'oswiadczenie_osoby_odpowiedzialnej']"
+   ],
+   "field_id": null,
+   "key": "formularz",
+   "why": "wynik niepewny: bramka jakości nie przeszła w żadnej rundzie"
+  },
+  {
+   "field_id": "02166c20-c9e3-4dcc-ac4e-4489498b7b56",
+   "key": "czy_osoba_odpowiedzialna_to_wnioskodawca",
    "why": "źródło opisuje pole warunkiem („jeśli…”, „w przypadku…”), a pole nie ma warunku wyświetlania"
   },
   {
-   "field_id": "483a0795-2d28-4a1b-abd3-c2f9995d807b",
-   "key": "miejsce_swietlicy_wiejskiej",
+   "field_id": "5d9ddc01-cb5e-45f3-b792-b6b11c4891fb",
+   "key": "nazwa_swietlicy_wiejskiej",
    "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
   },
   {
-   "field_id": "23b370e4-db60-429c-9d59-44f34d402915",
-   "key": "data_rozpoczecia_wynajmu",
+   "field_id": "5c701769-eb58-40ee-b26e-aa1a92827fdf",
+   "key": "termin_od",
    "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
   },
   {
-   "field_id": "680dd27c-1aac-408e-bf95-e2ba2fffa3f9",
-   "key": "data_zakonczenia_wynajmu",
+   "field_id": "cd7a1e67-1481-4f6b-9514-4bb511212c8f",
+   "key": "termin_do",
    "why": "pole leży w bloku wyboru, ale nie ma warunku wyświetlania"
+  },
+  {
+   "field_id": "2c874419-d5b7-446f-83f0-c6618828068b",
+   "key": "oswiadczenie_osoby_odpowiedzialnej",
+   "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"
   }
  ],
  "proposed_dictionaries": [],
- "seconds": 45.19,
+ "seconds": 36.84,
  "source": {
   "cost": 0,
   "filename": "Wniosek o wynajęcie świetlicy.docx",
@@ -76,60 +90,65 @@
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00141,
+   "cost": 0.00177,
    "coverage": 1.0,
    "fails": [
-    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b10: „wynajem/użyczenie* świetlicy wiejskiej w ___”']; każde ___ to osobne pole"
+    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['imie_i_nazwisko_osoby_odpowiedzialnej', 'zgoda_osoby_odpowiedzialnej_na_pelnienie_funkcji']",
+    "G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: ['p1.b9', 'p1.b10']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "first",
    "rung": 0,
-   "seconds": 6.3,
+   "seconds": 5.2,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.00129,
+   "cost": 0.00104,
    "coverage": 1.0,
    "fails": [
-    "G5: RADIO/CHECKBOX/SELECT z mniej niż 2 opcjami: ['zapoznanie_sie_z_warunkami_wynajmu', 'odpowiedzialnosc_za_lad_i_porzadek', 'przestrzeganie_przepisow_sanitarnych_bhp_i_p_poz', 'odpowiedzialnosc_za_powierzone_mienie']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['zgoda_osoby_odpowiedzialnej_na_pelnienie_funkcji']",
+    "G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: ['p1.b10']"
    ],
    "mode": "single",
    "model": "mistral/mistral-small-2603",
    "round": "repair",
    "rung": 0,
-   "seconds": 10.7,
+   "seconds": 7.8,
    "stage": "extract"
   },
   {
    "accepted": false,
    "calls": 1,
-   "cost": 0.003,
+   "cost": 0.00262,
    "coverage": 1.0,
    "fails": [
-    "G3: w akapicie z kilkoma miejscami do wpisania brakuje pól dla: ['p1.b10: „wraz z wyposażeniem w terminie od ___”']; każde ___ to osobne pole",
-    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['zalacznik_zgoda_osoby_odpowiedzialnej']"
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_odpowiedzialnej']",
+    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['imie_i_nazwisko_osoby_odpowiedzialnej', 'czy_osoba_odpowiedzialna_to_wnioskodawca', 'oswiadczenie_osoby_odpowiedzialnej']"
    ],
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "first",
    "rung": 1,
-   "seconds": 14.5,
+   "seconds": 12.6,
    "stage": "extract"
   },
   {
-   "accepted": true,
+   "accepted": false,
    "calls": 1,
-   "cost": 0.00376,
+   "cost": 0.00283,
    "coverage": 1.0,
-   "fails": [],
+   "fails": [
+    "G7: pola bez oparcia w dokumencie (etykiety nie ma przy żadnym miejscu do wpisania, najwyżej w tytule lub w treści); usuń je albo przepisz source_label dosłownie: ['oswiadczenie_osoby_odpowiedzialnej']",
+    "G16: pola opisane warunkiem („jeżeli…”, „w przypadku…”, „wypełniamy wyłącznie…”) są wymagane jednocześnie, bez `show_if`; dodaj RADIO wyboru i `show_if` na każdej gałęzi, a gdy warunku nie rozstrzyga żadne pole, zrób je opcjonalnymi z warunkiem w `description`: ['czy_osoba_odpowiedzialna_to_wnioskodawca', 'oswiadczenie_osoby_odpowiedzialnej']"
+   ],
    "mode": "single",
    "model": "mistral/mistral-large-2512",
    "round": "repair",
    "rung": 1,
-   "seconds": 13.5,
+   "seconds": 11.1,
    "stage": "extract"
   }
  ],
