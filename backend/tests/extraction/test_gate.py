@@ -265,3 +265,9 @@ def test_r12_product_of_choices_is_two_radios():
     assert "G28" in codes(with_section(blocks, fld("r", "Rodzaj", "RADIO", options=opts)))
     assert "G28" not in codes(with_section(blocks, fld("a", "Czynność", "RADIO", options=["Hodowanie", "Utrzymywanie"]),
                                            fld("b", "Rodzaj psa", "RADIO", options=["Rasowy", "Mieszaniec"])))
+
+
+def test_g20_choice_covered_by_a_field_with_the_same_options_elsewhere():
+    blocks = {"p1.b5": "proszę o wynajem/użyczenie* świetlicy", "p1.b6": "Rodzaj ☐"}
+    g = with_section(blocks, fld("r", "Rodzaj", "RADIO", src="p1.b6", options=["Wynajem", "Użyczenie"]))
+    assert "G20" not in codes(g)

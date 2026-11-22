@@ -7,7 +7,7 @@ import unicodedata
 from difflib import SequenceMatcher
 
 from .anchors import expand
-from .postprocess import CORRESPONDENCE, attachment_items
+from .postprocess import CORRESPONDENCE, SLASH_ALT, attachment_items
 from .tree import FieldTree
 
 FILL = re.compile(r"___|☐")
@@ -244,7 +244,9 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
     # G7: "a/b*" on paper is a choice; it needs a RADIO
     choices = {a for _, _, f in all_fields(tree) if f.type in ("RADIO", "CHECKBOX", "SELECT") for a in ex(f.src)}
     choice_dropped = {a for d in tree.dropped if d.reason != "title" for a in ex(d.src)}  # a request line dropped as the title still holds the choice
-    lost_choice = [a for a, t in blocks.items() if SLASH_CHOICE.search(t) and a not in choices and a not in choice_dropped]
+    opt_stems = [{o.strip().lower()[:5] for o in f.options} for _, _, f in all_fields(tree) if f.type in ("RADIO", "CHECKBOX", "SELECT")]
+    covered = lambda t: all(any({w.strip().lower()[:5] for w in m[1].split("/")} <= h for h in opt_stems) for m in SLASH_ALT.finditer(t))  # noqa: E731
+    lost_choice = [a for a, t in blocks.items() if SLASH_CHOICE.search(t) and a not in choices and a not in choice_dropped and not covered(t)]
     if lost_choice:
         fails.append(f"G20: wybór „x/y*” („niepotrzebne skreślić”) bez pola RADIO: {lost_choice[:5]}")
     # G13: a hint must not contradict the field: "nieobowiązkowe" on a required field, a condition without show_if on a required field
