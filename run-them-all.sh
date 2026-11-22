@@ -34,7 +34,8 @@ Gotowe:
   OpenAPI     http://localhost:8000/openapi.json
   Healthcheck http://localhost:8000/healthz
 
-Frontend ma token wbudowany w konfigurację (tymczasowo, do testów) – nie pyta o logowanie.
+! TYLKO DO TESTÓW: token demo poniżej jest wbudowany w konfigurację frontu (bez logowania).
+! Docelowo logowanie przez IdP (ADR 0015). Nie używaj go na produkcji.
 Token JWT (7 dni, też w .env jako DEMO_API_TOKEN) do Swaggera („Authorize”) i curl:
 $token
 
