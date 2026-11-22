@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { IMPORT_CONCURRENCY } from '@/config'
 import { auth, problem, type Envelope, type Info } from './api'
+import { uploadMsg, type Msg } from './messages'
 import { plural } from './plural'
 
 // Import queue: lives outside React so it keeps running when the import dialog is closed.
@@ -12,7 +13,7 @@ export type LogEntry =
   | { kind: 'error'; message: string; at: number }
 export type Job = {
   key: string; name: string; size: number; status: 'waiting' | 'running' | 'done' | 'rejected'
-  reason?: string; log: LogEntry[]; id?: string; started?: number; ended?: number
+  reason?: Msg; log: LogEntry[]; id?: string; started?: number; ended?: number
 }
 
 let jobs: Job[] = []
@@ -36,16 +37,17 @@ const active = () => jobs.some((j) => j.status === 'waiting' || j.status === 'ru
 // Leaving the page would drop uploads in flight (the server keeps only finished results).
 window.addEventListener('beforeunload', (e) => { if (active()) e.preventDefault() })
 
-export function check(f: File, info: Info | null): string | null {
+export function check(f: File, info: Info | null): Msg | null {
   if (!info) return null
   const l = info.limits
   const ext = f.name.includes('.') ? f.name.split('.').pop()!.toLowerCase() : ''
-  if (!l.extensions.includes(ext)) return `Nieobsługiwany typ pliku${ext ? ` .${ext}` : ''}. Dozwolone: ${l.extensions.join(', ')}.`
-  if (f.name.length > l.max_filename_len) return `Nazwa pliku ma ${plural(f.name.length, 'znak', 'znaki', 'znaków')}, limit to ${l.max_filename_len}.`
+  const types = l.extensions.map((x) => x.toUpperCase()).join(', ')
+  if (!l.extensions.includes(ext)) return { title: 'Nieobsługiwany typ pliku', why: `Plik${ext ? ` .${ext}` : ' bez rozszerzenia'} nie jest formularzem, który umiemy odczytać.`, action: `Wczytaj plik ${types}.` }
+  if (f.name.length > l.max_filename_len) return { title: 'Za długa nazwa pliku', why: `Nazwa ma ${plural(f.name.length, 'znak', 'znaki', 'znaków')}, a limit to ${l.max_filename_len}.`, action: `Skróć nazwę pliku do ${l.max_filename_len} znaków i wczytaj go ponownie.` }
   const bad = [...new Set([...l.forbidden_filename_chars].filter((c) => f.name.includes(c)))]
-  if (bad.length) return `Nazwa zawiera niedozwolone znaki: ${bad.join(' ')}`
-  if (f.size > l.max_file_mb * 2 ** 20) return `Plik ma ${(f.size / 2 ** 20).toFixed(1)} MB, limit to ${l.max_file_mb} MB.`
-  if (f.size === 0) return 'Plik jest pusty.'
+  if (bad.length) return { title: 'Niedozwolone znaki w nazwie', why: `Nazwa zawiera: ${bad.join(' ')}`, action: 'Zmień nazwę pliku bez tych znaków i wczytaj go ponownie.' }
+  if (f.size > l.max_file_mb * 2 ** 20) return { title: 'Plik jest za duży', why: `Plik ma ${(f.size / 2 ** 20).toFixed(1)} MB, a limit to ${l.max_file_mb} MB.`, action: 'Zmniejsz plik (np. zapisz PDF w niższej jakości) albo podziel go.' }
+  if (f.size === 0) return { title: 'Plik jest pusty', why: 'Plik ma 0 bajtów.', action: 'Wybierz właściwy plik i wczytaj go ponownie.' }
   return null
 }
 
@@ -57,14 +59,16 @@ function pump() {
     running++
     patch(key, () => ({ status: 'running', started: Date.now() }))
     upload(key, file)
-      .catch((e) => fail(key, e instanceof Error ? e.message : String(e)))
+      .catch((e) => fail(key, { title: 'Brak połączenia z serwerem', why: e instanceof Error ? e.message : String(e), action: 'Sprawdź połączenie i wczytaj plik ponownie.' }))
       .finally(() => { running--; pump() })
   }
 }
-const fail = (key: string, reason: string) =>
-  patch(key, (j) => ({ status: 'rejected', reason, ended: Date.now(), log: [...j.log, { kind: 'error', message: reason, at: Date.now() }] }))
+const fail = (key: string, m: Msg) =>
+  patch(key, (j) => ({ status: 'rejected', reason: m, ended: Date.now(), log: [...j.log, { kind: 'error', message: m.original || m.why, at: Date.now() }] }))
 
+let limits: Info | null = null
 export function enqueue(files: File[], info: Info | null) {
+  limits = info
   for (const file of files) {
     const key = crypto.randomUUID()
     const reason = check(file, info)
@@ -87,7 +91,7 @@ async function upload(key: string, file: File) {
   const body = new FormData()
   body.append('file', file)
   const res = await fetch('/api/v1/forms?report=true', { method: 'POST', headers: { ...auth(), Accept: 'text/event-stream' }, body })
-  if (!res.ok || !res.body) return fail(key, rejectReason(res.status, (await problem(res)).message))
+  if (!res.ok || !res.body) return fail(key, uploadMsg(res.status, (await problem(res)).message, limits))
   const add = (e: LogEntry) => patch(key, (j) => ({ log: [...j.log, e] }))
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
   let buf = ''
@@ -111,7 +115,7 @@ async function upload(key: string, file: File) {
       if (event === 'stage') add({ kind: 'stage', ...d, at })
       else if (event === 'escalation') add({ kind: 'escalation', ...d, at })
       else if (event === 'warning') add({ kind: 'warning', message: d.message ?? String(d), at })
-      else if (event === 'error') return fail(key, rejectReason(d.status, d.detail ?? d.title))
+      else if (event === 'error') return fail(key, uploadMsg(d.status, d.detail ?? d.title, limits))
       else if (event === 'result') {
         const env = d as Envelope
         addFresh(env.id)
@@ -121,12 +125,5 @@ async function upload(key: string, file: File) {
       }
     }
   }
-  fail(key, 'Połączenie zakończyło się bez wyniku. Spróbuj ponownie.')
+  fail(key, { title: 'Przerwane połączenie', why: 'Serwer zakończył odpowiedź bez wyniku.', action: 'Wczytaj plik ponownie.' })
 }
-
-const REASON: Record<number, string> = {
-  400: 'Serwer odrzucił plik (nazwa lub zawartość żądania)', 401: 'Brak dostępu: token jest nieważny albo wygasł',
-  413: 'Plik jest za duży', 415: 'Typ pliku nie zgadza się z rozszerzeniem albo nie jest obsługiwany', 422: 'Nie da się odczytać pliku',
-  502: 'Błąd modelu językowego', 504: 'Model językowy nie odpowiedział na czas',
-}
-const rejectReason = (status: number, detail?: string) => `${REASON[status] ?? `Błąd serwera (${status})`}${detail ? `: ${detail}` : ''}`

@@ -1,3 +1,5 @@
+import { toastError } from '@/components/Notice'
+import { apiMsg } from '@/lib/messages'
 import { useState } from 'react'
 import { BookMarked, CircleAlert, FileText, FileUp, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -27,7 +29,7 @@ export default function ProjectList({ items, fresh, error, onOpen, onImport, onC
       setDoomed(null)
       onChanged()
     } catch (e) {
-      toast.error(`Nie udało się usunąć projektu: ${e instanceof Error ? e.message : e}`)
+      toastError(apiMsg(e))
     } finally {
       setBusy(false)
     }
