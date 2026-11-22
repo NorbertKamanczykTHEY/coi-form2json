@@ -59,7 +59,8 @@ Cała konfiguracja backendu jest w pakiecie `backend/coi/config/` (jeden moduł 
 | `EDENAI_API_KEY` | brak | klucz Eden (sekret); wymagany przy `eden` |
 | `LLM_BASE_URL` | Eden: `https://api.edenai.run/v3`, local: `http://localhost:11434/v1` | dowolny endpoint zgodny z OpenAI (vLLM, Ollama) |
 | `LLM_API_KEY` | brak | klucz endpointu, gdy go wymaga (przy `eden` zastępuje `EDENAI_API_KEY`) |
-| `LLM_TIMEOUT_S` | `90` | limit jednego wywołania; timeout = nieudany szczebel drabiny |
+| `LLM_TIMEOUT_S` | `90` | limit jednego wywołania (połączenie: 10 s); timeout = nieudany szczebel drabiny |
+| `REQUEST_TIMEOUT_S` | `300` | limit całej konwersji: po nim żadne wywołanie LLM nie startuje; najlepsze drzewo idzie z `needs_review`, a bez drzewa `504 llm_timeout` |
 | `LADDER_PATH` | `coi/parsing/ladder.json` (local: `ladder.local.json`) | drabina modeli VLM i progi bramki skanów |
 | `TESSDATA_PREFIX` | wbudowana ścieżka Tesseracta | katalog z modelem `pol` |
 | `EXTRACTION_LADDER` | `mistral/mistral-small-2603,mistral/mistral-large-2512` | szczeble modeli ekstrakcji pól, po przecinku |

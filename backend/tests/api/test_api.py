@@ -28,7 +28,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("MAX_FILE_MB", "5")
     for k in ("JWT_ISSUER", "JWT_AUDIENCE"):
         monkeypatch.delenv(k, raising=False)
-    monkeypatch.setattr(pipeline, "extract", lambda doc, on_event=None: ExtractionResult(TREE1, [], [{"stage": "extract"}], 0.01))
+    monkeypatch.setattr(pipeline, "extract", lambda doc, on_event=None, **_: ExtractionResult(TREE1, [], [{"stage": "extract"}], 0.01))
     return create_app().test_client()
 
 

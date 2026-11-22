@@ -527,11 +527,19 @@ def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[s
     sections = [s for p in tree.pages for s in p.sections]
     if not sections:
         return review
-    def home(heading: str, who: str) -> Section:  # the person's section: the paper's heading names them best, then the signer
+    pos = {a: i for i, a in enumerate(order)}
+    def scope(s: Section, conds: list[ShowIf]) -> int:  # 1: the section shows in the statement's variant, 0: no say, -1: never there
+        c = next((c for c in conds if s.show_if and c.field == s.show_if.field), None)
+        if c is None:
+            return 0
+        return 1 if c.negate == s.show_if.negate and set(s.show_if.options) & set(c.options) else -1
+    def home(heading: str, who: str, conds: list[ShowIf], at: int) -> Section:
+        """The person's section within the statement's variant; then the paper's heading names them best, then the signer, then the nearest above."""
         h, w = _stems(heading), _stems(who)
-        return max(sections, key=lambda s: (len(_stems(s.title) & h), len(_stems(s.title) & w), s.person_role == "third_party"))
+        near = lambda s: max((pos[a] for f in s.fields for a in expand(f.src, blocks) if a in pos and pos[a] <= at), default=-1)  # noqa: E731
+        return max(sections, key=lambda s: (scope(s, conds), len(_stems(s.title) & h), len(_stems(s.title) & w), near(s), s.person_role == "third_party"))
     def upload(who: str, src: list[str], conds: list[ShowIf], heading: str, says: str = "") -> None:
-        sec = home(heading, who)
+        sec = home(heading, who, conds, min((pos[a] for a in expand(src, blocks) if a in pos), default=len(order)))
         label = "Oświadczenie " + re.sub(r"\s*/\s*", " lub ", who.strip()).lower()
         rest = [c for c in conds if not (sec.show_if and c.field == sec.show_if.field)]  # the section already scopes that question
         cond = rest[-1] if rest else None
@@ -562,8 +570,11 @@ def _third_party_statements(tree: FieldTree, blocks: dict[str, str], seen: set[s
             continue
         if start is None:
             heading = ""
-        else:  # the consent's own heading; when src starts at its "1) …" text, the block above it
-            heading = blocks[order[start]] if not re.match(r"^\s*\d{1,2}\)", blocks[order[start]]) or not start else blocks[order[start - 1]]  # "1) …" is text, "5.1. Zgoda …" a heading
+        else:  # the consent's own heading; when src starts at its "1) …" / "2) …" text, the first block above the numbered points
+            i = start
+            while i and re.match(r"^\s*\d{1,2}\)", blocks[order[i]]):  # "2) …" is text, "5.1. Zgoda …" a heading: points of one block share it
+                i -= 1
+            heading = blocks[order[i]]
         upload(cap[1], c.src, list(c.show_if), heading, c.text)
     if len(keep) < len(tree.consents):
         review.append({"key": None, "why": f"{len(tree.consents) - len(keep)} zgód innej osoby niż wnioskodawca zamieniono na pliki „Oświadczenie …” (Q34)"})

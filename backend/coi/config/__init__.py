@@ -43,10 +43,13 @@ class Config:
     tessdata: str = ""
     render_font: str = ""
     llm_timeout_s: float = 90.0
+    request_timeout_s: float = 300.0
+    deadline: float | None = None  # time.monotonic() after which no LLM call may run; set per request by pipeline.convert
 
     @classmethod
     def load(cls) -> "Config":
         llm = config("llm")
         return cls(max_file_mb=config("app.max_file_mb"), llm_provider=llm["provider"], llm_base_url=llm["base_url"],
                    llm_api_key=llm["api_key"], eden_api_key=llm["eden_api_key"], ladder_path=config("parsing.ladder_path"),
-                   tessdata=config("parsing.tessdata"), render_font=config("parsing.render_font"), llm_timeout_s=llm["timeout_s"])
+                   tessdata=config("parsing.tessdata"), render_font=config("parsing.render_font"), llm_timeout_s=llm["timeout_s"],
+                   request_timeout_s=llm["request_timeout_s"])

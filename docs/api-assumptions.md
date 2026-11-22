@@ -2,7 +2,7 @@
 
 Status: zaakceptowane (Q11–Q15) · 2026-11-21 · **dokument historyczny**
 
-> Aktualny opis API i konfiguracji: [README.md](../README.md#rest-api), zmienne: [README.md](../README.md#konfiguracja). Różnice względem kodu (2026-11-22): `REQUEST_TIMEOUT_S`, `MAX_PAGES` i `PORT` nie istnieją; `LLM_TIMEOUT_S` domyślnie 90 s; `LLM_BASE_URL` domyślnie pusty (adres wynika z `LLM_PROVIDER`); token JWT urzędnik wkleja w UI (ADR 0015), w bundlu nie ma tokenu; doszły `POST /forms/{id}/regenerate`, `DELETE /forms/{id}`, `PUT /forms/{id}/resolved` i endpointy słowników `match`, `from-proposal`; brak kontenera `kreuzberg`.
+> Aktualny opis API i konfiguracji: [README.md](../README.md#rest-api), zmienne: [README.md](../README.md#konfiguracja). Różnice względem kodu (2026-11-22): `MAX_PAGES` i `PORT` nie istnieją; `REQUEST_TIMEOUT_S` domyślnie 300 s; `LLM_TIMEOUT_S` domyślnie 90 s; `LLM_BASE_URL` domyślnie pusty (adres wynika z `LLM_PROVIDER`); token JWT urzędnik wkleja w UI (ADR 0015), w bundlu nie ma tokenu; doszły `POST /forms/{id}/regenerate`, `DELETE /forms/{id}`, `PUT /forms/{id}/resolved` i endpointy słowników `match`, `from-proposal`; brak kontenera `kreuzberg`.
 
 ## Wymagania z treści zadania (pkt 3.2, 3.3, 5)
 - REST API przyjmuje **jeden plik** (pdf, doc, docx, ods, xlsx, jpg, jpeg, png) i zwraca **JSON gotowy do importu** w Generatorze Formularzy COI.

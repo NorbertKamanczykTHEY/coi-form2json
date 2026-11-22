@@ -116,7 +116,7 @@ DATABASE_URL=sqlite:///./local.sqlite uv run gunicorn --preload --bind 127.0.0.1
   --workers 2 --worker-class gthread --threads 4 --timeout 600 "coi:create_app()"
 ```
 
-Sekrety (`EDENAI_API_KEY`, `JWT_SECRET`) są czytane z `app/.env`. Plik `local.sqlite` jest w `.gitignore`. Jedno wywołanie LLM trwa najwyżej `LLM_TIMEOUT_S` (domyślnie 90 s, jedna ponowna próba). Po timeoucie dany szczebel drabinki (VLM albo ekstrakcja) jest nieudany, a drabinka przechodzi na następny model i wysyła zdarzenie SSE `escalation`.
+Sekrety (`EDENAI_API_KEY`, `JWT_SECRET`) są czytane z `app/.env`. Plik `local.sqlite` jest w `.gitignore`. Jedno wywołanie LLM trwa najwyżej `LLM_TIMEOUT_S` (domyślnie 90 s, jedna ponowna próba). Po timeoucie dany szczebel drabinki (VLM albo ekstrakcja) jest nieudany, a drabinka przechodzi na następny model i wysyła zdarzenie SSE `escalation`. Cała konwersja ma limit `REQUEST_TIMEOUT_S` (domyślnie 300 s): wywołanie nie może go przekroczyć, a po nim kolejne nie startują; jest wtedy najlepsze dotąd drzewo z `needs_review` albo `504 llm_timeout`.
 
 ## Docker
 

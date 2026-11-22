@@ -14,4 +14,5 @@ def load() -> dict:
         "api_key": e.get("LLM_API_KEY", ""),  # eden falls back to EDENAI_API_KEY
         "eden_api_key": e.get("EDENAI_API_KEY", ""),
         "timeout_s": float(e.get("LLM_TIMEOUT_S", "90")),  # one call; a timeout fails that ladder rung, the ladder escalates
+        "request_timeout_s": float(e.get("REQUEST_TIMEOUT_S", "300")),  # one conversion: no LLM call starts or runs past it (504 or needs_review)
     }
