@@ -2,6 +2,8 @@
 
 **Prezentacje (PDF):** [pitch – 5 slajdów + demo](docs/submission/pitch.pdf) · [pełna prezentacja – 10 slajdów](docs/submission/prezentacja.pdf) · [opis projektu](docs/submission/opis-projektu.md)
 
+**Dokumentacja:** [architektura](docs/architecture.md) · [zgodność z wymaganiami](docs/compliance.md) · [smoke techniczny](docs/smoke-compliance.md) · [ADR-y](docs/adr/README.md) · [wyniki i ocena (EVAL)](results/README.md) · [eksperymenty (spikes)](spikes/README.md)
+
 > ## Cold start (5 kroków)
 >
 > 1. **Wymagania:** Docker z Compose v2. Nic więcej (Python i Node są w obrazach).
