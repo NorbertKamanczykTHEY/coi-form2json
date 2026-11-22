@@ -1,5 +1,16 @@
 # COI Formularze: blankiet → JSON e-usługi
 
+> **Start jedną komendą:** `./run-them-all.sh` (Docker; buduje i uruchamia całość, czeka na healthcheck, wypisuje token JWT)
+>
+> | | |
+> |---|---|
+> | Frontend | http://localhost:8080 |
+> | **Swagger UI** | **http://localhost:8000/docs** |
+> | OpenAPI 3.1 | http://localhost:8000/openapi.json |
+> | Healthcheck | http://localhost:8000/healthz |
+>
+> Token wklej w UI (przycisk „Token”) albo w Swaggerze („Authorize”). Stop: `docker compose -p app down`.
+
 Usługa REST przyjmuje **jeden plik** z blankietem formularza urzędowego (PDF, DOC, DOCX, ODS, XLSX, JPG, JPEG, PNG) i zwraca **JSON gotowy do importu** w Generatorze Formularzy COI: strony tematyczne, sekcje, pola z walidatorami, słowniki, dane inicjalne i zależności JSONata (`states` SHOW). Frontend pozwala wczytać pliki (także kilka naraz), śledzić postęp, przejrzeć JSON, podgląd e-usługi i raport pól do sprawdzenia.
 
 Przepływ: `parse → extract → generate → validate`. Tekst wyciągamy lokalnie (Kreuzberg, Tesseract), modele LLM/VLM wchodzą tylko tam, gdzie bramka jakości odrzuci tańszy krok. Szczegóły: [docs/architecture.md](docs/architecture.md). Zgodność z treścią zadania: [docs/compliance.md](docs/compliance.md).
