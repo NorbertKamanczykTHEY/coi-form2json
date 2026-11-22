@@ -17,6 +17,7 @@ services:
     build: ./frontend  # no secrets in the bundle (ADR 0015)
     environment:
       API_UPSTREAM: http://backend:8000
+      MAX_FILE_MB: ${MAX_FILE_MB:-20}  # nginx body limit follows the backend limit (.env)
       DEMO_API_TOKEN: ${DEMO_API_TOKEN:-}  # shortcut: demo only, written to .env by run-them-all.sh; empty = the clerk pastes a JWT
     ports:
       - "8080:8080"

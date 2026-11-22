@@ -204,3 +204,11 @@ def test_public_convert_off(client, docx, monkeypatch):
     assert upload(client, docx, "a.docx", headers={"X-No-Auth": "1"}).status_code == 401
     assert client.post("/api/v1/forms/validate", json={}).status_code == 401
     assert upload(client, docx, "a.docx").status_code == 200  # with a valid token it works
+
+
+@pytest.mark.parametrize("disposition", ['filename="a\\b.pdf"', 'filename="a\\\\b.pdf"', 'filename="C:\\x.pdf"'])
+def test_400_raw_backslash_in_filename(client, docx, disposition):
+    """Browsers send a backslash raw; Werkzeug would silently drop it from filename."""
+    body = (f'--B\r\nContent-Disposition: form-data; name="file"; {disposition}\r\nContent-Type: application/pdf\r\n\r\n').encode() + docx + b"\r\n--B--\r\n"
+    r = client.post("/api/v1/forms", data=body, headers=H, content_type="multipart/form-data; boundary=B")
+    assert r.status_code == 400 and r.json["code"] == "invalid_filename"

@@ -50,12 +50,12 @@ Stan: ✅ spełnione · 🟡 częściowo · ❌ brak.
 | T3 | Bez zewnętrznych API/SaaS i modeli tylko przez API | 🟡 | Eden to wyjątek mentorów ([flow-scenarios.md](flow-scenarios.md)); tryb `LLM_PROVIDER=local` z otwartymi wagami bez ruchu wychodzącego (`tests/parsing/test_airgap.py`, [ADR 0010](adr/0010-adapter-dostawcy-modeli-i-air-gap.md)). Domyślne modele (Mistral przez Eden) częściowo nie mają otwartych wag; air gap nie był uruchamiany na prawdziwym modelu lokalnym na pełnym zestawie |
 | T4 | Jeden plik | ✅ | `coi/api.py` (`Upload`, więcej plików → 400), `tests/api/test_api.py` |
 | T5 | Tylko obsługiwane formaty, MIME zgodny z rozszerzeniem | ✅ | `detect.py` (filetype, magic bytes), 415 sprawdzone na obrazie |
-| T6 | Nazwa ≤ 250, bez `; : > < / \ | ' * % $` | ✅ | `coi/api.py` (`FORBIDDEN`, `MAX_FILENAME_LEN`), `test_400_bad_name`, 400 na obrazie |
-| T7 | Rozmiar konfigurowalny | ✅ | `MAX_FILE_MB` → `MAX_CONTENT_LENGTH`, `test_413` |
-| T8 | Plik tylko w pamięci / tymczasowo | ✅ | `InMemoryRequest` (`coi/__init__.py`), `TemporaryDirectory` w `parsing/pipeline.py` i `parsers/tesseract.py`; w bazie tylko sha256 i nazwa ([storage.md](storage.md)) |
+| T6 | Nazwa ≤ 250, bez `; : > < / \ | ' * % $` | ✅ | `coi/api.py` (`FORBIDDEN`, `MAX_FILENAME_LEN`, surowy `Content-Disposition` dla `\`), `test_400_bad_name`, `test_400_raw_backslash_in_filename`, 400 na obrazie |
+| T7 | Rozmiar konfigurowalny | ✅ | `MAX_FILE_MB` → `MAX_CONTENT_LENGTH` (backend) i `client_max_body_size` (nginx frontu, `MAX_FILE_MB` + 1 MB, runtime), 413 `problem+json` w obu, `test_413` |
+| T8 | Plik tylko w pamięci / tymczasowo | ✅ | Backend: `InMemoryRequest` (`coi/__init__.py`), upload w RAM. Przestrzeń tymczasowa na czas żądania, kasowana po nim: `TemporaryDirectory` w `parsing/pipeline.py` i `parsers/tesseract.py` (obrazy stron) oraz bufor ciała żądania w nginx frontu (`/tmp/client_temp`). W bazie wynik, `report`, `editor` (w tym `editor.source`, tekst z pliku), nazwa i sha256, bez bajtów pliku ([storage.md](storage.md)); sprawdzone smoke'iem ([smoke-compliance.md](smoke-compliance.md)) |
 | T9 | Kompletny Docker | ✅ | `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` |
-| T10 | Oficjalne lekkie obrazy, wersje, bez `latest`, bez roota, porty, sekrety w runtime | 🟡 | Wersje przypięte, `coi` uid 10001 i `nginx` uid 101, po jednym porcie, `env_file`. Backend na `slim`, nie Alpine (Kreuzberg bez wheeli musl, uzasadnione w [backend/README.md](../backend/README.md#docker)); front na `nginxinc/nginx-unprivileged` (wydawca NGINX, nie „Docker Official Image”); token demo frontendu wbudowany w bundle przy buildzie |
-| T11 | Konfiguracja: rozmiar, JWT, integracje | ✅ | `coi/config/`, `.env.example` (uzupełniony o `EXTRACTION_*` 2026-11-22) |
+| T10 | Oficjalne lekkie obrazy, wersje, bez `latest`, bez roota, porty, sekrety w runtime | 🟡 | Wersje przypięte, `coi` uid 10001 i `nginx` uid 101, po jednym porcie, `env_file`. Backend na `slim`, nie Alpine (Kreuzberg bez wheeli musl, uzasadnione w [backend/README.md](../backend/README.md#docker)); front na `nginxinc/nginx-unprivileged` (wydawca NGINX) oraz `ghcr.io/astral-sh/uv` (tylko build backendu, wydawca Astral) to nie „Docker Official Image”. Bundle frontu bez tokenu; token demo jest tymczasowo wstrzykiwany w runtime (`/config.js`, `DEMO_API_TOKEN`, [ADR 0015](adr/0015-jwt-tylko-weryfikacja.md), dopisek). Healthchecki są w `docker-compose.yml`, nie w `HEALTHCHECK` obrazów |
+| T11 | Konfiguracja: rozmiar, JWT, integracje | ✅ | `coi/config/`, `.env.example` i tabela w README zgodne z kodem (lista zmiennych sprawdzona 2026-11-22) |
 | T12 | README: build, uruchomienie, konfiguracja, REST API | ✅ | [README.md](../README.md) |
 
 ## 6. Testowanie na nowych plikach
@@ -87,6 +87,6 @@ Otwarte, w kolejności priorytetu:
 | P2 | R-VI: brak walidatora telefonu | kod | sprawdzić w „Regułach technicznych”, czy jest nazwa walidatora telefonu; jeśli tak, dodać do `label_validators` i `kontakt.json` |
 | P2 | R-III: brak warunkowych przejść między stronami | ograniczenie schematu | tylko opis w dokumentacji |
 | P2 | T3: domyślne modele przez Eden; air gap nie sprawdzony end-to-end na prawdziwym modelu | kod/test | jeden przebieg z Ollamą `qwen3-vl:8b` i lokalnym modelem ekstrakcji |
-| P3 | `docker-compose.yml` bez `healthcheck` | konfiguracja | dodać `healthcheck` na `/healthz` |
+| P3 | Healthchecki tylko w `docker-compose.yml`, obrazy bez `HEALTHCHECK`; front sprawdza `/`, nie łączność z backendem | konfiguracja | dodać `HEALTHCHECK` do Dockerfile'i, jeśli obrazy będą uruchamiane bez compose |
 | P3 | Linki w ADR-ach do plików spoza repo (`poc-1-ocr/`, `HANDOFF.md`) | dokumentacja | poza repo nie zadziałają; flow-review i spec parsera podmienione na kopie w `docs/` |
 | P3 | Niezacommitowane zmiany innych wątków (`DELETE /forms/{id}`, `/resolved`, front shadcn) | proces | commit właściciela; README już je wymienia |

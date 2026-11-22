@@ -1,14 +1,19 @@
-# Rendered at container start by the image's envsubst step ($API_UPSTREAM and $DEMO_API_TOKEN, nginx vars stay).
+# Rendered at container start by the image's envsubst step ($API_UPSTREAM, $DEMO_API_TOKEN, $MAX_FILE_MB, $MAX_BODY_KB; nginx vars stay).
 server {
     listen 8080;
     root /usr/share/nginx/html;
-    client_max_body_size 50m;
+    client_max_body_size ${MAX_BODY_KB}k;  # from MAX_FILE_MB (+1 MB), see 15-max-body.envsh
+    error_page 413 @too_large;
 
     location /api/ {
         proxy_pass ${API_UPSTREAM};
         proxy_set_header Host $host;
         proxy_buffering off;          # SSE progress events must not be buffered
         proxy_read_timeout 600s;      # long scans walk the whole VLM ladder
+    }
+    location @too_large {
+        default_type application/problem+json;
+        return 413 '{"type":"about:blank","title":"Content Too Large","status":413,"detail":"File is larger than ${MAX_FILE_MB} MB","code":"file_too_large"}';
     }
     # shortcut: demo token for the SPA, rendered from the container env (DEMO_API_TOKEN); IdP login replaces it (ADR 0015, addendum)
     location = /config.js {

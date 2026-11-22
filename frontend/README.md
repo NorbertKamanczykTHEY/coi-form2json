@@ -11,7 +11,10 @@ Stos: Vite + React + TypeScript + Tailwind 4 + shadcn/ui (Radix), ikony lucide, 
 
 ## Token
 
-Front nie ma logowania (ADR 0015). Przy pierwszym wejściu urzędnik wkleja token JWT; trzymamy go w `sessionStorage` tej karty. W bundlu nie ma żadnego tokenu ani sekretu, a `.env` nie trafia do obrazu (`.dockerignore`).
+Front nie ma logowania (ADR 0015). W bundlu nie ma żadnego tokenu ani sekretu, a `.env` nie trafia do obrazu (`.dockerignore`). Dwa tryby:
+
+- **Tymczasowo, do testów (`shortcut:`):** gdy kontener ma `DEMO_API_TOKEN` (ustawia je `run-them-all.sh`), nginx serwuje go jako `/config.js`, front go używa i nie pokazuje pola „Token”. Każdy, kto otworzy stronę, może go odczytać. Docelowo logowanie przez IdP (ADR 0015, dopisek).
+- **Bez tokenu w konfiguracji:** urzędnik wkleja token JWT; trzymamy go w `sessionStorage` tej karty.
 
 ```bash
 cd ../backend && uv run python -m coi.make_token demo --hours 720   # token do wklejenia w UI
@@ -34,7 +37,7 @@ API_UPSTREAM=http://localhost:8000 npm run gen:api   # odśwież src/api.d.ts z 
 
 ## Docker
 
-Obraz: `node:24.11.1-alpine3.22` (build) → `nginxinc/nginx-unprivileged:1.29.3-alpine3.22`, port 8080, bez roota. Szablon `nginx/default.conf.template` jest renderowany przy starcie z `API_UPSTREAM` (domyślnie `http://backend:8000`), `/api` idzie do backendu z wyłączonym buforowaniem (SSE). Obraz nie zawiera tokenu; healthcheck sprawdza `/`.
+Obraz: `node:24.11.1-alpine3.22` (build) → `nginxinc/nginx-unprivileged:1.29.3-alpine3.22`, port 8080, bez roota. Szablon `nginx/default.conf.template` jest renderowany przy starcie z `API_UPSTREAM` (domyślnie `http://backend:8000`), `/api` idzie do backendu z wyłączonym buforowaniem (SSE). Limit ciała żądania (`client_max_body_size`) wynika z `MAX_FILE_MB` (+1 MB) w runtime, a 413 z nginx ma postać `problem+json`. Obraz nie zawiera tokenu; healthcheck sprawdza `/`.
 
 ```bash
 cd app && docker compose up --build   # front: http://localhost:8080
