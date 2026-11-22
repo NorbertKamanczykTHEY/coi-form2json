@@ -9,8 +9,8 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 FROM python:3.14.10-slim-trixie
-# Tesseract CLI + Polish model (Apache-2.0); Kreuzberg's Linux wheel has no Tesseract backend of its own
-RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-pol \
+# Tesseract CLI + Polish model (Apache-2.0; Kreuzberg's Linux wheel has no Tesseract backend); DejaVu font for the spreadsheet render
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-pol fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 RUN useradd --system --uid 10001 --no-create-home coi && install -d -o coi /data
 WORKDIR /app

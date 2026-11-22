@@ -2,6 +2,7 @@
 import json
 import socket
 import threading
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
@@ -74,3 +75,23 @@ def test_response_format_reaches_the_provider(local_server):
     llm.provider(Config.load()).chat("m", "hi", 10, response_format=fmt)
     llm.provider(Config.load()).chat("m", "hi", 10)
     assert [c["response_format"] for c in Stub.calls] == [fmt, None]
+
+
+def test_sheet_render_fallback_goes_to_the_vlm(local_server, monkeypatch, tmp_path):
+    """Gate rejects the XML text (threshold forced) -> own render -> Tesseract -> local VLM; no LibreOffice."""
+    ladder = json.loads((Path(Config.load().ladder_path)).read_text())
+    ladder["gate"]["min_marks"] = 10_000
+    (tmp_path / "ladder.json").write_text(json.dumps(ladder))
+    monkeypatch.setenv("LADDER_PATH", str(tmp_path / "ladder.json"))
+    ods = next(p for f, p in FILES if f == "form7" and p.suffix == ".ODS")
+    doc = parse(ods.read_bytes(), ods.name, Config.load())
+    assert any("own sheet render" in e.get("decision", "") for e in doc.trace)
+    assert Stub.calls and len(doc.pages) >= 2  # rendered sheet split into A4 pages
+    assert "Płeć" in doc.text, doc.warnings  # the stub's empty answer is not kept: Tesseract's read of the render is
+
+
+def test_sheet_render_without_font_fails_loudly(monkeypatch):
+    from coi.parsing.parsers import sheet
+    monkeypatch.setattr(sheet, "FONTS", [])
+    with pytest.raises(FileNotFoundError):
+        sheet._font(12, "/nonexistent.ttf")

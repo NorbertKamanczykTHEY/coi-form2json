@@ -12,6 +12,7 @@
     "min_polish": 0.003,
     "min_marks": 3,
     "min_ocr_confidence": 0.8,
-    "min_witness_coverage": 0.85
+    "min_witness_coverage": 0.85,
+    "min_keep_coverage": 0.5
   }
 }

@@ -15,7 +15,6 @@ from .conftest import FILES, GOLD, form_files
 
 LEADER = re.compile(r"___")
 NATIVE = {".doc", ".docx", ".ods", ".xlsx", ".pdf"}
-SHEETS = {".ods", ".xlsx"}  # the spreadsheet versions have no dot leaders and no box glyphs in the source
 
 
 def _norm(s: str) -> str:
@@ -43,10 +42,10 @@ def check(doc: ParsedDocument, form: str, ext: str):
     # markers: never raw glyphs or dot runs, normalized ones where the source has them
     assert not re.search(r"[❑□▢\uf071]|\.{6,}|…{3,}", md)
     gold = GOLD[form]
-    if ext not in SHEETS:
-        assert len(LEADER.findall(text)) >= 3
-        if gold.get("options"):
-            assert text.count("☐") >= 2
+    # spreadsheets too: their lines and boxes come from cell borders (parsers/sheet.py)
+    assert len(LEADER.findall(text)) >= 3
+    if gold.get("options"):
+        assert text.count("☐") >= 2
 
     # control phrases (exact, diacritics-sensitive) and field labels
     t = _norm(text)
@@ -100,3 +99,18 @@ def test_star_without_footnote_escalates():
     cfg = json.loads((Path(gate.__file__).parent / "ladder.json").read_text())["gate"]
     assert "G5 * without footnote" in gate.text("PESEL* ___ ___ ___", cfg)["fails"]
     assert gate.text("PESEL* ___ ___ ___\n*Numer PESEL wpisują podatnicy", cfg)["ok"]
+
+
+def test_sheet_borders_become_markers():
+    path = next(p for p in form_files("7. ") if p.suffix == ".ODS")
+    lines = parse(path.read_bytes(), path.name).text.splitlines()
+    assert "Płeć: ☐ pies ☐ suka" in lines
+    assert "Rasa psa: ___" in lines and "Wrocław, dnia ___" in lines
+    xlsx = next(p for p in form_files("1. ") if p.suffix == ".xlsx")
+    assert "w miejscowości ___ przy ulicy1) ___" in parse(xlsx.read_bytes(), xlsx.name).text.splitlines()
+
+
+def test_broken_sheet_is_a_file_error():
+    with pytest.raises(ValueError):
+        from coi.parsing.parsers import sheet
+        sheet.read(b"PK\x03\x04 not a zip", "ods")

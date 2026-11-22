@@ -12,4 +12,5 @@ def load() -> dict:
     return {
         "ladder_path": Path(e.get("LADDER_PATH") or LADDERS[llm.load()["provider"]]),  # VLM tiers + gate thresholds
         "tessdata": e.get("TESSDATA_PREFIX", ""),  # empty = Tesseract's built-in path (Docker: apt tesseract-ocr-pol)
+        "render_font": e.get("RENDER_FONT", ""),  # TTF with Polish glyphs for the spreadsheet render; empty = DejaVu/Arial
     }
