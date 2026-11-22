@@ -321,3 +321,23 @@ def test_q34_upload_is_grounded_in_its_heading_and_describes_the_statement():
         "consents": [{"text": "Znam regulamin.", "src": ["p1.b1-p1.b3"]}]})
     up = normalize(t, blocks)[0].pages[0].sections[0].fields[-1]
     assert up.source_label == "Zgoda uczestnika" and "uczestnika" in up.description and "Znam regulamin" in up.description
+
+
+def test_lost_slash_choice_is_rebuilt_as_radio_and_an_existing_one_is_kept():
+    blocks = {"p1.b0": "Proszę o wydanie zezwolenia na hodowanie/utrzymywanie* psa", "p1.b1": "Imię ___",
+              "p1.b2": "*/ niepotrzebne skreślić", "p1.b3": "Oświadczam, że zapoznałem/am się z regulaminem."}
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "dropped": [{"reason": "consent", "src": ["p1.b3"]}],
+                                  "pages": [{"title": "P", "sections": [{"title": "Dane", "src": ["p1.b1"], "fields": [f("i", "Imię", src="p1.b1")]}]}]})
+    out, review = normalize(t, blocks)
+    radio = out.pages[0].sections[0].fields[0]
+    assert (radio.type, radio.options, radio.optional_evidence) == ("RADIO", ["Hodowanie", "Utrzymywanie"], None)
+    assert any(r["key"] == radio.key for r in review)
+    t2 = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "Dane", "fields": [
+        f("r", "Rodzaj", "RADIO", "p1.b0", options=["Hodowanie psa", "Utrzymywanie psa"]), f("i", "Imię", src="p1.b1")]}]}]})
+    assert [x.label for x in normalize(t2, blocks)[0].pages[0].sections[0].fields] == ["Rodzaj", "Imię"]
+
+
+def test_slash_choice_cut_at_the_block_edge_is_reviewed_as_cut():
+    t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [{"title": "P", "sections": [{"title": "S", "fields": [f("i", "Imię", src="p1.b1")]}]}]})
+    _, review = normalize(t, {"p1.b0": "wynajem/użyczenie*", "p1.b1": "Imię ___"})
+    assert any("sprawdź brzmienie" in r["why"] for r in review)

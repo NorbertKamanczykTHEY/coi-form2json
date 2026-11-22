@@ -45,6 +45,7 @@ STATEMENT_OF = re.compile(r"(?:zgod\w*|oświadczeni\w*)\s+(osoby\s+[^\W\d_]{4,}|
 PROOF = re.compile(r"(dołącz|załącz)\w*.{0,100}(dow[oó]d|potwierdzeni|kopi)\w*.{0,40}(opłat|zapłat|wpłat|uiszcz)|(dow[oó]d|potwierdzeni)\w*.{0,40}(opłat|zapłat|wpłat|uiszcz)\w*.{0,100}(dołącz|załącz)", re.I | re.S)
 CONSISTENT = re.compile(r"\b(jest|są) spójn|brak niespójno|nie stwierdzono niespójno|zgodn\w* z treści", re.I)
 OTHER_BRANCH = re.compile(r"\binn\w+|\bnie\b|\bbrak\b", re.I)
+SLASH_ALT = re.compile(r"(?<![\w/])([^\W\d_]{3,}(?:\s?/\s?[^\W\d_]{3,})+)\s?\*")  # S14: "wynajem/użyczenie*", "a/b/c*"
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -259,6 +260,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     review += relink_show_if(tree)
     review += rebuild_lost_controls(tree, blocks)
     review += _third_party_statements(tree, blocks, seen)
+    review += rebuild_slash_choices(tree, blocks, seen)
     review += branch_show_if(tree, blocks)
     place_controls(tree)
     if tree.case_fee_proof and not PROOF.search(" ".join(blocks.values())):  # R6: a proof upload only when the paper asks to attach it
@@ -323,6 +325,38 @@ def relink_show_if(tree: FieldTree) -> list[dict]:
         if len(hits) == 1:
             review.append({"key": hits[0].key, "why": f"warunek wyświetlania wskazywał nieistniejące pole {si.field!r}; dopasowany po opcjach"})
             si.field = hits[0].key
+    return review
+
+
+def rebuild_slash_choices(tree: FieldTree, blocks: dict[str, str], seen: set[str]) -> list[dict]:
+    """S14 / EVAL-4 R12: a paper choice "x/y*" ("niepotrzebne skreślić") the model lost becomes a required RADIO with the
+    words around "/" as options, in the section citing that block (else the first one). Wording that looks cut is reviewed."""
+    review = []
+    if not tree.pages or not tree.pages[0].sections:
+        return review
+    skip = {a for d in tree.dropped if d.reason in ("consent", "rodo", "legal_info", "signature_date", "office_use") for a in expand(d.src, blocks)}
+    skip |= {a for c in tree.consents for a in expand(c.src, blocks)}
+    stem = lambda w: w.strip().lower()[:5]  # noqa: E731
+    have = [{stem(o) for o in f.options} for p in tree.pages for x in p.sections for f in x.fields if f.type in ("RADIO", "CHECKBOX", "SELECT")]
+    for a, t in blocks.items():
+        if a in skip:
+            continue
+        for m in SLASH_ALT.finditer(t):
+            words = [w.strip() for w in m[1].split("/")]
+            if any({stem(w) for w in words} <= h for h in have):
+                continue
+            home = next((x for p in tree.pages for x in p.sections if a in expand(x.src, blocks)), tree.pages[0].sections[0])
+            opts = [w[:1].upper() + w[1:] for w in words]
+            key = slug("wybierz " + " ".join(words))
+            while key in seen:
+                key += "_2"
+            seen.add(key)
+            home.fields.insert(0, FormField(key=key, label="Wybierz: " + " lub ".join(w.lower() for w in words), source_label=m[0], type="RADIO",
+                                            options=opts, src=[a]))
+            have.append({stem(w) for w in words})
+            cut = m.start() == 0 or m.end() >= len(t.rstrip()) or any(len(w) < 4 for w in words)
+            review.append({"key": key, "why": "opcje odtworzone z papieru, sprawdź brzmienie" if cut else
+                           f"wybór „{m[0]}” z papieru odtworzony jako pole RADIO; sprawdź etykietę"})
     return review
 
 
