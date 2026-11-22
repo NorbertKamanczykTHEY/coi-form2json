@@ -927,3 +927,20 @@ def test_t4_question_steering_several_sections_follows_the_variant_choice_and_it
     sec = _sections(generate(FieldTree.model_validate(t), SHA)[0], "Wnioski")["Wybór"]
     got = [c["field"] for c in sec["repeatingSectionGrid"]]
     assert [x["techName"] for x in got] == ["war", "dorosly"] and got[1]["states"]
+
+
+def test_t2_otherwise_branch_sees_a_condition_read_from_the_text_and_long_rate_blocks_reach_amounts():
+    t = _with_section("form3", [_field("komp2", "Czy masz kompostownik", "RADIO", options=["Tak, mam", "Nie, nie mam"], src=["p1.b2"])])
+    rows = lambda k: [_field(f"l_{k}", "Liczba osób", "NUMBER", src=[f"p1.{k}1"]),
+                      _field(f"s_{k}", "Stała stawka opłaty za jedno gospodarstwo domowe ustalona uchwałą rady gminy", "TEXT_BLOCK",
+                             default_value="38 zł", src=[f"p1.{k}2"]),
+                      _field(f"k_{k}", "Kwota", "NUMBER", src=[f"p1.{k}3"])]
+    S = type(t.pages[0].sections[0])
+    t.pages[0].sections += [S.model_validate({"title": "Tabela", "src": ["p1.a0"], "fields": rows("a")}),
+                            S.model_validate({"title": "Tabela ze zwolnieniem", "src": ["p1.b4-p1.b5"], "fields": rows("b")})]
+    blocks = {"p1.b2": "35. Czy masz kompostownik", "p1.a0": "E.1 TABELA", "p1.b4": "E.2 TABELA (na podstawie oświadczenia zawartego w poz. 35)", "p1.b5": "Liczba"}
+    form = generate(t, SHA, blocks=blocks)[0]
+    sec = {q["field"]["title"]: q["field"] for tb in form["tabs"] for q in tb["questions"]}
+    assert sec["Tabela ze zwolnieniem"]["states"][0]["query"].startswith('("Tak, mam" in')
+    assert sec["Tabela"]["states"][0]["query"].startswith('$not("Tak, mam" in')
+    assert "38 zł" in _techs(form)["k_a"]["description"] and "s_a" not in _techs(form)

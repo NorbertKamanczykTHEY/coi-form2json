@@ -374,7 +374,7 @@ def rate_into_result(fields: list[dict]) -> list[dict]:
     shown under the same condition (the following one on a tie); with none, it stays a text block."""
     moved, taken = set(), set()
     for i, n in enumerate(fields):
-        if n["type"] != "TEXT_BLOCK" or len(n["description"]) > 120:
+        if n["type"] != "TEXT_BLOCK" or len(n["description"]) > 200 or "zł" not in n["description"]:
             continue
         near = sorted((abs(j - i) - (j > i) * 0.5, j) for j, m in enumerate(fields)  # T6 (M8): one rate per amount
                       if m["type"] == "NUMBER" and j not in taken and (not n.get("show_if") or m.get("show_if") == n.get("show_if")))
@@ -436,6 +436,20 @@ def alike(a: dict, b: dict) -> bool:
     return len(x) == len(y) > 1 and sum(p[:2] == q[:2] for p, q in zip(x, y)) >= 0.8 * len(x)
 
 
+def otherwise_twins(pages: list[dict], warnings: list[str]) -> None:
+    """R1/T2 (#8 E.1/E.2): a block next to its conditional twin, itself without SHOW, is the "otherwise" branch. Runs after
+    the conditions read from the text, which may be the twin's only condition."""
+    secs = [x for p in pages for x in p["sections"]]  # in paper order: a page split must not part the twins
+    for i, sec in enumerate(secs):  # R1 (#8 E.1/E.2): a block next to its conditional twin, itself without SHOW, is the "otherwise" branch
+        if sec.get("show_if") or not sec["fields"] or any(f.get("from_preset") for f in sec["fields"]):
+            continue
+        # T2: within two sections either way (a one-question section may stand between the tables), any condition shape
+        twin = next((x for x in secs[max(i - 2, 0):i + 3] if x is not sec and alike(x, sec) and x.get("show_if")), None)
+        if twin:
+            sec["show_if"] = {"not": copy.deepcopy(twin["show_if"])}
+            warnings.append(f"sekcja {sec['title']!r}: te same pola co sąsiednia sekcja warunkowa, więc pokazana w przeciwnym przypadku")
+
+
 def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, list[str]]:
     """G12: a block repeated for each variant (same fields, SHOW on different options of one field) becomes one section with
     SHOW on all those options. Returns the key aliases (dropped twin -> kept field) applied to every condition."""
@@ -465,16 +479,6 @@ def merge_variant_twins(pages: list[dict], consents: list[dict]) -> tuple[dict, 
             keep.append(sec)
         p["sections"] = keep
     pages[:] = [p for p in pages if p["sections"]]
-    secs = [x for p in pages for x in p["sections"]]  # in paper order: a page split must not part the twins
-    for i, sec in enumerate(secs):  # R1 (#8 E.1/E.2): a block next to its conditional twin, itself without SHOW, is the "otherwise" branch
-        if sec.get("show_if") or not sec["fields"] or any(f.get("from_preset") for f in sec["fields"]):
-            continue
-        # T2: within two sections either way (a one-question section may stand between the tables), any condition shape
-        twin = next((x for x in secs[max(i - 2, 0):i + 3] if x is not sec and alike(x, sec) and x.get("show_if")), None)
-        if twin:
-            sec["show_if"] = {"not": copy.deepcopy(twin["show_if"])}
-            notes.append(f"sekcja {sec['title']!r}: te same pola co sąsiednia sekcja warunkowa, więc pokazana w przeciwnym przypadku")
-
     passes.rename(pages, consents, alias)
     return alias, notes
 
@@ -556,6 +560,7 @@ def to_internal(tree: FieldTree, settings: dict, presets: dict, blocks: dict[str
     _, notes = merge_variant_twins(pages, consents)
     warnings += notes
     conditions_from_text(pages, blocks or {}, warnings)
+    otherwise_twins(pages, warnings)
     passes.run(pages, consents, blocks or {}, warnings)
     entity_option = settings["entity_option"]  # G5: the Standardy's text; the paper's wording names a role, not the option
     if tree.entity_option and tree.entity_option != entity_option:
