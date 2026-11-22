@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Braces, FileUp, KeyRound, Loader2 } from 'lucide-react'
+import { ArrowLeft, Braces, CheckCircle2, FileUp, KeyRound, Loader2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -11,6 +11,7 @@ import TokenDialog from '@/components/TokenDialog'
 import Preview from '@/Preview'
 import { api, ApiError, token, type Form, type Info, type ListItem } from '@/lib/api'
 import { fresh, useQueue } from '@/lib/queue'
+import { plural } from '@/lib/plural'
 
 // #/ = project list, #/projekt/<id> = editor; a pasted JSON preview is in memory only.
 const route = () => decodeURIComponent(location.hash.match(/^#\/projekt\/(.+)$/)?.[1] ?? '')
@@ -26,6 +27,10 @@ export default function App() {
   const jobs = useQueue()
   const busy = jobs.filter((j) => j.status === 'running' || j.status === 'waiting').length
   const finished = jobs.filter((j) => j.status === 'done').length
+  const failed = jobs.filter((j) => j.status === 'rejected').length
+  // the queue keeps working with the dialog closed; this button shows where it is and reopens the same queue
+  const importState = busy ? 'running' : failed ? 'error' : finished ? 'done' : 'idle'
+  const importLabel = busy ? `Import: ${busy} w toku` : failed ? `Import: ${plural(failed, 'błąd', 'błędy', 'błędów')}` : finished ? `Import: ${plural(finished, 'gotowy', 'gotowe', 'gotowych')}` : 'Importuj pliki'
 
   const refresh = useCallback(() => {
     if (!token.get()) return
@@ -62,9 +67,9 @@ export default function App() {
               <KeyRound /><span className="hidden lg:inline">{hasToken ? 'Token' : 'Wklej token'}</span>
             </Button>
             <Button variant="outline" size="sm" onClick={() => setDialog('json')}><Braces /><span className="hidden sm:inline">Podgląd JSON</span></Button>
-            <Button size="sm" onClick={() => setDialog('import')} data-testid="open-import">
-              {busy ? <Loader2 className="animate-spin" /> : <FileUp />}
-              <span>{busy ? `Import: ${busy} w toku` : 'Importuj pliki'}</span>
+            <Button size="sm" onClick={() => setDialog('import')} data-testid="open-import" data-state={importState} aria-label={importState === 'idle' ? undefined : `${importLabel}. Otwórz kolejkę importu`}>
+              {busy ? <Loader2 className="animate-spin" /> : failed ? <XCircle className="text-red-200" /> : finished ? <CheckCircle2 /> : <FileUp />}
+              <span>{importLabel}</span>
             </Button>
           </div>
         </header>

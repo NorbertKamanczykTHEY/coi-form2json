@@ -25,6 +25,10 @@ API_UPSTREAM=http://localhost:8000 npm run dev   # proxy Vite: /api i /healthz -
 npm run build && npm run lint
 # E2E (Playwright) na działających serwerach; importuje 3 pliki z materials/ (prawdziwe wywołania LLM, ok. 2-5 min)
 E2E_URL=http://localhost:5173 E2E_TOKEN="$(cd ../backend && uv run python -m coi.make_token e2e)" npx playwright test
+# bez LLM: warunki JSONata na results/ (bez przeglądarki) oraz edycja na makiecie, edytor warunku i kolejka importu (mock SSE);
+# preview-editor.spec.ts potrzebuje w bazie projektu ze wzorca results/4-swietlica.coi.json
+npx playwright test e2e/condition.spec.ts
+E2E_URL=http://localhost:5173 E2E_TOKEN=... npx playwright test e2e/preview-editor.spec.ts
 API_UPSTREAM=http://localhost:8000 npm run gen:api   # odśwież src/api.d.ts z /openapi.json
 ```
 

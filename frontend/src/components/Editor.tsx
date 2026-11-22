@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import Preview, { type Review } from '@/Preview'
+import ConditionDialog, { ConditionMark } from '@/components/ConditionDialog'
+import Preview, { type Editing, type Review } from '@/Preview'
 import { api, ApiError, type Envelope, type Form, type Proposal } from '@/lib/api'
 import { accepted, applyProposal, fieldsOf, isRequired, points, setRequired, tabsOf, text, TYPE_LABEL, walk, type Field, type Point, type Q } from '@/lib/form'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
   const [errors, setErrors] = useState<{ path?: string; message?: string }[]>([])
   const [page, setPage] = useState(OVERVIEW)
   const [leave, setLeave] = useState(false)
+  const [cond, setCond] = useState<{ fieldId: string; index: number | null } | null>(null)
 
   const load = (e: Envelope) => { setEnv(e); setDraft(e.form); setResolved(e.editor?.resolved ?? []); setErrors([]) }
   useEffect(() => { api.get(id).then(load).catch((e) => setLoadError(e instanceof Error ? e.message : String(e))) }, [id])
@@ -58,12 +60,27 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
   const overviewOpen = general.filter((p) => !done.has(p.key)).length + pendingProposals.length
 
   const edit = (fn: (f: Form) => void) => setDraft((d) => { const c = structuredClone(d!); fn(c); return c })
+  // a correction of the field settles its review points
+  const settle = (fid: string) => {
+    const keys = (byField.get(fid) ?? []).map((p) => p.key).filter((k) => !done.has(k))
+    if (keys.length) setResolved((r) => [...new Set([...r, ...keys])])
+  }
   const editField = (fid: string, fn: (f: Field) => void) => {
     edit((c) => { const f = fieldsOf(c).find((x) => x.id === fid); if (f) fn(f) })
-    // a correction of the field settles its review points
-    const keys = (byField.get(fid) ?? []).map((p) => p.key).filter((k) => !done.has(k))
-    if (keys.length) setResolved((r) => [...r, ...keys])
+    settle(fid)
   }
+  const editing: Editing = {
+    change: (fn, o = {}) => {
+      const prev = draft
+      edit(fn)
+      if (o.fieldId) settle(o.fieldId)
+      if (o.undo) toast(o.undo, { action: { label: 'Cofnij', onClick: () => setDraft(prev) } })
+    },
+    condition: (fieldId, index) => setCond({ fieldId, index }),
+  }
+  const condField = cond ? fieldsOf(draft).find((f) => f.id === cond.fieldId) : undefined
+  const setStates = (fn: (s: NonNullable<Field['states']>) => void) =>
+    editField(cond!.fieldId, (f) => { f.states = [...(f.states ?? [])]; fn(f.states) })
   const toggle = (keys: string[], on: boolean) => setResolved((r) => (on ? [...new Set([...r, ...keys])] : r.filter((k) => !keys.includes(k))))
 
   async function save(form = draft!, keys = resolved) {
@@ -164,7 +181,7 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
                 </div>
                 <ul className="space-y-2">
                   {current.questions.slice().sort((a, b) => a.y - b.y || a.x - b.x).map((q) => (
-                    <FieldRow key={q.field.id} f={q.field} depth={0} byField={byField} done={done} toggle={toggle} editField={editField} />
+                    <FieldRow key={q.field.id} f={q.field} depth={0} byField={byField} done={done} toggle={toggle} editField={editField} form={draft} onCondition={editing.condition} />
                   ))}
                 </ul>
               </>
@@ -173,9 +190,15 @@ export default function Editor({ id, onBack, onChanged }: { id: string; onBack: 
         </TabsContent>
 
         <TabsContent value="preview" className="-mx-4 py-4 sm:-mx-6">
-          <Preview form={draft} review={review} />
+          <Preview form={draft} review={review} editing={editing} />
         </TabsContent>
       </Tabs>
+
+      {cond && condField && (
+        <ConditionDialog form={draft} owner={condField} state={cond.index == null ? null : condField.states?.[cond.index] ?? null} onClose={() => setCond(null)}
+          onSave={(st) => { setStates((l) => { if (cond.index == null) l.push(st); else l[cond.index] = st }); setCond(null) }}
+          onRemove={cond.index == null ? undefined : () => { setStates((l) => { l.splice(cond.index!, 1) }); setCond(null) }} />
+      )}
 
       <AlertDialog open={leave} onOpenChange={setLeave}>
         <AlertDialogContent>
@@ -236,9 +259,9 @@ function Points({ items, done, toggle }: { items: Point[]; done: Set<string>; to
   )
 }
 
-function FieldRow({ f, depth, byField, done, toggle, editField }: {
+function FieldRow({ f, depth, byField, done, toggle, editField, form, onCondition }: {
   f: Field; depth: number; byField: Map<string, Point[]>; done: Set<string>; toggle: (keys: string[], on: boolean) => void
-  editField: (id: string, fn: (f: Field) => void) => void
+  editField: (id: string, fn: (f: Field) => void) => void; form: Form; onCondition: (fieldId: string, index: number | null) => void
 }) {
   const pts = byField.get(f.id) ?? []
   const isOpen = pts.some((p) => !done.has(p.key))
@@ -265,6 +288,7 @@ function FieldRow({ f, depth, byField, done, toggle, editField }: {
           {isOpen && <CircleAlert className="size-5 shrink-0 text-review" aria-label="Wymaga decyzji" />}
           {!isOpen && pts.length > 0 && <Check className="size-5 shrink-0 text-ok" aria-label="Uwaga rozstrzygnięta" />}
         </button>
+        {f.states?.some((s) => s.query) && <div className="px-3"><ConditionMark form={form} f={f} onEdit={(i) => onCondition(f.id, i)} /></div>}
         {pts.length > 0 && <div className="px-3 pb-3"><Points items={pts} done={done} toggle={toggle} /></div>}
         {expanded && (
           <div id={panel} className="grid gap-3 border-t px-3 py-3 sm:grid-cols-2">
@@ -281,6 +305,7 @@ function FieldRow({ f, depth, byField, done, toggle, editField }: {
                 <Switch checked={isRequired(f)} onCheckedChange={(v) => editField(f.id, (x) => setRequired(x, v))} />Pole wymagane
               </label>
               <p className="text-xs text-muted-foreground sm:text-right">Nazwa techniczna: <code>{f.techName}</code></p>
+              {!f.states?.length && <Button size="xs" variant="outline" className="justify-self-start" onClick={() => onCondition(f.id, null)}>Dodaj warunek</Button>}
             </>}
             {f.type === 'TEXT_BLOCK' && (
               <div className="sm:col-span-2">
@@ -302,7 +327,7 @@ function FieldRow({ f, depth, byField, done, toggle, editField }: {
         )}
         {children.length > 0 && (
           <ul className="space-y-2 px-3 pb-3">
-            {children.map((q) => <FieldRow key={q.field.id} f={q.field} depth={depth + 1} byField={byField} done={done} toggle={toggle} editField={editField} />)}
+            {children.map((q) => <FieldRow key={q.field.id} f={q.field} depth={depth + 1} byField={byField} done={done} toggle={toggle} editField={editField} form={form} onCondition={onCondition} />)}
           </ul>
         )}
       </div>
