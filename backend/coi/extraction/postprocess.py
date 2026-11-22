@@ -372,15 +372,15 @@ def position_refs(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:
     review, fields = [], [f for p in tree.pages for s in p.sections for f in s.fields]
     by_num = {f.number.strip().rstrip("."): f for f in fields if f.number}
     def by_block(num: str) -> FormField | None:  # no number on the field: the choice field citing the block that prints "35."
-        at = {a for a, t in blocks.items() if re.search(rf"(^|\s){re.escape(num)}\.\s+[^\W\d_]", t)}
+        at = {a for a, t in blocks.items() if re.match(rf"\W*{re.escape(num)}\.\s+[^\W\d_]", t)}  # the position opens its block
         hits = [f for f in fields if f.type in ("RADIO", "CHECKBOX", "SELECT") and at & set(expand(f.src, blocks))]
         return hits[0] if len(hits) == 1 else None
     def target(ref: str, text: str) -> tuple[FormField, str] | None:
         parts = [x for x in ref.split(".") if x]
         nums = [x for x in parts if x.isdigit()]
-        for k in range(len(nums), 0, -1):  # "D.3.33.1": field 33 option 1, else field 1 ...
+        for k in [*range(len(nums) - 1, 0, -1), len(nums)]:  # "D.3.33.1": field 33 option 1 first; the full number last
             head, tail = nums[:k], nums[k:]
-            for key in (".".join(head), head[-1]):
+            for key in dict.fromkeys((".".join(head), head[-1])):
                 f = by_num.get(key) or by_block(key)
                 if not f or f.type not in ("RADIO", "CHECKBOX", "SELECT"):
                     continue
