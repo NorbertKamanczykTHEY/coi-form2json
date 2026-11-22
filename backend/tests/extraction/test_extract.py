@@ -143,14 +143,14 @@ def test_repair_keeps_control_fields_that_show_if_still_names():
     assert "czy_osoba_jest_pelnoletnia" in keys and r.trace[-1]["accepted"], r.trace
 
 
-def test_repair_that_collapses_the_tree_is_rejected_and_best_keeps_coverage():
+def test_repair_that_drops_fields_is_rejected_and_best_keeps_coverage():
     first = bad()  # G5 only
     collapsed = good()
     collapsed["pages"][0]["sections"][0]["fields"] = collapsed["pages"][0]["sections"][0]["fields"][:0] + [
         {"key": "x", "label": "Wybierz sposób", "source_label": "Sposób", "type": "RADIO", "options": ["A"], "src": ["p1.b1"]}]
     r = extract(DOC, provider=Fake([first, collapsed, first, collapsed]))
     assert [t["round"] for t in r.trace] == ["first", "repair", "first", "repair"]
-    assert "collapsed" in r.trace[1]["error"]
+    assert "dropped fields" in r.trace[1]["error"]  # EVAL-5 T3: any loss of fields, not only a collapse
     assert len([f for p in r.tree.pages for s in p.sections for f in s.fields]) == 2  # the full first tree, not the collapsed one
 
 
@@ -184,3 +184,16 @@ def test_parallel_rungs_start_together_and_the_weaker_passing_rung_wins(monkeypa
     r = extract(DOC, provider=p)
     assert {m for m, c in p.calls if "PIERWSZY ETAP" in c} == {"small", "large"}  # both first passes were started
     assert [s["model"] for s in r.trace if s.get("stage") == "extract"] == ["small"] and r.trace[-1]["accepted"]
+
+
+def test_lost_paper_section_is_filled_by_a_short_call_before_any_repair():
+    texts = list(BLOCKS.values()) + ["C. OKOLICZNOŚCI ZŁOŻENIA", "Data zdarzenia ___"]
+    d = doc(texts)
+    first = good()
+    page = {"title": "", "sections": [{"title": "Okoliczności", "fields": [
+        {"key": "data", "label": "Data zdarzenia", "source_label": "Data zdarzenia", "type": "DATEPICKER", "src": ["p1.b6"]}]}]}
+    p = Fake([first, page])
+    r = extract(d, provider=p)
+    assert [t["round"] for t in r.trace] == ["first", "fill"] and r.trace[-1]["accepted"], r.trace
+    assert "[p1.b0]" not in p.calls[1][1] and "[p1.b6]" in p.calls[1][1]  # the fill call sees only the lost part
+    assert [s.title for s in r.tree.pages[0].sections][-1] == "Okoliczności"

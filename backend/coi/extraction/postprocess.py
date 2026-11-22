@@ -49,6 +49,8 @@ SLASH_ALT = re.compile(r"(?<![\w/])([^\W\d_]{3,}(?:\s?/\s?[^\W\d_]{3,})+)\s?\*")
 POS_REF = re.compile(r"(?:w przypadku|je[żz]eli|je[śs]li)\b[^;]{0,60}?(?:\bpoz\.?|pozycj\w*|zaznaczeni\w*)\s*(?:kratki\s+)?(?:w\s+)?(?:poz\.?\s*)?((?:[A-Z]\.)*\d{1,3}(?:\.\d{1,3})*)", re.I)  # needs "poz." or "zaznaczenia"
 POS_LIST = re.compile(r"\b(poz(?:ycj\w*|\.)?)\s*(\d{1,3}(?:\s*(?:,|\bi\b|\boraz\b|\blub\b)\s*\d{1,3})*)", re.I)
 ADDRESS_PART = re.compile(r"kraj|wojew|powiat|gmin|miejscow|ulic|numer (domu|budynku|lokalu)|nr (domu|lokalu)|kod|poczt|adres|budynk|lokal", re.I)
+ADMIN = re.compile(r"administrator\w*\s+(?:pani/pana\s+|twoich\s+|państwa\s+)?danych(?:\s+osobowych)?\s+(?:jest|będzie)\s*:?\s*([^.;]{3,100})", re.I)
+OFFICE_WORDS = {"urząd", "urzęd", "miast", "miejs", "gmin", "prezy", "wójt", "burmi", "staro", "marsz", "wydzi", "siedz", "adres", "ulica", "kodzi"}
 SENTENCE = re.compile(r"(?<=[.;!?])\s+|\n")
 LABEL_PRESETS = [(re.compile(r"\bpesel\b", re.I), "pesel"), (re.compile(r"e-?mail", re.I), "email"),
                  (re.compile(r"seria i numer dowodu", re.I), "id_card"), (re.compile(r"data urodzenia", re.I), "birth_date")]
@@ -271,6 +273,7 @@ def normalize(tree: FieldTree, blocks: dict[str, str]) -> tuple[FieldTree, list[
     if tree.case_fee_proof and not PROOF.search(" ".join(blocks.values())):  # R6: a proof upload only when the paper asks to attach it
         tree.case_fee_proof = False
     tree.issues = [i for i in tree.issues if not CONSISTENT.search(i)]  # R15: a warning only for a found inconsistency
+    tree.issues += _admin_vs_addressee(tree, blocks)
     review += _consents(tree)
     if tree.case_fee and re.search(r"pełnomocn", tree.case_fee, re.I) and all(re.search(r"pełnomocn", blocks.get(a, ""), re.I) for a in expand(tree.case_fee_src, blocks) or ["-"]):
         tree.case_fee, tree.case_fee_src, tree.case_fee_proof = None, [], False  # the proxy's 17 zł is in the template, not a case fee
@@ -446,6 +449,21 @@ def _party_non_address(tree: FieldTree) -> list[dict]:
                 home.fields.append(f)
                 review.append({"key": f.key, "why": f"pole spoza adresu przeniesione z sekcji adresu składającego do „{home.title}”"})
     return review
+
+
+def _admin_vs_addressee(tree: FieldTree, blocks: dict[str, str]) -> list[str]:
+    """EVAL-5 T10 (Q35): the data administrator named in the RODO clause and the addressee from the header share no
+    distinctive word (a place, an office name) -> a warning; nothing when they agree or either is missing."""
+    if not tree.addressee or any(re.search(r"administrator", i, re.I) for i in tree.issues):
+        return []
+    m = next((m for t in blocks.values() if (m := ADMIN.search(t))), None)
+    if not m:
+        return []
+    own = lambda x: {w for w in _stems(x) if len(w) >= 4 and w not in OFFICE_WORDS}  # noqa: E731
+    admin, addr = own(m[1]), own(tree.addressee.name)
+    if not admin or not addr or admin & addr:
+        return []
+    return [f"Administrator danych w klauzuli („{m[1].strip()[:80]}”) to inny podmiot niż adresat wniosku („{tree.addressee.name}”); adresat wzięty z nagłówka (Q35)."]
 
 
 def branch_show_if(tree: FieldTree, blocks: dict[str, str]) -> list[dict]:

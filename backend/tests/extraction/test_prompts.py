@@ -58,6 +58,14 @@ def test_queue_rules_in_prompts_and_schema():
 def test_eval4_rules_in_prompts():
     main, skel, page, _ = list(texts())
     for t in (main, page):
-        assert "iloczynem" in t and "bez polecenia „zaznacz jedną”" in t and "znacznika przypisu" in t and "poz. X" in t
+        assert "iloczynem" in t and "bez „zaznacz jedną”" in t and "znacznika przypisu" in t and "poz. X" in t
     for t in (main, skel):
         assert "„zapłać przed złożeniem wniosku” to za mało" in t and "nie wpisuj, że dokument jest spójny" in t
+
+
+def test_eval5_rules_in_prompts():
+    main, skel, page, _ = list(texts())
+    for t in (main, skel):
+        assert "Zawsze porównaj tytuł" in t and "„wnoszę o…”" in t
+    for t in (main, page):
+        assert "„Wskaż rodzaje…”" in t and "w mianowniku" in t

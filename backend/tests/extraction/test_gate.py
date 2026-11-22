@@ -25,9 +25,9 @@ def test_objections():
     t = tree()
     t.pages[0].sections[0].fields[1].show_if.options = ["Czek"]  # G4
     t.pages[0].sections[0].fields[0].options = ["Przelew"]  # G5
-    t.dropped = [d for d in t.dropped if d.reason != "applicant_data"] + [Drop(reason="legal_info", src=["p1.b3"])]  # G11
+    t.dropped = t.dropped + [Drop(reason="legal_info", src=["p1.b5"])]  # G11 (template data, date or signature would be exempt, EVAL-5 T7)
     t = FieldTree.model_validate(t.model_dump())
-    g = gate(t, BLOCKS)
+    g = gate(t, BLOCKS | {"p1.b5": "Kwota zwrotu ___"})
     assert not g["ok"]
     assert {f[:3] for f in g["fails"]} >= {"G4:", "G5:", "G11"}
 
@@ -271,3 +271,26 @@ def test_g20_choice_covered_by_a_field_with_the_same_options_elsewhere():
     blocks = {"p1.b5": "proszę o wynajem/użyczenie* świetlicy", "p1.b6": "Rodzaj ☐"}
     g = with_section(blocks, fld("r", "Rodzaj", "RADIO", src="p1.b6", options=["Wynajem", "Użyczenie"]))
     assert "G20" not in codes(g)
+
+
+
+def test_t3_paper_section_without_fields_is_reported_with_its_blocks():
+    blocks = {"p1.b5": "C. OKOLICZNOŚCI ZŁOŻENIA DEKLARACJI", "p1.b6": "25. Okoliczności ☐ pierwsza ☐ zmiana", "p1.b7": "26. Data zdarzenia"}
+    t = tree()
+    g = gate(t, BLOCKS | blocks)
+    assert "G29" in codes(g) and g["lost_sections"][0]["blocks"] == ["p1.b5", "p1.b6", "p1.b7"]
+    g = with_section(blocks, fld("o", "Okoliczności", "RADIO", src="p1.b6", options=["Pierwsza", "Zmiana"]), fld("d", "Data zdarzenia", "DATEPICKER", src="p1.b7"))
+    assert "G29" not in codes(g)
+
+
+def test_t5_declaration_with_only_an_upload_is_lost_and_t7_caption_and_inne():
+    blocks = {"p1.b5": "Oświadczam, że zwierzę jest zaszczepione – w załączeniu kopia zaświadczenia."}
+    assert "G24" in codes(with_section(blocks, fld("k", "Kopia zaświadczenia")))
+    t = tree()
+    t.consents = [Consent(text="Zwierzę jest zaszczepione.", src=["p1.b5"])]
+    t.pages[0].sections.append(Section(title="Z", src=["p1.b5"], fields=[fld("k", "Kopia zaświadczenia")]))
+    assert "G24" not in codes(gate(t, BLOCKS | blocks))
+    g = with_section({"p1.b5": "Proszę o zwrot podatku ___", "p1.b6": "(rodzaj podatku)"}, fld("r", "Rodzaj podatku", "TEXT_FIELD"))
+    assert "G7" not in codes(g)
+    g = with_section({"p1.b5": "☐ o dochodach ☐ inne ___"}, fld("w", "Wybierz", "CHECKBOX", options=["O dochodach", "Inny rodzaj"]))
+    assert not g["lost_slots"]

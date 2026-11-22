@@ -169,8 +169,11 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
     def fields_of(unit: tuple[SkeletonPage, SkeletonSection]) -> list[Section]:  # one call per section: short output, run concurrently
         sp, sk = unit
         only = set(expand(sk.src, blocks))
-        got = calls.ask(model, prompt("field_extraction_page", skeleton=fixed, page=sp.title, sections=json.dumps([sk.title], ensure_ascii=False),
-                                      variant_rule=rule, schema=schema, text=anchored(doc, only)), SubjectPage).sections
+        ask = lambda: calls.ask(model, prompt("field_extraction_page", skeleton=fixed, page=sp.title, sections=json.dumps([sk.title], ensure_ascii=False),  # noqa: E731
+                                              variant_rule=rule, schema=schema, text=anchored(doc, only)), SubjectPage).sections
+        got = ask()
+        if not any(s.fields for s in got):  # EVAL-5 T3: a section call that came back empty loses a paper section; one retry
+            got = ask()
         mine = [s for s in got if norm(s.title) == norm(sk.title)]
         return mine or got[:1] if got else []
 
@@ -224,6 +227,37 @@ def _two_stage(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str,
                      pages=pages, consents=consents, dropped=skel.dropped, issues=skel.issues)
 
 
+def _fill(calls: _Calls, model: str, doc: ParsedDocument, blocks: dict[str, str], tree: FieldTree, gaps: list[dict], workers: int) -> FieldTree:
+    """EVAL-5 T3: one short call per paper section that has no field; each new section goes right after the section
+    preceding it on paper."""
+    tree = tree.model_copy(deep=True)
+    order = list(blocks)
+    outline = json.dumps({"pages": [{"title": p.title, "sections": [s.title for s in p.sections]} for p in tree.pages]}, ensure_ascii=False)
+    schema = json.dumps(SubjectPage.model_json_schema(), ensure_ascii=False)
+
+    def one(gap: dict) -> list[Section]:
+        title = re.sub(r"^\W*([A-Z](\.\d+)*|\d+|[IVX]+)[.)]?\s+", "", blocks[gap["heading"]]).strip()[:120]
+        got = calls.ask(model, prompt("field_extraction_page", skeleton=outline, page="", sections=json.dumps([title], ensure_ascii=False),
+                                      variant_rule="", schema=schema, text=anchored(doc, set(gap["blocks"]))), SubjectPage).sections
+        for s in got:
+            s.src = s.src or [f"{gap['blocks'][0]}-{gap['blocks'][-1]}"]
+        return [s for s in got if s.fields]
+    with ThreadPoolExecutor(max(1, workers)) as ex:
+        found = list(ex.map(one, gaps))
+    first = lambda s: min((order.index(a) for a in expand(s.src or [f.src[0] for f in s.fields if f.src][:1], blocks) if a in blocks), default=10**9)  # noqa: E731
+    for gap, secs in zip(gaps, found):
+        at = order.index(gap["heading"])
+        spots = [(first(s), p, i) for p in tree.pages for i, s in enumerate(p.sections) if first(s) < at]
+        if spots:
+            _, page, i = max(spots, key=lambda x: x[0])
+            page.sections[i + 1:i + 1] = secs
+        elif tree.pages:
+            tree.pages[0].sections[0:0] = secs
+        else:
+            tree.pages.append(SubjectPage(title=secs[0].title if secs else "Dane wniosku", sections=secs))
+    return tree
+
+
 def _n_fields(tree: FieldTree) -> int:
     return sum(len(s.fields) for p in tree.pages for s in p.sections)
 
@@ -271,7 +305,9 @@ def _ladder(cfg, calls, doc, blocks, mode, trace, emit, best, t0, first, ahead) 
             trace.append(step | {"round": "first", "accepted": False, "error": str(e), "cost": round(calls.cost - cost0, 5)})
             emit("escalation", {"step": f"extract.{rung}", "model": model, "accepted": False, "error": str(e)})
             continue
-        for rnd in ("first", "repair"):
+        rounds = ["first", "fill", "repair"]
+        while rounds:
+            rnd = rounds.pop(0)
             tree, review = normalize(tree, blocks)
             g = gate(tree, blocks)
             trace.append(step | {"round": rnd, "accepted": g["ok"], "fails": g["fails"], "coverage": g["coverage"],
@@ -282,6 +318,15 @@ def _ladder(cfg, calls, doc, blocks, mode, trace, emit, best, t0, first, ahead) 
                 best = (rank, tree, review + g["needs_review"], g)
             if g["ok"] or rnd == "repair":
                 break
+            if rnd == "first":
+                if g.get("lost_sections"):  # EVAL-5 T3: paper sections without fields get their own short calls, then a fresh gate
+                    cost0, secs0, n0 = calls.cost, calls.seconds, calls.n
+                    try:
+                        tree = _fill(calls, model, doc, blocks, tree, g["lost_sections"], cfg["workers"])
+                        continue
+                    except ExtractionError as e:
+                        trace.append(step | {"round": "fill", "accepted": False, "error": str(e)})
+                rounds.remove("fill")
             if ahead and rung < len(cfg["ladder"]) - 1:  # parallel rungs: the stronger first pass is ready; a weak rung's repair of a long tree collapses
                 trace.append(step | {"round": "repair", "accepted": False, "error": "repair skipped: a stronger rung is ready"})
                 break
@@ -293,8 +338,8 @@ def _ladder(cfg, calls, doc, blocks, mode, trace, emit, best, t0, first, ahead) 
             try:
                 fixed = _restore_controls(calls.ask(model, prompt("field_extraction_repair", base=base, errors="\n".join(g["fails"]),
                                                                   previous=tree.model_dump_json(exclude_none=True)), FieldTree), tree)
-                if _n_fields(fixed) < 0.6 * _n_fields(tree):  # a repair that throws most of the tree away is no repair
-                    trace.append(step | {"round": "repair", "accepted": False, "error": f"repair collapsed the tree ({_n_fields(tree)} -> {_n_fields(fixed)} fields)",
+                if _n_fields(fixed) < _n_fields(tree) or len(fixed.pages) < len(tree.pages):  # EVAL-5 T3: a repair never removes pages or fields
+                    trace.append(step | {"round": "repair", "accepted": False, "error": f"repair dropped fields or pages ({_n_fields(tree)} -> {_n_fields(fixed)} fields); previous kept",
                                          "cost": round(calls.cost - cost0, 5)})
                     break
                 tree = fixed

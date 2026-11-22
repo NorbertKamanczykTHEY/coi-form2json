@@ -30,6 +30,8 @@ DECLARATION = re.compile(r"^\W*(jednocześnie\s+)?oświadcz", re.I)
 SUM_POS = re.compile(r"\b(SUMA|RAZEM)\b")  # printed capitals of a calculation part
 SLASH_CHOICE = re.compile(r"[^\W\d_]{3,}\s?/\s?[^\W\d_]{3,}\s?\*")  # "wynajem/użyczenie*"
 OPTIONAL_HINT = re.compile(r"nieobowiązkow|opcjonaln|nie jest (wymagan|obowiązkow)", re.I)
+CAPTION = re.compile(r"^\s*[(/]\s*[^\W\d_][^()]{2,80}[)/]\s*$")  # "(rodzaj podatku)", "/ rodzaj robót /" under a blank line
+HEADING = re.compile(r"^\W*(?:[A-Z](?:\.\d{1,2})*\.?|[IVX]{1,4}\.)\s+[A-ZĄĆĘŁŃÓŚŹŻ]{2,}(?:[\s,/()-]+[A-ZĄĆĘŁŃÓŚŹŻ]{2,}){1,}")  # "C. OKOLICZNOŚCI …", "B.2 DANE …"
 EACH = re.compile(r"\bdla każd\w+|\bkażd(ego|ej) [^\W\d_]{3,}", re.I)  # "dla każdego …", "każdego <elementu>"
 
 
@@ -76,7 +78,9 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         hay = doc if f.type in ("TEXT_BLOCK", "FILE_UPLOADER", "RADIO", "CHECKBOX", "SELECT") or not any_marks else ground
         # R10 (EVAL-4): the field's own blocks count too (option text "1. … - data zdarzenia:", table column headers,
         # a type the code converted); a title block never does
-        hay += " " + norm(FILL.sub(" ", " ".join(blocks[a] for a in ex(f.src) if a in blocks and a not in titles)))
+        own = [a for a in ex(f.src) if a in blocks and a not in titles]
+        caption = [order[order.index(a) + 1] for a in own if order.index(a) + 1 < len(order) and CAPTION.match(blocks[order[order.index(a) + 1]])]
+        hay += " " + norm(FILL.sub(" ", " ".join(blocks[a] for a in own + caption)))
         m = SequenceMatcher(None, lab, hay, autojunk=False).find_longest_match(0, len(lab), 0, len(hay)) if lab and hay else None
         if f.type != "TEXT_BLOCK" and lab and (not m or m.size / len(lab) < 0.7):
             ungrounded.append(f.key)
@@ -127,7 +131,7 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     field_src = {a for _, _, f in all_fields(tree) for a in ex(f.src)}
     bad_drops = [a for d in tree.dropped for a in ex(d.src) if a in blocks and a not in field_src and (
         (d.reason in ("legal_info", "rodo", "title", "template_attachment", "consent") and FILL.search(blocks[a])
-         and not (d.reason in ("rodo", "consent") and SIGN_SLOT.search(blocks[a])))
+         and not SIGN_SLOT.search(blocks[a]) and not TEMPLATE_LABEL.search(FILL.sub(" ", blocks[a])))  # EVAL-5 T7: date, signature, template data
         or (d.reason == "template_attachment" and not TEMPLATE_ATTACHMENT.search(blocks[a])))]
     marks = [a for a, t in blocks.items() if FILL.search(t)]
     uncovered = [a for a in marks if a not in cited]  # G3
@@ -153,7 +157,8 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
             before = blocks[a][prev:m.start()]
             prev = m.end()
             last = _stems(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:]))
-            if last and not (last & words) and not SIGN_ONLY.search(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:])):  # the label precedes "___"
+            short = {w[:3] for w in re.findall(r"[^\W\d_]{3,}", before)[-3:]}
+            if last and not (last & words) and not (short & {w[:3] for w in words}) and not SIGN_ONLY.search(" ".join(re.findall(r"[^\W\d_]{3,}", before)[-3:])):  # the label precedes "___"
                 lost_slots.append(f"{a}: „{before.strip()[-40:]} ___”")
     template = {a for d in tree.dropped if d.reason not in ("rodo", "legal_info") for a in ex(d.src)}
     no_addressee = tree.addressee is None and any(ORGAN.search(t) for a, t in blocks.items() if a in template or a not in cited)
@@ -181,6 +186,10 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
     if lost_corr:
         fails.append(f"G15: adres do korespondencji z dokumentu bez sekcji; to sekcja strony postępowania (`party: true`) z polem adresu, nie `dropped`: {lost_corr[:5]}")
     fails += _eval3(tree, blocks, field_cited, cited)
+    lost_sections = _lost_sections(tree, blocks, field_cited)
+    if lost_sections:
+        fails.append("G29: części dokumentu z miejscami do wpisania bez żadnego pola (dodaj ich sekcje albo usuń je jawnie jako szablon): "
+                     + str([blocks[x["heading"]][:60] for x in lost_sections][:5]))
     review += [{"key": None, "why": f"treść zgody do redakcji (czas teraźniejszy, neutralnie płciowo): {c.text[:80]!r}"} for c in tree.consents if GENDER_SLASH.search(c.text)]
     if no_addressee:
         fails.append("G13: brak `addressee`, choć dokument wskazuje adresata (organ albo urząd); wpisz go do `addressee`")
@@ -198,11 +207,11 @@ def gate(tree: FieldTree, blocks: dict[str, str]) -> dict:
         fails.append(f"strony bez pól: {empty_pages}")
     review += [{"key": k, "why": "etykiety pola nie ma w dokumencie przy miejscu do wpisania"} for k in hard]  # added control questions are expected
     near = {a: f.key for _, _, f in all_fields(tree) for a in ex(f.src)}
-    review += [{"key": near.get(order[max(order.index(a) - 1, 0)]), "anchor": a, "why": "miejsce do wpisania bez pola"} for a in missing]
-    review += [{"key": near.get(x.split(":")[0]), "anchor": x.split(":")[0], "why": f"brak pola dla{x.split(':', 1)[1]}"} for x in lost_slots]
+    review += [{"key": near.get(order[max(order.index(a) - 1, 0)]), "anchor": a, "text": blocks[a][:120], "why": "miejsce do wpisania bez pola"} for a in missing]
+    review += [{"key": near.get(x.split(":")[0]), "anchor": x.split(":")[0], "text": blocks.get(x.split(":")[0], "")[:120], "why": f"brak pola dla{x.split(':', 1)[1]}"} for x in lost_slots]
     return {"ok": not fails, "fails": fails, "coverage": cov, "needs_review": review, "bad_anchors": bad_anchor, "uncovered": uncovered,
             "broken_show_if": broken_show, "no_options": no_opts, "dup_sections": dup_sections, "bad_drops": bad_drops,
-            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "lost_correspondence": lost_corr, "empty_pages": empty_pages, "lost_slots": lost_slots, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}
+            "repeating_deps": rep_dep, "no_addressee": no_addressee, "lost_attachments": lost_att, "lost_correspondence": lost_corr, "empty_pages": empty_pages, "lost_slots": lost_slots, "lost_sections": lost_sections, "ungrounded": ungrounded, "orphans": orphans, "template_leaks": leaks}
 
 
 def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited: set[str]) -> list[str]:
@@ -232,7 +241,8 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
         fails.append(f"G18: „Oświadczam…” to zgoda w `consents`, nie TEXT_BLOCK: {decl_blocks[:5]}")
     # G4: every declaration of the document lands in consents (or a field, or the template's RODO consent)
     kept = {a for c in tree.consents for a in ex(c.src)} | {a for d in tree.dropped if d.reason in ("consent", "rodo") for a in ex(d.src)}
-    lost_decl = [a for a, t in blocks.items() if DECLARATION.search(t) and a not in kept and a not in field_cited]
+    held = {a for _, _, f in all_fields(tree) if f.type != "FILE_UPLOADER" or f.label.startswith("Oświadczenie ") for a in ex(f.src)}
+    lost_decl = [a for a, t in blocks.items() if DECLARATION.search(t) and a not in kept and a not in held]  # T5: "w załączeniu X" gives a consent AND an upload
     if lost_decl:
         fails.append(f"G24: oświadczenia z dokumentu zgubione; każde „Oświadczam…” to zgoda w `consents` (i `dropped` z powodem `consent`): {lost_decl[:5]}")
     # G6: each printed SUMA / RAZEM position is a NUMBER field
@@ -293,3 +303,22 @@ def _eval3(tree: FieldTree, blocks: dict[str, str], field_cited: set[str], cited
     if product:
         fails.append(f"G28: opcje RADIO to iloczyn kilku wyborów; każda oś (np. rodzaj czynności, rodzaj obiektu) to osobne RADIO: {product[:5]}")
     return fails
+
+
+def _lost_sections(tree: FieldTree, blocks: dict[str, str], field_cited: set[str]) -> list[dict]:
+    """EVAL-5 T3: a paper part under a heading ("C. OKOLICZNOŚCI …", "B.2 DANE …") whose places to fill (blanks, boxes, numbered
+    positions) none of the fields cites and that is not dropped as template/consent was lost by the model."""
+    ex = lambda anchors: expand(anchors, blocks)  # noqa: E731
+    order = list(blocks)
+    heads = [i for i, a in enumerate(order) if HEADING.match(blocks[a]) and len(blocks[a]) <= 200]
+    gone = {a for d in tree.dropped for a in ex(d.src)} | {a for c in tree.consents for a in ex(c.src)}
+    out = []
+    for n, i in enumerate(heads):
+        part = order[i + 1:heads[n + 1] if n + 1 < len(heads) else len(order)]
+        slots = [a for a in part if FILL.search(blocks[a]) or NUMBERED_POS.search(blocks[a])]
+        if not slots or any(a in field_cited for a in [order[i], *part]):
+            continue
+        if all(a in gone for a in slots):
+            continue
+        out.append({"heading": order[i], "blocks": [order[i], *part]})
+    return out

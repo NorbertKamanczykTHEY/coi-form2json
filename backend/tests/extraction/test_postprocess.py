@@ -385,3 +385,12 @@ def test_attachment_condition_found_by_its_letter_and_position_by_printed_number
     assert secs[0].show_if is None  # the shared sentence holds two conditions: not the section's own
     assert [(x.label, x.show_if.options) for x in secs[1].fields] == [("Załącznik A", ["Jednorodzinna"]), ("Załącznik B", ["Wielolokalowa"])]
     assert (secs[2].show_if.field, secs[2].show_if.options) == ("kompostownik", ["TAK"])
+
+
+def test_t10_admin_differs_from_addressee_warns_only_when_it_does():
+    def run(admin):
+        t = FieldTree.model_validate({"title": "W", "applicant_kinds": ["person"], "pages": [],
+                                      "addressee": {"kind": "organ", "name": "Burmistrz Miasta Kowalewo", "src": ["p1.b0"]}})
+        return normalize(t, {"p1.b0": "Burmistrz Miasta Kowalewo", "p1.b1": f"Administratorem Pani/Pana danych osobowych jest {admin}."})[0].issues
+    assert run("Urząd Miejski w Kowalewie, ul. Długa 1") == []
+    assert len(run("Stowarzyszenie Sportowe Orzeł")) == 1
