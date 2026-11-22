@@ -88,7 +88,8 @@ Jedno wejście: `parse(data, filename, cfg=None, on_event=None) -> ParsedDocumen
 
 | Wejście | Ścieżka |
 |---|---|
-| docx, doc, ods, xlsx | Kreuzberg (tekst). Bramka G1/G2, a G3 liczona dla całego dokumentu. Przy porażce tylko ostrzeżenie, bo bez LibreOffice (MPL) nie ma obrazu strony |
+| docx, doc | Kreuzberg (tekst) i przypisy Worda z `word/footnotes.xml`. Bramka G1/G2, a G3 i G5 liczone dla całego dokumentu. Przy porażce tylko ostrzeżenie, bo bez LibreOffice (MPL) nie ma obrazu strony |
+| ods, xlsx | Własny czytnik XML (`parsers/sheet.py`, tylko biblioteka standardowa). Arkusze rysują miejsca do wpisania obramowaniem komórek: ciąg co najmniej 3 pustych komórek z dolną krawędzią (bez lewej i prawej, bo wtedy to ramka) daje `___`, a pusta komórka obramowana z czterech stron daje `☐`. Znaczniki dołączają do wiersza z etykietą (do 2 wierszy odstępu), komentarze komórek trafiają w nawiasy. Gdy bramka dokumentu i tak odrzuci wynik, arkusz jest renderowany przez Pillow (szerokości kolumn, wysokości wierszy, obramowania, zawijany tekst) i idzie ścieżką skanu |
 | pdf | każda strona osobno: z warstwą tekstu → Kreuzberg. Bez tekstu albo ze śmieciami (G1/G2) → render strony i ścieżka skanu |
 | jpg, jpeg, png, skany pdf | T0: Tesseract `pol` (CLI). Gdy bramka odrzuci wynik, wchodzą kolejne szczeble VLM z `coi/parsing/ladder.json`. Każdy wynik VLM sprawdzamy względem Tesseracta jako świadka (M1 kompletność, M3 pokrycie słów, M5 nagłówki wersalikami) |
 
@@ -126,6 +127,6 @@ docker run --rm --env-file .env -v "$PWD/wniosek.pdf:/in/w.pdf:ro" coi-backend \
   python -c "from coi.parsing import parse; print(parse(open('/in/w.pdf','rb').read(), 'w.pdf').source)"
 ```
 
-Obraz: oficjalny `python:3.14.10-slim-trixie`, użytkownik `coi` (uid 10001), port 8000, gunicorn (`gthread`, timeout 600 s, bo strona skanu może przejść całą drabinę VLM, i `--no-control-socket`, bo użytkownik nie ma katalogu domowego). Pakiety systemowe: `tesseract-ocr` i `tesseract-ocr-pol` (Apache-2.0).
+Obraz: oficjalny `python:3.14.10-slim-trixie`, użytkownik `coi` (uid 10001), port 8000, gunicorn (`gthread`, timeout 600 s, bo strona skanu może przejść całą drabinę VLM, i `--no-control-socket`, bo użytkownik nie ma katalogu domowego). Pakiety systemowe: `tesseract-ocr` i `tesseract-ocr-pol` (Apache-2.0) oraz `fonts-dejavu-core` (licencja Bitstream Vera, bez copyleftu) do renderu arkuszy. Inną czcionkę TTF z polskimi znakami wskazuje `RENDER_FONT`.
 
 **Dlaczego slim, a nie Alpine:** Kreuzberg 4.10.4 ma na PyPI tylko wheele `manylinux_2_28` (glibc). Wersji dla musl nie ma: `pip download --only-binary=:all: kreuzberg==4.10.4` na `python:3.14.10-alpine3.24` kończy się „No matching distribution”. Na Alpine trzeba by budować jego rdzeń w Ruście razem z PDFium ze źródeł. Tesseract z polskim modelem jest w Alpine (`tesseract-ocr-data-pol`), więc ograniczeniem jest tylko Kreuzberg. Wydzielenie Kreuzberga do osobnego kontenera na slim nic by nie dało, bo parsowanie to główna praca backendu i i tak potrzebowałby glibc.
