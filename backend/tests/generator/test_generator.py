@@ -609,7 +609,8 @@ def test_g6_rate_goes_to_the_nearest_number_of_its_section():
                                 _field("zwolnienie", "Stawka zwolnienia", "TEXT_BLOCK", default_value="- 15 zł")])
     f = _techs(generate(t, SHA)[0])
     assert "stawka_a" not in f and "zwolnienie" not in f
-    assert "38 zł" in f["kwota"]["description"] and "15 zł" in f["kwota"]["description"] and f["liczba"]["description"] == ""
+    # one rate per amount (EVAL-5 M8): the second rate goes to the nearest amount still without one
+    assert "38 zł" in f["kwota"]["description"] and "15 zł" not in f["kwota"]["description"] and "15 zł" in f["liczba"]["description"]
     alone = _techs(generate(_with_section("form3", [_field("stawka_b", "Stawka", "TEXT_BLOCK", default_value="38 zł")]), SHA)[0])
     assert "38 zł" in alone["stawka_b"]["description"]  # no NUMBER in the section: the block stays
 
@@ -902,3 +903,27 @@ def test_t12_description_without_paraphrase_footnote_and_with_account_digits():
                                 _field("konto_t", "Numer rachunku bankowego")])
     f = _techs(generate(t, SHA)[0])
     assert f["ul_t"]["description"] == "" and "nieobowiązkowe" not in f["ul_u"]["description"] and "26 cyfr" in f["konto_t"]["description"]
+
+
+def test_t2_t6_one_document_with_two_partial_conditions_is_one_upload_with_both():
+    t = _with_section("form3", [_field("rodzaj_b", "Rodzaj budynku", "RADIO", options=["Jednorodzinny", "Wielolokalowy"]),
+                                _field("czesc_n", "Czy część jest niezamieszkała", "RADIO", options=["TAK", "NIE"]),
+                                _field("zal_x", "Załącznik A", "FILE_UPLOADER", show_if={"field": "rodzaj_b", "options": ["Jednorodzinny"]}, src=["p1.b3"]),
+                                _field("zal_y", "Załącznik A do deklaracji", "FILE_UPLOADER", show_if={"field": "czesc_n", "options": ["TAK"]}, src=["p1.b4"])])
+    f = _techs(generate(t, SHA)[0])
+    q = f["zal_x"]["states"][0]["query"]
+    assert "zal_y" not in f and "'rodzaj_b'" in q and "'czesc_n'" in q and " and " in q
+
+
+def test_t4_question_steering_several_sections_follows_the_variant_choice_and_its_condition():
+    t = json.loads((FIX / "form3.tree.json").read_text())
+    t["pages"].append({"title": "Wnioski", "sections": [
+        {"title": "Wybór", "src": [], "fields": [_field("dorosly", "Czy kandydat jest pełnoletni", "RADIO", options=["Tak", "Nie"]),
+                                                  _field("war", "Rodzaj wniosku", "RADIO", options=["I", "II"])]},
+        {"title": "Wariant I", "src": [], "show_if": {"field": "war", "options": ["I"]},
+         "fields": [_field("z1", "Zgoda rodzica I", "FILE_UPLOADER", show_if={"field": "dorosly", "options": ["Nie"]})]},
+        {"title": "Wariant II", "src": [], "show_if": {"field": "war", "options": ["II"]},
+         "fields": [_field("z2", "Zgoda rodzica II", "FILE_UPLOADER", show_if={"field": "dorosly", "options": ["Nie"]})]}]})
+    sec = _sections(generate(FieldTree.model_validate(t), SHA)[0], "Wnioski")["Wybór"]
+    got = [c["field"] for c in sec["repeatingSectionGrid"]]
+    assert [x["techName"] for x in got] == ["war", "dorosly"] and got[1]["states"]
