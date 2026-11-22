@@ -42,6 +42,7 @@ Przepływ: `parse → extract → generate → validate`. Tekst wyciągamy lokal
 | `frontend/` | Vite + React + TypeScript + shadcn/ui, serwowany przez nginx ([frontend/README.md](frontend/README.md)) |
 | `docs/` | architektura, zgodność, ADR-y, projekty modułów |
 | `results/` | wynikowe JSON-y dla formularzy #1–#9 z raportami, koszt i ocena ekspercka |
+| `spikes/` | prototypy i pomiary sprzed implementacji (ekstrakcja pól, generator, dopasowanie słowników); aplikacja z nich nie korzysta – [spikes/README.md](spikes/README.md) |
 
 ## Szybki start
 
